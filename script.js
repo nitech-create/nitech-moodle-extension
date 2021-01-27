@@ -27,45 +27,36 @@ $(function () {
 
 
 
-            var courses = new Array(coursenum);
-            const courses_member = {
-                short: "",
-                term: "",
-                day: "",
-                name: "",
-                time: "",
-                url: ""
-            }
-            for (var i = 0; i < coursenum; i++) {
-                courses[i] = courses_member;
-            }
-            console.log(courses)
+            var short= new Array(coursenum);
+            var term = new Array(coursenum);
+            var day= new Array(coursenum);
+            var name = new Array(coursenum);
+            var time = new Array(coursenum);
+            var url = new Array(coursenum);
 
-            console.log(coursenum)
             for (i = 0; i < coursenum; i++) {
                 var container = new Array();
-                courses[i].short = courselist_short[i];
+                short[i] = courselist_short[i];
                 for_split[i] = String(20) + for_split[i].replace(/-/g, "");
                 container = courselist[i].split(for_split[i]);
-                console.log(container)
                 if (container.length == 1) {
                     //特殊なクラス(時間割じゃないコース)
-                    courses[i].term = "none"
-                    courses[i].name = container[0]
-                    courses[i].time = "none"
-                    courses[i].url = ""
+                    term[i] = "none"
+                    name[i] = container[0]
+                    time[i] = "none"
+                    url[i] = ""
                 } else {
                     //通常クラス
-                    courses[i].name = container[0]
+                    name[i] = container[0]
                     container[1] = container[1].split("期")
-                    courses[i].term = container[1].shift();
+                    term[i] = container[1].shift();
                     container[1] = container[1][0].split("曜")
-                    courses[i].day = container[1].shift();
+                    day[i] = container[1].shift();
                     container[1] = container[1][0].split("限")
-                    courses[i].time = container[1].shift()
+                    time[i] = container[1].shift()
                 }
             }
-            console.log(courses)
+            console.log(time)
         }
     }, 100)
 
