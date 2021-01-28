@@ -33,6 +33,9 @@ $(function () {
             var name = new Array(coursenum);
             var time = new Array(coursenum);
             var url = new Array(coursenum);
+            
+
+            var courses=new Array(coursenum)
 
             for (i = 0; i < coursenum; i++) {
                 var container = new Array();
@@ -44,7 +47,6 @@ $(function () {
                     term[i] = "none"
                     name[i] = container[0]
                     time[i] = "none"
-                    url[i] = ""
                 } else {
                     //通常クラス
                     name[i] = container[0]
@@ -55,8 +57,15 @@ $(function () {
                     container[1] = container[1][0].split("限")
                     time[i] = container[1].shift()
                 }
+                courses[i]=new Object();
+                courses[i].term = term[i]
+                courses[i].name = name[i]
+                courses[i].day = day[i]
+                courses[i].short = short[i]
+                courses[i].time = time[i]
+                courses[i].url= url[i]
             }
-            console.log(time)
+            console.log(courses);
         }
     }, 100)
 
