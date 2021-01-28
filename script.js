@@ -42,11 +42,13 @@ $(function () {
                 short[i] = courselist_short[i];
                 for_split[i] = String(20) + for_split[i].replace(/-/g, "");
                 container = courselist[i].split(for_split[i]);
+                console.log(short[i])
                 if (container.length == 1) {
                     //特殊なクラス(時間割じゃないコース)
                     term[i] = "none"
                     name[i] = container[0]
                     time[i] = "none"
+                    console.log(container[0])
                 } else {
                     //通常クラス
                     name[i] = container[0]
@@ -66,6 +68,31 @@ $(function () {
                 courses[i].url= url[i]
             }
             console.log(courses);
+            //ナビゲーション文字入れ替え
+            var listnum=$(".depth_1 ul").first().children("li").eq(2).children("ul").children("li").length
+            var count=0;
+            $(".depth_1 ul").first().children("li").last().children("ul").children("li").each(function() {
+                console.log($(this).children("p").children("a"));
+                
+                console.log(listnum)
+                var tf=false;
+                count++
+                for(var i=0;i<coursenum;i++){
+                    if($(this).children("p").children("a").text()==courses[i].short){
+                        $(this).children("p").children("a").text(courses[i].name);
+                        tf=true;
+                        console.log("replaced")
+                    }
+                }
+                if(tf===false){
+                    if(count==listnum){
+                        $(this).children("p").children("a").text("トップへ戻る");
+                    }else{
+                        $(this).children("p").children("a").text("登録解除されたコース");
+                    }
+                }
+
+            });
         }
     }, 100)
 
