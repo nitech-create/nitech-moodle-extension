@@ -117,7 +117,7 @@ $(function () {
                 $(".columnright").remove()
 
                 var search_course=$("[data-block=\"html\"]").last()
-                var jyouhou_security=$("[data-block=\"html\"]").first()
+                // var jyouhou_security=$("[data-block=\"html\"]").first()
                 var navigator=$("[data-block=\"navigation\"]")
                 var mysyllabus=$("[data-block=\"mysyllabus\"]")
                 var private_files=$("[data-block=\"private_files\"]")
@@ -127,7 +127,7 @@ $(function () {
 
                 $("#block-region-side-pre").empty()
                 $("#block-region-side-post").remove()
-                $("#block-region-side-pre").append(jyouhou_security,calendar_month,calendar_upcoming,navigator,search_course,mysyllabus,private_files,badges)
+                $("#block-region-side-pre").append(calendar_month,calendar_upcoming,navigator,search_course,mysyllabus,private_files,badges)
 
 
             }
