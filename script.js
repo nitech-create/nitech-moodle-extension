@@ -148,23 +148,23 @@ $(function () {
 
 
                 //メインの時間割とか
-                $("#page").append("<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id=\"main_extension\"style=\"position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;\"><div id=\"content_extension\" style=\"padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\">時間割・授業</h1><div style=\"display: flex; margin: 50px 50px;\"><div style=\"background-color: #e9ecef; border-radius: 3px; padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\"><span class=\"extension_delete\">今日(</span><span id=\"classtable_extension_day\">NaN</span>曜日<span class=\"extension_delete\">)</span>の時間割<select name=\"day_select_extension\" id=\"day_select_extension\"><option value=\"1\">月曜日</option><option value=\"2\">火曜日</option><option value=\"3\">水曜日</option><option value=\"4\">木曜日</option><option value=\"5\">金曜日</option><option value=\"6\">土曜日</option></select></h1><table style=\"border-collapse: collapse\" id=\"classtable_extension\" ><tr><td  style=\"height:90px\">1限<br>8：50～9：35</td><td rowspan=\"2\" id=\"onegen_extension\"></td></tr><tr><td  style=\"height:90px\">2限<br>9：35～10：20</td></tr><tr><td  style=\"height:20px\">休憩<br>10：20～10：30</td><td class=\"tenminyasumi\"></td></tr><tr><td  style=\"height:90px\">3限<br>10：30～11：15</td><td rowspan=\"2\" id=\"threegen_extension\"></td></tr><tr><td  style=\"height:90px\">4限<br>11：15～12：00</td></tr><tr><td  style=\"height:120px\">昼休み<br>12：00～13：00</td><td class=\"tenminyasumi\"></td></tr><tr><td  style=\"height:90px\">5限<br>13：00～13：45</td><td rowspan=\"2\" id=\"fivegen_extension\"></td></tr><tr><td  style=\"height:90px\">6限<br>13：45～14：30</td></tr><tr><td  style=\"height:20px\">休憩<br>14：30～14：40</td><td class=\"tenminyasumi\"></td></tr><tr><td  style=\"height:90px\">7限<br>14：40～15：25</td><td rowspan=\"2\" id=\"sevengen_extension\"></td></tr><tr><td  style=\"height:90px\">8限<br>15：25～16：10</td></tr><tr><td  style=\"height:20px\">休憩<br>16：10～60：20</td><td class=\"tenminyasumi\"></td></tr><tr><td  style=\"height:90px\">9限<br>16：20～17：05</td><td rowspan=\"2\" id=\"ninegen_extension\"></td></tr><tr><td  style=\"height:90px\">10限<br>17：05～17：50</td></tr></table></div><div  style=\"background-color: #e9ecef; border-radius: 3px; padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\">今日やるべきこと</h1><table id=\"today_todo_extension\"><tr><td>今日のやるべきことは消化しました🎊<br>お疲れさまでした！</td></tr></table></div><div  style=\"background-color: #e9ecef; border-radius: 3px; padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\">時間割外のクラス</h1><table id=\"special_class_extension\"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>")
+                $("#page").append("<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id=\"main_extension\"style=\"position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;\"><div id=\"content_extension\" style=\"padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\">時間割・授業</h1><div style=\"display: flex; margin: 50px 50px;\"><div style=\"background-color: #e9ecef; border-radius: 3px; padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\"><span class=\"extension_delete\">今日(</span><span id=\"classtable_extension_term\">NaN</span>期<span id=\"classtable_extension_day\">NaN</span>曜日<span class=\"extension_delete\">)</span>の時間割<select name=\"term_select_extension\" id=\"term_select_extension\"><option value=\"前\">前期</option><option value=\"後\">後期</option></select><select name=\"day_select_extension\" id=\"day_select_extension\"><option value=\"1\">月曜日</option><option value=\"2\">火曜日</option><option value=\"3\">水曜日</option><option value=\"4\">木曜日</option><option value=\"5\">金曜日</option><option value=\"6\">土曜日</option></select></h1><table style=\"border-collapse: collapse\" id=\"classtable_extension\"><tr><td style=\"height:90px\">1限<br>8：50～9：35</td><td rowspan=\"2\" id=\"onegen_extension\"></td></tr><tr><td style=\"height:90px\">2限<br>9：35～10：20</td></tr><tr><td style=\"height:20px\">休憩<br>10：20～10：30</td><td class=\"tenminyasumi\"></td></tr><tr><td style=\"height:90px\">3限<br>10：30～11：15</td><td rowspan=\"2\" id=\"threegen_extension\"></td></tr><tr><td style=\"height:90px\">4限<br>11：15～12：00</td></tr><tr><td style=\"height:120px\">昼休み<br>12：00～13：00</td><td class=\"tenminyasumi\"></td></tr><tr><td style=\"height:90px\">5限<br>13：00～13：45</td><td rowspan=\"2\" id=\"fivegen_extension\"></td></tr><tr><td style=\"height:90px\">6限<br>13：45～14：30</td></tr><tr><td style=\"height:20px\">休憩<br>14：30～14：40</td><td class=\"tenminyasumi\"></td></tr><tr><td style=\"height:90px\">7限<br>14：40～15：25</td><td rowspan=\"2\" id=\"sevengen_extension\"></td></tr><tr><td style=\"height:90px\">8限<br>15：25～16：10</td></tr><tr><td style=\"height:20px\">休憩<br>16：10～60：20</td><td class=\"tenminyasumi\"></td></tr><tr><td style=\"height:90px\">9限<br>16：20～17：05</td><td rowspan=\"2\" id=\"ninegen_extension\"></td></tr><tr><td style=\"height:90px\">10限<br>17：05～17：50</td></tr></table></div><div style=\"background-color: #e9ecef; border-radius: 3px; padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\">今日やるべきこと</h1><table id=\"today_todo_extension\"><tr><td>今日のやるべきことは消化しました🎊<br>お疲れさまでした！</td></tr></table></div><div style=\"background-color: #e9ecef; border-radius: 3px; padding: 16px;\"><h1 style=\"font-size:18.75px; font-weight: medium;\">時間割外のクラス</h1><table id=\"special_class_extension\"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>")
                 var classtabletrtd = {
                     "padding": "0px 10px 0px 10px",
                     "border": "2px solid orange",
                     "background-color": "white"
                 }
-                var todaytrtd={
+                var todaytrtd = {
                     "padding": "0px 10px 0px 10px",
                     "background-color": "white",
-                    "border-radius":"3px",
-                    "padding":"10px"
+                    "border-radius": "3px",
+                    "padding": "10px"
                 }
-                var specialtrtd={
+                var specialtrtd = {
                     "padding": "0px 10px 0px 10px",
                     "background-color": "white",
-                    "border-radius":"3px",
-                    "padding":"10px"
+                    "border-radius": "3px",
+                    "padding": "10px"
                 }
                 $("#classtable_extension").css("border", "2px solid orange")
                 $("#classtable_extension tr td").css(classtabletrtd)
@@ -178,15 +178,25 @@ $(function () {
                     "border": "none"
                 }
                 $("#day_select_extension").css(day_select_css);
-                
-                $("#onegen_extension").css("min-width", "300px")
-                draw_classes(now_day, courses)
+                $("#term_select_extension").css(day_select_css);
 
-                $("#day_select_extension").change(function(){
-                    draw_classes($(this).val(), courses)
+                $("#onegen_extension").css("min-width", "300px")
+                var term_now = "後"
+                if(term_now=="前"){
+                    $("#term_select_extension option").eq(0).prop("selected",true)
+                }else{
+                    $("#term_select_extension option").eq(1).prop("selected",true)
+                }
+                draw_classes(term_now, now_day, courses)
+
+                $("#day_select_extension").change(function () {
+                    draw_classes($("#term_select_extension").val(),$(this).val(), courses)
                     $(".extension_delete").empty()
                 })
-
+                $("#term_select_extension").change(function () {
+                    draw_classes($(this).val(),$("#day_select_extension").val(), courses)
+                    $(".extension_delete").empty()
+                })
 
 
                 //動的に残り時間を変更
@@ -220,44 +230,45 @@ $(function () {
 
             }
         }, 100)
-        function draw_classes(now_day, courses) {
-
+        function draw_classes(term_now, now_day, courses) {
+            console.log($("#classtable_extension_term"))
+            $("#classtable_extension_term").text(term_now)
             $("#day_select_extension option").eq(now_day - 1).prop('selected', true);
             now_day = ["日", "月", "火", "水", "木", "金", "土"][now_day]
             $("#classtable_extension_day").text(now_day)
             var set = [false, false, false, false, false]
             for (var i = 0; i < courses.length; i++) {
-                if (courses[i].term == "後") {
+                if (courses[i].term == term_now) {
                     if (courses[i].day == now_day) {
                         switch (courses[i].time) {
                             case "1-2":
-                                
-                            $("#onegen_extension").css("background-color", "white")
+
+                                $("#onegen_extension").css("background-color", "white")
                                 $("#onegen_extension").text(courses[i].name)
                                 set[0] = true;
 
                                 break;
                             case "3-4":
-                                
-                            $("#threegen_extension").css("background-color", "white")
+
+                                $("#threegen_extension").css("background-color", "white")
                                 $("#threegen_extension").text(courses[i].name + "\n")
                                 set[1] = true;
                                 break;
                             case "5-6":
-                                
-                            $("#fivegen_extension").css("background-color", "white")
+
+                                $("#fivegen_extension").css("background-color", "white")
                                 $("#fivegen_extension").text(courses[i].name + "\n")
                                 set[2] = true;
                                 break;
                             case "7-8":
-                                
-                            $("#sevengen_extension").css("background-color", "white")
+
+                                $("#sevengen_extension").css("background-color", "white")
                                 $("#sevengen_extension").text(courses[i].name + "\n")
                                 set[3] = true;
                                 break;
                             case "9-10":
-                                
-                            $("#ninegen_extension").css("background-color", "white")
+
+                                $("#ninegen_extension").css("background-color", "white")
                                 $("#ninegen_extension").text(courses[i].name + "\n")
                                 set[4] = true;
                                 break;
