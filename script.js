@@ -141,6 +141,8 @@ $(function () {
 
                 }
                 $(".date-left-extension").css("color", "black")
+                //todolistの作成
+                var todolist=new Array()
 
 
                 //メインの時間割とか
@@ -177,7 +179,7 @@ $(function () {
                 }else{
                     $("#term_select_extension option").eq(1).prop("selected",true)
                 }
-                draw_classes(term_now, now_day, courses)
+                draw_classes(term_now, now_day, courses,todolist)
 
                 $("#day_select_extension").change(function () {
                     draw_classes($("#term_select_extension").val(),$(this).val(), courses)
@@ -216,19 +218,23 @@ $(function () {
                         //分が変わっていれば
                         $(".date-left-extension").empty()
                         for (var i = 0; i < events.length; i++) {
-                            var task_date = $(events[i]).children(".date").text().replace(/[\s+,]/g, "").split(/[:年日月残]/)
-                            console.log(task_date)
+                            var task_date
+                            var task_date_txt = $(events[i]).children(".date").text()
+                            task_date=task_date_txt.replace(/[\s+,]/g, "").split(/[:年日月残]/)
+
                             if(task_date.length==6){
                                 var task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4])
                                 var date_now = new Date()
                             }else{
-                                if(task_date[0]="明"){
+                                if(task_date[0]=="明"){
                                     var date_now = new Date()
                                     var task_date_calc = new Date(date_now.getFullYear(), date_now.getMonth(), date_now.getDate(), task_date[1], task_date[2])
                                     task_date_calc.setDate(task_date_calc.getDate() +1)
+                                    console.log("hello")
                                 }else{
                                     var date_now = new Date()
                                     var task_date_calc = new Date(date_now.getFullYear(), date_now.getMonth(), date_now.getDate(), task_date[1], task_date[2])
+                                    console.log(task_date_calc)
                                 }
                             }
 
@@ -237,11 +243,23 @@ $(function () {
                             if(task_date_calc - date_now<86400000){
                                 //1日を切ってたら文字を赤くしよう
                                 $($(".date-left-extension")[i]).css("color","red")
+                                if(todolist.indexOf({
+                                    "name":"",
+                                    "time":"",
+                                    "url":""
+                                })){
+                                todolist.push({
+                                    "name":"",
+                                    "time":"",
+                                    "url":""
+                                })
+                                }
                             }else{
                                 $($(".date-left-extension")[i]).css("color","black")
                             }
                         }
                     }
+                    console.log(todolist)
                 }, 1000)
 
                 //カレンダーがうまく動かない(first.jsのcalendar_miniとか、calendar_get_monthなんちゃらとかが関係してるけど、ちょっと読めない(miniのほうが大事そう)) ->issue立てて隠ぺいしよう!(人任せ)
@@ -268,7 +286,7 @@ $(function () {
             }
         }
 
-        function draw_classes(term_now, now_day, courses) {
+        function draw_classes(term_now, now_day, courses,todolist) {
             $("#classtable_extension_term").text(term_now)
             $("#day_select_extension option").eq(now_day - 1).prop('selected', true);
             now_day = ["日", "月", "火", "水", "木", "金", "土"][now_day]
@@ -277,6 +295,13 @@ $(function () {
             for (var i = 0; i < courses.length; i++) {
                 if (courses[i].term == term_now) {
                     if (courses[i].day == now_day) {
+                        if(todolist!=undefined){
+                            todolist.push({
+                                "time":courses[i].time,
+                                "name":courses[i].name,
+                                "url":courses[i].url
+                            })
+                        }
                         switch (courses[i].time) {
                             case "1-2":
                                 $("#onegen_extension").css("background-color", "white")
