@@ -131,17 +131,13 @@ $(function () {
                 $("#block-region-side-post").append(calendar_month, calendar_upcoming, navigator, search_course, mysyllabus, private_files, badges)
 
 
-                //直近イベントを見やすく  ->http requestつかって何の教科か出したいけど、セッションとかがわからん
+                //直近イベントを見やすく  ->http requestつかって何の教科か出したいけど、セッションとかがわからん ->サーバーには負荷をかけない方向でいこう(http requestとかはなしで)
                 var events = calendar_upcoming.children("div").children("div").children("div").first().children("div").children("div")
                 for (var i = 0; i < events.length; i++) {
-                    var task_date = $(events[i]).children(".date").text().replace(/[\s+,]/g, "").split(/[:年日月]/)
-
-                    var task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4])
-                    var date_now = new Date()
 
 
                     $(events[i]).children(".date").append("")
-                    $(events[i]).children(".date").append("<br>残り時間 ： <span class=\"date-left-extension\">" + msToTime(task_date_calc - date_now) + "</span>")
+                    $(events[i]).children(".date").append("<br>残り時間 ： <span class=\"date-left-extension\">計算中</span>")
 
                 }
                 $(".date-left-extension").css("color", "black")
@@ -206,6 +202,8 @@ $(function () {
                 $("#special_class_extension").css("border-collapse","separate")
                 $("#special_class_extension").css("border-spacing","0px 10px")
 
+                //元のコース概要消去
+                $("#block-region-content").remove()
                 //動的に残り時間を変更
                 var oldmin, newmin
                 setInterval(function () {
@@ -219,11 +217,29 @@ $(function () {
                         $(".date-left-extension").empty()
                         for (var i = 0; i < events.length; i++) {
                             var task_date = $(events[i]).children(".date").text().replace(/[\s+,]/g, "").split(/[:年日月残]/)
-                            var task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4])
-                            var date_now = new Date()
+                            console.log(task_date)
+                            if(task_date.length==6){
+                                var task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4])
+                                var date_now = new Date()
+                            }else{
+                                if(task_date[0]="明"){
+                                    var date_now = new Date()
+                                    var task_date_calc = new Date(date_now.getFullYear(), date_now.getMonth(), date_now.getDate(), task_date[1], task_date[2])
+                                    task_date_calc.setDate(task_date_calc.getDate() +1)
+                                }else{
+                                    var date_now = new Date()
+                                    var task_date_calc = new Date(date_now.getFullYear(), date_now.getMonth(), date_now.getDate(), task_date[1], task_date[2])
+                                }
+                            }
+
 
                             $($(".date-left-extension")[i]).text(msToTime(task_date_calc - date_now))
-
+                            if(task_date_calc - date_now<86400000){
+                                //1日を切ってたら文字を赤くしよう
+                                $($(".date-left-extension")[i]).css("color","red")
+                            }else{
+                                $($(".date-left-extension")[i]).css("color","black")
+                            }
                         }
                     }
                 }, 1000)
@@ -383,6 +399,13 @@ function msToTime(duration) {
     hours = (hours < 10) ? "0" + hours : hours;
     minutes = (minutes < 10) ? "0" + minutes : minutes;
     seconds = (seconds < 10) ? "0" + seconds : seconds;
+    if(days==0){
+        if(hours==0){
+            return  minutes + "分";
+        }
+        return hours + "時間 " + minutes + "分";
+
+    }
 
     return days + "日 " + hours + "時間 " + minutes + "分";
 }
