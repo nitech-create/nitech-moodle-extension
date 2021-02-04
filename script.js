@@ -160,16 +160,10 @@ $(function () {
                     "border-radius": "3px",
                     "padding": "10px"
                 }
-                var specialtrtd = {
-                    "padding": "0px 10px 0px 10px",
-                    "background-color": "white",
-                    "border-radius": "3px",
-                    "padding": "10px"
-                }
+
                 $("#classtable_extension").css("border", "2px solid orange")
                 $("#classtable_extension tr td").css(classtabletrtd)
                 $("#today_todo_extension tr td").css(todaytrtd)
-                $("#special_class_extension tr td").css(specialtrtd)
                 $(".tenminyasumi").css("background-color", "gainsboro")
                 var today = new Date()
                 var now_day = today.getDay()
@@ -199,6 +193,19 @@ $(function () {
                 })
 
 
+                //時間割外のクラスを追加
+                draw_specialclasses(courses)
+                var specialtrtd = {
+                    "padding": "0px 10px 0px 10px",
+                    "background-color": "white",
+                    "border-radius": "3px",
+                    "padding": "10px",
+                }
+
+                $("#special_class_extension tr td").css(specialtrtd)
+                $("#special_class_extension").css("border-collapse","separate")
+                $("#special_class_extension").css("border-spacing","0px 10px")
+
                 //動的に残り時間を変更
                 var oldmin, newmin
                 setInterval(function () {
@@ -224,14 +231,28 @@ $(function () {
                 //カレンダーがうまく動かない(first.jsのcalendar_miniとか、calendar_get_monthなんちゃらとかが関係してるけど、ちょっと読めない(miniのほうが大事そう)) ->issue立てて隠ぺいしよう!(人任せ)
                 $(".arrow").css("visibility", "hidden")
                 $(".arrow_link").css("cursor", "default")
-                calendar_month.children("div").append("<a id=\"link-to-calendar\" href=\"\">カレンダーに移動する</a>")
+                calendar_month.children("div").append("<br><a id=\"link-to-calendar\" href=\"\">カレンダーに移動する</a>")
                 $("#link-to-calendar").attr('href', $(".current").eq(1).children("a").attr("href"));
                 $("#link-to-calendar").css("margin", "auto auto auto 150px")
 
             }
         }, 100)
+        function draw_specialclasses(courses){
+            var special_exists=false
+            $("#special_class_extension").empty()
+            console.log(courses)
+            for(var i=0; i<courses.length;i++){
+                if(courses[i].time=="none"){
+                    special_exists=true;
+                    $("#special_class_extension").append("<tr><td>"+courses[i].name+"<br><a href=\""+courses[i].url+"\">この授業のページに移動する</a></td></tr>")
+                }
+            }
+            if(special_exists==false){
+                $("#special_class_extension").append("<tr><td>登録されていないようです。</td></tr>")
+            }
+        }
+
         function draw_classes(term_now, now_day, courses) {
-            console.log($("#classtable_extension_term"))
             $("#classtable_extension_term").text(term_now)
             $("#day_select_extension option").eq(now_day - 1).prop('selected', true);
             now_day = ["日", "月", "火", "水", "木", "金", "土"][now_day]
@@ -242,9 +263,9 @@ $(function () {
                     if (courses[i].day == now_day) {
                         switch (courses[i].time) {
                             case "1-2":
-
                                 $("#onegen_extension").css("background-color", "white")
                                 $("#onegen_extension").text(courses[i].name)
+                                $("#onegen_extension").append("<br><a href=\""+courses[i].url+"\">この授業のページに移動する</a>")
                                 set[0] = true;
 
                                 break;
@@ -252,24 +273,28 @@ $(function () {
 
                                 $("#threegen_extension").css("background-color", "white")
                                 $("#threegen_extension").text(courses[i].name + "\n")
+                                $("#threegen_extension").append("<br><a href=\""+courses[i].url+"\">この授業のページに移動する</a>")
                                 set[1] = true;
                                 break;
                             case "5-6":
 
                                 $("#fivegen_extension").css("background-color", "white")
                                 $("#fivegen_extension").text(courses[i].name + "\n")
+                                $("#fivegen_extension").append("<br><a href=\""+courses[i].url+"\">この授業のページに移動する</a>")
                                 set[2] = true;
                                 break;
                             case "7-8":
 
                                 $("#sevengen_extension").css("background-color", "white")
                                 $("#sevengen_extension").text(courses[i].name + "\n")
+                                $("#sevengen_extension").append("<br><a href=\""+courses[i].url+"\">この授業のページに移動する</a>")
                                 set[3] = true;
                                 break;
                             case "9-10":
 
                                 $("#ninegen_extension").css("background-color", "white")
                                 $("#ninegen_extension").text(courses[i].name + "\n")
+                                $("#ninegen_extension").append("<br><a href=\""+courses[i].url+"\">この授業のページに移動する</a>")
                                 set[4] = true;
                                 break;
 
