@@ -184,7 +184,7 @@ $(function () {
                     for (var i = 0; i < todolist.length; i++) {
                         var todolist_index = i;
                         console.log()
-                        if (todolist[i].time.length == 3) {
+                        if (todolist[i].time.match(/-/)) {
                             $("#today_todo_extension").append("<tr><td><h1 style=\"font-size:18.75px; font-weight: medium;\">授業<button data-index_extension=\"" + todolist_index + "\" class=\"todo_button_extension\" type=\"button\">完了する</button></h1><span class=\"strike_todo_extension\">" + todolist[i].name + "<br>時間 ： " + timetableToTime(todolist[i].time) + "</span><br><a href=\"" + todolist[i].url + "\">この授業のページに移動する</a></td></tr>")
                         } else {
 
@@ -352,9 +352,11 @@ $(function () {
                                     console.log($(events[i]).children("a").html())
                                     $($(".date-left-extension")[i]).css("color", "red")
                                     var already_exixsts = false
+                                    var index_todo_min
                                     for (var j = 0; j < todolist.length; j++) {
                                         if (todolist[j].name == $(events[i]).children("a").text()) {
                                             already_exixsts = true
+                                            index_todo_min=j
                                         }
                                     }
                                     if (already_exixsts == false) {
@@ -365,6 +367,10 @@ $(function () {
                                             "complete": false
                                         })
 
+                                    }else{
+                                        console.log(todolist[index_todo_min])
+                                        todolist[index_todo_min].time=msToTime(task_date_calc - date_now)
+                                        todolist[index_todo_min].url=$(events[i]).children("a").attr("href")
                                     }
                                 } else {
                                     $($(".date-left-extension")[i]).css("color", "black")
@@ -375,7 +381,7 @@ $(function () {
 
                             var new_todolist = todolist.filter(function (element) {
                                 var exists = false;
-                                if (element.time.length != 3) {
+                                if (!element.time.match(/-/)) {
                                     for (var i = 0; i < events.length; i++) {
                                         if ($(events[i]).children("a").text() == element.name) {
                                                 exists = true;
@@ -406,8 +412,7 @@ $(function () {
                             }
                             for (var i = 0; i < todolist.length; i++) {
                                 var todolist_index = i;
-                                console.log()
-                                if (todolist[i].time.length == 3) {
+                                if (todolist[i].time.match(/-/)) {
                                     $("#today_todo_extension").append("<tr><td><h1 style=\"font-size:18.75px; font-weight: medium;\">授業<button data-index_extension=\"" + todolist_index + "\" class=\"todo_button_extension\" type=\"button\">完了する</button></h1><span class=\"strike_todo_extension\">" + todolist[i].name + "<br>時間 ： " + timetableToTime(todolist[i].time) + "</span><br><a href=\"" + todolist[i].url + "\">この授業のページに移動する</a></td></tr>")
                                 } else {
 
@@ -611,7 +616,7 @@ $(function () {
             if (todolist != undefined) {
                 var new_todolist = todolist.filter(function (element) {
                     var exists = false;
-                    if (element.time.length == 3) {
+                    if (element.time.match(/-/)) {
                         for (var j = 0; j < courses.length; j++) {
                             if (courses[j].term == term_now) {
                                 if (courses[j].day == now_day) {
