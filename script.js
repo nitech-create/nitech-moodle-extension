@@ -356,7 +356,7 @@ $(function () {
                                     for (var j = 0; j < todolist.length; j++) {
                                         if (todolist[j].name == $(events[i]).children("a").text()) {
                                             already_exixsts = true
-                                            index_todo_min=j
+                                            index_todo_min = j
                                         }
                                     }
                                     if (already_exixsts == false) {
@@ -367,10 +367,10 @@ $(function () {
                                             "complete": false
                                         })
 
-                                    }else{
+                                    } else {
                                         console.log(todolist[index_todo_min])
-                                        todolist[index_todo_min].time=msToTime(task_date_calc - date_now)
-                                        todolist[index_todo_min].url=$(events[i]).children("a").attr("href")
+                                        todolist[index_todo_min].time = msToTime(task_date_calc - date_now)
+                                        todolist[index_todo_min].url = $(events[i]).children("a").attr("href")
                                     }
                                 } else {
                                     $($(".date-left-extension")[i]).css("color", "black")
@@ -384,8 +384,8 @@ $(function () {
                                 if (!element.time.match(/-/)) {
                                     for (var i = 0; i < events.length; i++) {
                                         if ($(events[i]).children("a").text() == element.name) {
-                                                exists = true;
-                                            
+                                            exists = true;
+
                                         }
                                     }
                                 } else {
@@ -708,24 +708,48 @@ $(function () {
 });
 //ミリ秒から時間計算するやつ ->マイナスの時間の処
 function msToTime(duration) {
-    var milliseconds = parseInt((duration % 1000) / 100),
-        seconds = Math.floor((duration / 1000) % 60),
-        minutes = Math.floor((duration / (1000 * 60)) % 60),
-        hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-    days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
+    var message_return
+    if (duration > 0) {
+        var milliseconds = parseInt((duration % 1000) / 100),
+            seconds = Math.floor((duration / 1000) % 60),
+            minutes = Math.floor((duration / (1000 * 60)) % 60),
+            hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+        days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
 
-    hours = (hours < 10) ? "0" + hours : hours;
-    minutes = (minutes < 10) ? "0" + minutes : minutes;
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
-    if (days == 0) {
-        if (hours == 0) {
-            return minutes + "分";
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+        if (days == 0) {
+            if (hours == 0) {
+                return minutes + "分";
+            }
+            return hours + "時間 " + minutes + "分";
+
         }
-        return hours + "時間 " + minutes + "分";
 
+        message_return = days + "日 " + hours + "時間 " + minutes + "分";
+    } else {
+        duration = -duration
+        var milliseconds = parseInt((duration % 1000) / 100),
+            seconds = Math.floor((duration / 1000) % 60),
+            minutes = Math.floor((duration / (1000 * 60)) % 60),
+            hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+        days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+        if (days == 0) {
+            if (hours == 0) {
+                return minutes + "分 超過しています";
+            }
+            return hours + "時間 " + minutes + "分 超過しています";
+
+        }
+
+        message_return = days + "日 " + hours + "時間 " + minutes + "分 超過しています";
     }
-
-    return days + "日 " + hours + "時間 " + minutes + "分";
+    return message_return
 }
 
 //時間割から時間にするやつ
