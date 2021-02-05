@@ -534,6 +534,7 @@ $(function () {
                                     already_exixsts_todo = true;
                                 }
                             }
+                            
                             if (already_exixsts_todo == false) {
                                 todolist.push({
                                     "time": courses[i].time,
@@ -586,6 +587,26 @@ $(function () {
                     }
                 }
             }
+            //todoリストにあるけどクラスにないもの消去(昨日の授業)
+            if(todolist!=undefined){
+                var new_todolist=todolist.filter(function(element){
+                    var exists=false;
+                    if(element.time.length==3){
+                        for(var j=0;j<courses.length;j++){
+                            if(courses[j].term==term_now){
+                                if(courses[j].day==now_day){
+                                    if(courses[j].name==element.name){
+                                        exists=true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return exists
+                });
+                todolist=new_todolist
+            }
+
             console.log(set)
             for (var i = 0; i < set.length; i++) {
 
