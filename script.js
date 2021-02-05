@@ -264,6 +264,37 @@ $(function () {
                             chrome.storage.local.set({ "todolist": todolist }, function () {
                             })
                         }
+                        var todo_remain = false;
+                        for (var i = 0; i < todolist.length; i++) {
+                            if (todolist[i].complete == false) {
+                                todo_remain = true;
+                            }
+                        }
+                        if (todo_remain == true) {
+                            $("#today_todo_extension tr").first().remove()
+                            $("#today_todo_extension").prepend("<tr><td id=\"task_done_extension\">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>")
+                        } else {
+                            $("#today_todo_extension tr").first().remove()
+                            $("#today_todo_extension").prepend("<tr><td id=\"task_done_extension\">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>")
+                        }
+                        var todotrtd = {
+                            "padding": "0px 10px 0px 10px",
+                            "background-color": "white",
+                            "border-radius": "3px",
+                            "padding": "10px",
+                        }
+                        var buttoncss = {
+                            "border": "solid 1px chocolate",
+                            "font-size": ".9375rem",
+                            "background-color": "white",
+                            "color": "chocolate",
+                            "border-radius": "3px",
+                            "margin-left": "10px"
+                        }
+                        $("#today_todo_extension tr td").css(todotrtd)
+                        $("#today_todo_extension").css("border-collapse", "separate")
+                        $("#today_todo_extension").css("border-spacing", "0px 10px")
+                        $(".todo_button_extension").css(buttoncss)
                     })
 
 
@@ -342,7 +373,17 @@ $(function () {
 
                             //todoを更新
                             $("#today_todo_extension").empty()
-                            $("#today_todo_extension").append("<tr><td id=\"task_done_extension\">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>")
+                            var todo_remain = false;
+                            for (var i = 0; i < todolist.length; i++) {
+                                if (todolist[i].complete == false) {
+                                    todo_remain = true;
+                                }
+                            }
+                            if (todo_remain == true) {
+                                $("#today_todo_extension").append("<tr><td id=\"task_done_extension\">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>")
+                            } else {
+                                $("#today_todo_extension").append("<tr><td id=\"task_done_extension\">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>")
+                            }
                             for (var i = 0; i < todolist.length; i++) {
                                 var todolist_index = i;
                                 console.log()
@@ -390,7 +431,7 @@ $(function () {
                                     todolist[$(this).attr("data-index_extension")].complete = true
                                     chrome.storage.local.set({ "todolist": todolist }, function () {
                                     })
-        
+
                                 } else {
                                     $(this).parent().parent().animate({ "opacity": "1.0" }, 100)
                                     $(this).text("完了する")
@@ -399,6 +440,38 @@ $(function () {
                                     chrome.storage.local.set({ "todolist": todolist }, function () {
                                     })
                                 }
+                                var todo_remain = false;
+                                for (var i = 0; i < todolist.length; i++) {
+                                    if (todolist[i].complete == false) {
+                                        todo_remain = true;
+                                    }
+                                }
+                                if (todo_remain == true) {
+                                    $("#today_todo_extension tr").first().remove()
+                                    $("#today_todo_extension").prepend("<tr><td id=\"task_done_extension\">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>")
+                                } else {
+                                    $("#today_todo_extension tr").first().remove()
+                                    $("#today_todo_extension").prepend("<tr><td id=\"task_done_extension\">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>")
+                                }
+
+                                var todotrtd = {
+                                    "padding": "0px 10px 0px 10px",
+                                    "background-color": "white",
+                                    "border-radius": "3px",
+                                    "padding": "10px",
+                                }
+                                var buttoncss = {
+                                    "border": "solid 1px chocolate",
+                                    "font-size": ".9375rem",
+                                    "background-color": "white",
+                                    "color": "chocolate",
+                                    "border-radius": "3px",
+                                    "margin-left": "10px"
+                                }
+                                $("#today_todo_extension tr td").css(todotrtd)
+                                $("#today_todo_extension").css("border-collapse", "separate")
+                                $("#today_todo_extension").css("border-spacing", "0px 10px")
+                                $(".todo_button_extension").css(buttoncss)
                             })
 
                             $(".todo_button_extension").on({
@@ -454,8 +527,6 @@ $(function () {
             for (var i = 0; i < courses.length; i++) {
                 if (courses[i].term == term_now) {
                     if (courses[i].day == now_day) {
-                        //todoの既存を追加しないよう処理 その前に今はどんどん追加されて行ってほしい場面
-                        i
                         if (todolist != undefined) {
                             var already_exixsts_todo = false
                             for (var j = 0; j < todolist.length; j++) {
