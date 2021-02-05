@@ -353,7 +353,7 @@ $(function () {
                                     $($(".date-left-extension")[i]).css("color", "red")
                                     var already_exixsts = false
                                     for (var j = 0; j < todolist.length; j++) {
-                                        if (todolist[j].name == $(events[i]).children("a").html()) {
+                                        if (todolist[j].name == $(events[i]).children("a").text()) {
                                             already_exixsts = true
                                         }
                                     }
@@ -370,6 +370,26 @@ $(function () {
                                     $($(".date-left-extension")[i]).css("color", "black")
                                 }
                             }
+
+                            //todoリストにあるけど課題一覧にないもの消去(過ぎた課題)
+
+                            var new_todolist = todolist.filter(function (element) {
+                                var exists = false;
+                                if (element.time.length != 3) {
+                                    for (var i = 0; i < events.length; i++) {
+                                        if ($(events[i]).children("a").text() == element.name) {
+                                                exists = true;
+                                            
+                                        }
+                                    }
+                                } else {
+                                    exists = true
+                                }
+                                return exists
+                            });
+                            todolist = new_todolist
+                            chrome.storage.local.set({ "todolist": todolist }, function () {
+                            })
 
                             //todoを更新
                             $("#today_todo_extension").empty()
@@ -534,7 +554,7 @@ $(function () {
                                     already_exixsts_todo = true;
                                 }
                             }
-                            
+
                             if (already_exixsts_todo == false) {
                                 todolist.push({
                                     "time": courses[i].time,
@@ -588,23 +608,27 @@ $(function () {
                 }
             }
             //todoリストにあるけどクラスにないもの消去(昨日の授業)
-            if(todolist!=undefined){
-                var new_todolist=todolist.filter(function(element){
-                    var exists=false;
-                    if(element.time.length==3){
-                        for(var j=0;j<courses.length;j++){
-                            if(courses[j].term==term_now){
-                                if(courses[j].day==now_day){
-                                    if(courses[j].name==element.name){
-                                        exists=true
+            if (todolist != undefined) {
+                var new_todolist = todolist.filter(function (element) {
+                    var exists = false;
+                    if (element.time.length == 3) {
+                        for (var j = 0; j < courses.length; j++) {
+                            if (courses[j].term == term_now) {
+                                if (courses[j].day == now_day) {
+                                    if (courses[j].name == element.name) {
+                                        exists = true
                                     }
                                 }
                             }
                         }
+                    } else {
+                        exists = true
                     }
                     return exists
                 });
-                todolist=new_todolist
+                todolist = new_todolist
+                chrome.storage.local.set({ "todolist": todolist }, function () {
+                })
             }
 
             console.log(set)
