@@ -30,6 +30,7 @@ $(function () {
                     var courselist = new Array()
                     courselist = $('.course-listitem .coursename').text().replace(/\s+/g, "").split("コース星付きコース名");
                     courselist.shift();
+                    console.log($(".course-listitem .coursename").first().attr("href"))
 
                     var for_split = courselist_short;
 
@@ -55,6 +56,7 @@ $(function () {
                             term[i] = "none"
                             name[i] = container[0]
                             time[i] = "none"
+                            url[i]=$(".course-listitem .coursename").eq(i).attr("href")
                         } else {
                             //通常クラス
                             name[i] = container[0]
@@ -64,6 +66,7 @@ $(function () {
                             day[i] = container[1].shift();
                             container[1] = container[1][0].split("限")
                             time[i] = container[1].shift()
+                            url[i]=$(".course-listitem .coursename").eq(i).attr("href")
                         }
                         courses[i] = new Object();
                         courses[i].term = term[i]
