@@ -2,25 +2,37 @@
 	"manifest_version": 2,
 	"author": "nitech Create",
 	"homepage_url": "http://nitech-create.com",
-	"name": "moodle assistant for Nitech",
-	"description": "名古屋工業大学のmoodleを使いやすくします。",
+	"name": "moodle assistant for NITech",
+	"description": "名古屋工業大学のmoodleを使いやすくします。またmoodleのビデオ領域を拡張します。",
 	"version": "0.0.0.1",
 	"icons": {
 		"32": "icon.png",
 		"48": "icon.png",
 		"128": "icon.png"
 	},
-	"content_scripts": [{
-        "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"],
-        "css":["styles.css"],
-		"js": ["jquery.min.js","script.js"]
-	}],
-	"background": {
-		"scripts": []
-	},
 	"browser_action": {
 		"default_icon": "icon.png",
-		"default_title": ""
+		"default_title": "",
+		"default_popup": "./popup/popup.html"
+	},
+	"content_scripts": [
+		{
+			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"],
+			"css":["styles.css"],
+			"js": ["jquery.min.js","script.js"]
+		}, 
+		{
+			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/pluginfile.php/*/mod_scorm/content/1/index.html"],
+			"all_frames": true,
+			"css": ["./videoArea/videoArea.css"]
+		},
+		{
+			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php"],
+			"js": ["./videoArea/styles.js"]
+		}
+	],
+	"background": {
+		"scripts": []
 	},
 	"permissions": [
 		"tabs",

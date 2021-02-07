@@ -1,8 +1,24 @@
-
 $(function () {
-
-    console.log(location.href);
+    console.log("[moodle assistant for NITech] page: "+location.href);
     $('body').css('background-color', 'sandybrown');
+
+    chrome.storage.local.get('invisibleLeftNavigationOnlyVideo', function (data) {
+        if (data.invisibleLeftNavigationOnlyVideo == undefined) {
+            data.invisibleLeftNavigationOnlyVideo = false;
+        } else {
+            let invisibleLeftNavigationOnlyVideo = data.invisibleLeftNavigationOnlyVideo;
+            console.log("[moodle assistant for NITech] invisibleLeftNavigationOnlyVideo: " + invisibleLeftNavigationOnlyVideo);
+
+            if (invisibleLeftNavigationOnlyVideo && location.href == "https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php") {
+                console.log("[moodle assistant for NITech] executed: invisibleLeftNavigationOnlyVideo");
+                $('#page-content.blocks-pre .columnleft ').css('display', 'none');
+                $('#page-content.blocks-pre .region-main').css('flex', '0 0 100%');
+                $('#page-content.blocks-pre .region-main').css('max-width', ' 100%');
+                $('#page-content.blocks-pre .region-main').css('padding', '0 1rem 0 1rem'); 
+            }
+        }
+    });
+
     var value = $('.coursename');
     if (location.href == "https://cms6.ict.nitech.ac.jp/moodle38a/my/" || location.href == "https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php" || location.href == "https://cms6.ict.nitech.ac.jp/moodle38a/my/#") {
         // topページでの処理
