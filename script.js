@@ -1,7 +1,8 @@
 $(function () {
     console.log("[moodle assistant for NITech] page: " + location.href);
-    $('body').css('background-color', 'sandybrown');
+    $('body').css('background-color', 'sandybrown'); // 背景色変更
 
+    // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
     chrome.storage.local.get('invisibleLeftNavigationOnlyVideo', function (data) {
         if (data.invisibleLeftNavigationOnlyVideo == undefined) {
             data.invisibleLeftNavigationOnlyVideo = false;
@@ -11,10 +12,14 @@ $(function () {
 
             if (invisibleLeftNavigationOnlyVideo && location.href == "https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php") {
                 console.log("[moodle assistant for NITech] executed: invisibleLeftNavigationOnlyVideo");
-                $('#page-content.blocks-pre .columnleft ').css('display', 'none');
-                $('#page-content.blocks-pre .region-main').css('flex', '0 0 100%');
-                $('#page-content.blocks-pre .region-main').css('max-width', ' 100%');
-                $('#page-content.blocks-pre .region-main').css('padding', '0 1rem 0 1rem');
+                $('#page-content.blocks-pre .columnleft ').css({
+                    'display': 'none',
+                });
+                $('#page-content.blocks-pre .region-main').css({
+                    'flex': '0 0 100%',
+                    'max-width': '100%',
+                    'padding': '0 1rem 0 1rem'
+                });
             }
         }
     });

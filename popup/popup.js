@@ -5,7 +5,6 @@ let invisibleLeftNavigationOnlyVideo = document.getElementById('invisibleLeftNav
 // storageから現在の値を取得して、表示を変更
 chrome.storage.local.get('invisibleLeftNavigationOnlyVideo', function(data) {
     invisibleLeftNavigationOnlyVideo.checked = data.invisibleLeftNavigationOnlyVideo;
-    invisibleLeftNavigationOnlyVideo.setAttribute('checked', data.invisibleLeftNavigationOnlyVideo);
 });
 
 // ボタンを押した時
