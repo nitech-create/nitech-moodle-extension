@@ -27,8 +27,12 @@
 			"css": ["./videoArea/videoArea.css"]
 		},
 		{
-			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php"],
+			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php*"],
 			"js": ["./videoArea/styles.js"]
+		},
+		{
+			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/calendar/view.php*"],
+			"js": ["calender.js"]
 		}
 	],
 	"background": {
