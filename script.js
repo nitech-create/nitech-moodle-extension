@@ -12,33 +12,18 @@ $(function () {
 
   // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
   chrome.storage.local.get('invisibleLeftNavigationOnlyVideo', function (data) {
-    if (data.invisibleLeftNavigationOnlyVideo == undefined) {
-      data.invisibleLeftNavigationOnlyVideo = false;
-    } else {
-      const invisibleLeftNavigationOnlyVideo =
-        data.invisibleLeftNavigationOnlyVideo;
-      console.log(
-        '[moodle assistant for NITech] invisibleLeftNavigationOnlyVideo: ' +
-          invisibleLeftNavigationOnlyVideo,
-      );
+    const hideNav = data.invisibleLeftNavigationOnlyVideo;
+    console.log('[moodle assistant for NITech] invisibleLeftNavigationOnlyVideo: ' + (hideNav || 'false'));
 
-      if (
-        invisibleLeftNavigationOnlyVideo &&
-        location.href ==
-          'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
-      ) {
-        console.log(
-          '[moodle assistant for NITech] executed: invisibleLeftNavigationOnlyVideo',
-        );
-        $('#page-content.blocks-pre .columnleft ').css({
-          display: 'none',
-        });
-        $('#page-content.blocks-pre .region-main').css({
-          flex: '0 0 100%',
-          'max-width': '100%',
-          padding: '0 1rem 0 1rem',
-        });
-      }
+    if(hideNav === true && location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'){
+      $('#page-content.blocks-pre .columnleft ').css({
+        display: 'none',
+      });
+      $('#page-content.blocks-pre .region-main').css({
+        flex: '0 0 100%',
+        'max-width': '100%',
+        padding: '0 1rem 0 1rem',
+      });
     }
   });
 
