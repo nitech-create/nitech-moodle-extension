@@ -50,7 +50,7 @@ function getStorage(key){
           console.log("loading default option of " + key);
           resolve(defaultOptions[key]);
         }else{
-          reject('undefined key: ' + key);
+          reject(new Error('undefined key: ' + key));
         }
       }else{
         resolve(data[key]);
