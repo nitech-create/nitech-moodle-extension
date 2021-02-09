@@ -26,6 +26,28 @@ function loadJson(filePath, callback) {
   });
 }
 
+const accessOptions = {
+  // eslint-disable-next-line no-unused-vars
+  loadOptions: async function(options) {
+    // storageから現在の設定を取得
+
+    try {
+      options.backgroundColor = await getStorage('backgroundColor');
+      options.hideNavOnVideo = await getStorage('hideNavOnVideo');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+
+  saveOptions: function(options) {
+    // storageにデータを保存
+    console.log('save: ', options);
+    chrome.storage.local.set(options); // TODO
+    // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
+    // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
+  },
+};
+
 // request Listener処理
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log('sender: ', sender);
@@ -66,28 +88,6 @@ function onLoad() {
     });
   });
 }
-
-const accessOptions = {
-  // eslint-disable-next-line no-unused-vars
-  loadOptions: async function loadOptions(options) {
-    // storageから現在の設定を取得
-
-    try {
-      options.backgroundColor = await getStorage('backgroundColor');
-      options.hideNavOnVideo = await getStorage('hideNavOnVideo');
-    } catch (e) {
-      console.log(e);
-    }
-  },
-
-  saveOptions: function saveOptions(options) {
-    // storageにデータを保存
-    console.log('save: ', options);
-    chrome.storage.local.set(options); // TODO
-    // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
-    // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
-  },
-};
 
 // eslint-disable-next-line no-unused-vars
 const accessStorage = {
