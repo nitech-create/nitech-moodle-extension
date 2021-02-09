@@ -5,12 +5,12 @@ const defaultOptions = {
   backgroundColor: 'NavajoWhite',
   hideNavOnVideo: true,
 };
-const options = {};
-Object.assign(options, defaultOptions);
 
 // entry
 window.onload = () => {
   console.log('default: ', defaultOptions);
+  const options = {};
+  Object.assign(options, defaultOptions);
 
   // saveボタン
   $('#btnSave').on('click', function () {
@@ -34,6 +34,7 @@ window.onload = () => {
   // storageの設定を読み込んで反映
   (async () => {
     await loadOptions(options);
+    console.log(options);
     applyOptions(options);
   })();
 }
@@ -43,7 +44,7 @@ function getStorage(key){
 
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(key, function (data) {
-      if (!data[key]) {
+      if (!data.hasOwnProperty(key)) {
         // ストレージにキーが存在しない
         if(defaultOptions.hasOwnProperty(key)){
           console.log("loading default option of " + key);
@@ -52,7 +53,7 @@ function getStorage(key){
           reject('undefined key: ' + key);
         }
       }else{
-        resolve(data.backgroundColor);
+        resolve(data[key]);
       }
     });
   });
