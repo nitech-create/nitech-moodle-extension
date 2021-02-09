@@ -37,7 +37,8 @@
 		}
 	],
 	"background": {
-		"scripts": []
+		"scripts": ["backgroundEvent.js"],
+		"persistent": false
 	},
 	"permissions": [
 		"tabs",
