@@ -1,4 +1,5 @@
 {
+  "optionsVersion": "0.0.0.1",
   "backgroundColor": "NavajoWhite",
-  "invisibleLeftNavigationOnlyVideo": true
+  "hideNavOnVideo": true
 }
