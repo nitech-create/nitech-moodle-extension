@@ -11,11 +11,17 @@ $(function () {
   });
 
   // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
-  chrome.storage.local.get('invisibleLeftNavigationOnlyVideo', function (data) {
-    const hideNav = data.invisibleLeftNavigationOnlyVideo;
-    console.log('[moodle assistant for NITech] invisibleLeftNavigationOnlyVideo: ' + (hideNav || 'false'));
+  chrome.storage.local.get('hideNavOnVideo', function (data) {
+    const hideNav = data.hideNavOnVideo;
+    console.log(
+      '[moodle assistant for NITech] hideNavOnVideo: ' + (hideNav || 'false'),
+    );
 
-    if(hideNav === true && location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'){
+    if (
+      hideNav === true &&
+      location.href ===
+        'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
+    ) {
       $('#page-content.blocks-pre .columnleft ').css({
         display: 'none',
       });
@@ -552,7 +558,7 @@ $(function () {
           }, 1000);
 
           // external file; ./miniCalender/miniCalender.js
-          editCalender(calendar_month)
+          editCalender(calendar_month);
 
           $('#link-to-calendar').attr(
             'href',
