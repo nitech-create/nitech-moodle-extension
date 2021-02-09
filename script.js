@@ -2,6 +2,18 @@
 /* eslint-disable camelcase */
 $(function () {
   console.log('[moodle assistant for NITech] page: ' + location.href);
+
+  chrome.runtime.sendMessage({ item: 'defaultOptions' }, function (response) {
+    console.log('response defaultOptions: ', response.defaultOptions);
+  });
+
+  chrome.runtime.sendMessage({ item: 'accessOptions' }, function (response) {
+    console.log('response: ', response.accessOptions);
+    // response.accessOptions.loadOptions(options => {
+    //   console.log('options.backgroundColor: ', options.backgroundColor);
+    // });
+  });
+
   chrome.storage.local.get('backgroundColor', function (data) {
     if (data.backgroundColor == undefined) {
       // TODO: 現在はoptionsにも、呼び出す側にもこれがあるため、散らばっている。たとえばプラグイン初回読み込み時に初期化(default値を定義する関数を呼び出す)するだとかが必要だと思われる。

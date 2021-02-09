@@ -32,10 +32,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request.item) {
     case 'defaultOptions':
       sendResponse({ defaultOptions: defaultOptions });
-      BroadcastChannel;
     case 'accessStorage':
       sendResponse({ accessStorage: accessStorage });
     case 'accessOptions':
+      console.log('response accessOptions: ', accessOptions);
       sendResponse({ accessOptions: accessOptions });
   }
 });
