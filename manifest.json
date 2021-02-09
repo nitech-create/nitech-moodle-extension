@@ -4,7 +4,7 @@
 	"homepage_url": "http://nitech-create.com",
 	"name": "moodle assistant for NITech",
 	"description": "名古屋工業大学のmoodleを使いやすくします。またmoodleのビデオ領域を拡張します。",
-	"version": "0.0.0.2",
+	"version": "0.0.0.3",
 	"icons": {
 		"32": "icon.png",
 		"48": "icon.png",
