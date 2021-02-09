@@ -2,6 +2,74 @@ let defaultOptions;
 // onInstalled: 拡張機能がインストールされたときの処理
 chrome.runtime.onInstalled.addListener(onLoad);
 
+// request Listener処理
+// TODO: 複数同時指定
+/*
+chrome.runtime.onConnect.addListener(function (port) {
+  console.log('port: ', port);
+  // console.assert(port.name == 'backgroundEvent');
+  port.onMessage.addListener(function (request) {
+    console.log('request: ', request);
+    const src = request.src;
+    switch (request.item) {
+      case 'defaultOptions':
+        port.postMessage({ defaultOptions: defaultOptions });
+        break;
+      case 'loadJson':
+        loadJson(src, json => {
+          port.postMessage({ loadJson: json });
+        });
+        break;
+      case 'loadOptions':
+        port.postMessage({ loadOptions: accessOptions.loadOptions(src) });
+        break;
+      case 'saveOptions':
+        port.postMessage({ saveOptions: accessOptions.saveOptions(src) });
+      case 'clearStorage':
+        port.postMessage({ clearStorage: accessStorage.clearStorage() });
+        break;
+      case 'getStorage':
+        getStorageWrapper(src, item => {
+          port.postMessage({ getStorage: item });
+        });
+        break;
+    }
+  });
+});*/
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log('sender: ', sender);
+  const src = request.src;
+  switch (request.item) {
+    case 'defaultOptions':
+      sendResponse({ defaultOptions: defaultOptions });
+      break;
+    case 'loadJson':
+      loadJson(src, json => {
+        sendResponse({ loadJson: json });
+      });
+      break;
+    case 'loadOptions':
+      sendResponse({ loadOptions: accessOptions.loadOptions(src) });
+      break;
+    case 'saveOptions':
+      sendResponse({ saveOptions: accessOptions.saveOptions(src) });
+      break;
+    case 'clearStorage':
+      sendResponse({ clearStorage: accessStorage.clearStorage() });
+      break;
+    case 'getStorage':
+      // accessStorage.getStorageWrapper()
+      getStorageWrapper(src, item => {
+        console.log('getStorage item: ', item);
+        sendResponse({ getStorage: item });
+      });
+
+      break;
+  }
+  return true;
+});
+
 function loadJson(filePath, callback) {
   chrome.runtime.getPackageDirectoryEntry(function (root) {
     // get file
@@ -25,20 +93,6 @@ function loadJson(filePath, callback) {
     });
   });
 }
-
-// request Listener処理
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('sender: ', sender);
-  switch (request.item) {
-    case 'defaultOptions':
-      sendResponse({ defaultOptions: defaultOptions });
-    case 'accessStorage':
-      sendResponse({ accessStorage: accessStorage });
-    case 'accessOptions':
-      console.log('response accessOptions: ', accessOptions);
-      sendResponse({ accessOptions: accessOptions });
-  }
-});
 
 function onLoad() {
   console.log('onLoad');
@@ -67,9 +121,20 @@ function onLoad() {
   });
 }
 
+async function getStorageWrapper(key, callback) {
+  const item = await accessStorage.getStorage(key);
+  callback(item);
+}
+
 const accessOptions = {
+  getStorageWrapper: async function (key, callback) {
+    const item = await getStorage(key);
+    callback(item);
+    return item;
+  },
+
   // eslint-disable-next-line no-unused-vars
-  loadOptions: async function loadOptions(options) {
+  loadOptions: async options => {
     // storageから現在の設定を取得
 
     try {
@@ -78,9 +143,10 @@ const accessOptions = {
     } catch (e) {
       console.log(e);
     }
+    return options;
   },
 
-  saveOptions: function saveOptions(options) {
+  saveOptions: options => {
     // storageにデータを保存
     console.log('save: ', options);
     chrome.storage.local.set(options); // TODO
@@ -92,7 +158,7 @@ const accessOptions = {
 // eslint-disable-next-line no-unused-vars
 const accessStorage = {
   // eslint-disable-next-line no-unused-vars
-  getStorage: function getStorage(key) {
+  getStorage: key => {
     // chrome.storage.local.getのPromiseラッパー
 
     return new Promise((resolve, reject) => {
@@ -113,7 +179,7 @@ const accessStorage = {
   },
 
   // eslint-disable-next-line no-unused-vars
-  clearStorage: function clearStorage() {
+  clearStorage: () => {
     chrome.storage.local.clear(function () {
       const error = chrome.runtime.lastError;
       if (error) {

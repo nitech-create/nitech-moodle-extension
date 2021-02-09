@@ -7,20 +7,25 @@ $(function () {
     console.log('response defaultOptions: ', response.defaultOptions);
   });
 
-  chrome.runtime.sendMessage({ item: 'accessOptions' }, function (response) {
-    console.log('response: ', response.accessOptions);
-    // response.accessOptions.loadOptions(options => {
-    //   console.log('options.backgroundColor: ', options.backgroundColor);
-    // });
-  });
+  chrome.runtime.sendMessage(
+    { item: 'getStorage', src: 'backgroundColor' },
+    function (response) {
+      console.log('response getStorage: ', response.getStorage);
+      const backgroundColor = response.getStorage;
+      // response.accessOptions.loadOptions(options => {
+      //   console.log('options.backgroundColor: ', options.backgroundColor);
+      // });
+      $('body').css('background-color', backgroundColor); // 背景色変更
+    },
+  );
 
-  chrome.storage.local.get('backgroundColor', function (data) {
-    if (data.backgroundColor == undefined) {
-      // TODO: 現在はoptionsにも、呼び出す側にもこれがあるため、散らばっている。たとえばプラグイン初回読み込み時に初期化(default値を定義する関数を呼び出す)するだとかが必要だと思われる。
-      data.backgroundColor = 'NavajoWhite';
-    }
-    $('body').css('background-color', data.backgroundColor); // 背景色変更
-  });
+  // chrome.storage.local.get('backgroundColor', function (data) {
+  //   if (data.backgroundColor == undefined) {
+  //     // TODO: 現在はoptionsにも、呼び出す側にもこれがあるため、散らばっている。たとえばプラグイン初回読み込み時に初期化(default値を定義する関数を呼び出す)するだとかが必要だと思われる。
+  //     data.backgroundColor = 'NavajoWhite';
+  //   }
+  //   $('body').css('background-color', data.backgroundColor); // 背景色変更
+  // });
 
   // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
   chrome.storage.local.get('hideNavOnVideo', function (data) {
