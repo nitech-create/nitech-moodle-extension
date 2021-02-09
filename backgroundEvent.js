@@ -25,7 +25,7 @@ function loadJson(filePath, callback) {
 // 拡張機能がインストールされたときの処理
 chrome.runtime.onInstalled.addListener(function () {
   console.log('onLoad');
-  loadJson('defaultOptions.json', settingsJson => {
+  loadJson('./options/defaultOptions.json', settingsJson => {
     // TODO: load and save to storage (options.js).
 
     // test
