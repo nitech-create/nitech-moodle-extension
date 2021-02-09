@@ -31,6 +31,11 @@ NITech在校生。
 - 動画の表示サイズを大きくする
 - 動画視聴時にナビゲーションを隠す
 
+## 開発環境
+- jQuery v3.5.1
+- VSCode or Atom
+- ESLint + Prettier: JavaScript整形ソフト
+
 ## ライセンス
 未定
 
