@@ -20,7 +20,7 @@
 		{
 			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"],
 			"css":["styles.css"],
-			"js": ["jquery.min.js","script.js"]
+			"js": ["jquery.min.js","script.js", "miniCalender/miniCalender.js"]
 		},
 		{
 			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/pluginfile.php/*/mod_scorm/content/1/index.html"],
