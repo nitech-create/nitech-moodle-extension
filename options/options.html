@@ -3,24 +3,25 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="options.css">
+    <script src="../jquery.min.js"></script>
+    <script src="options.js"></script>
   </head>
   <body>
-    <p>注意: 以下設定を変更してsaveした後、ページを再読み込みしないとページには反映されません。</p>
+    <p>注意: 以下設定を変更してsaveしないとページには反映されません。</p>
     <p>
-      <input type="checkbox" id="invisibleLeftNavigation">
-      <label for="invisibleLeftNavigation">(この設定は動きません！)左側にあるナビゲーションを表示しないようにする</label><br/>
-      <input type="checkbox" id="invisibleLeftNavigationOnlyVideo">
-      <label for="invisibleLeftNavigationOnlyVideo">動画視聴時のみ、左側にあるナビゲーションを表示しないようにする</label>
+      <input type="checkbox" id="hideNav">
+      <label for="hideNav">(この設定は動きません！)左側にあるナビゲーションを表示しないようにする</label><br/>
+      <input type="checkbox" id="hideNavOnVideo">
+      <label for="hideNavOnVideo">動画視聴時のみ、左側にあるナビゲーションを表示しないようにする</label>
     </p>
     <p>
       <label for="backgroundColor">背景色の指定: <input type="text" id="backgroundColor" size="30"><br/>
       <a href="https://www.w3schools.com/colors/colors_names.asp">color-name</a>による指定、またはカラーコードによる指定が可能です。</label>
     </p>
     <p>
-      <button type="button" id="loadDefault">load default(none save)</button>
-      <button type="button" id="loadCurrent">load current(none save)</button>
-      <input type="button" id="save" value="save">
+      <button id="btnLoadDefault">load default(none save)</button>
+      <button id="btnLoadCurrent">load current(none save)</button>
+      <button id="btnSave">save</button>
     </p>
   </body>
-  <script src="options.js"></script>
 </html>

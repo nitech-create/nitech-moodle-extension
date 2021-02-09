@@ -1,79 +1,85 @@
-const pageElements = {
-  backgroundColorInput: document.getElementById('backgroundColor'),
-  invisibleLeftNavigationOnlyVideo: document.getElementById(
-    'invisibleLeftNavigationOnlyVideo',
-  ),
-};
+'use strict';
 
+// 設定値をデフォルト設定から複製
 const defaultOptions = {
   backgroundColor: 'NavajoWhite',
-  invisibleLeftNavigationOnlyVideo: true,
+  hideNavOnVideo: true,
 };
+const options = {};
+Object.assign(options, defaultOptions);
 
-// 関数定義
-function setOptionsFromStorage() {
-  // storageから現在の値を取得して、表示を変更
-  // TODO: よりよい関数名, もともとはloadStorageOptions. 時間がかかりそうなイメージがほしい
+// entry
+window.onload = () => {
+  console.log('default: ', defaultOptions);
 
-  chrome.storage.local.get('backgroundColor', function (data) {
-    if (data.backgroundColor == undefined) {
-      data.backgroundColor = defaultOptions.backgroundColor;
-    }
-    console.log('storage: ' + data.backgroundColor);
-    pageElements.backgroundColorInput.value = data.backgroundColor;
+  // saveボタン
+  $('#btnSave').on('click', function () {
+    options.backgroundColor = $('#backgroundColor').val();
+    options.hideNavOnVideo =  $('#hideNavOnVideo').prop('checked');
+
+    saveOptions(options);
+  });
+  // loadDefaultボタン
+  $('#btnLoadDefault').on('click', function () {
+    Object.assign(options, defaultOptions);
+    saveOptions(options);
+    applyOptions(options);
+  });
+  // loadCurrentボタン
+  $('#btnLoadCurrent').on('click', function () {
+    setOptionsFromStorage();
+    saveToStorage(setOptions(defaultOptions));
   });
 
-  chrome.storage.local.get('invisibleLeftNavigationOnlyVideo', function (data) {
-    if (data.invisibleLeftNavigationOnlyVideo == undefined) {
-      data.invisibleLeftNavigationOnlyVideo =
-        defaultOptions.invisibleLeftNavigationOnlyVideo;
-    }
-    invisibleLeftNavigationOnlyVideo.checked =
-      data.invisibleLeftNavigationOnlyVideo;
+  // storageの設定を読み込んで反映
+  (async () => {
+    await loadOptions(options);
+    applyOptions(options);
+  })();
+}
+
+function getStorage(key){
+  // chrome.storage.local.getのPromiseラッパー
+
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(key, function (data) {
+      if (!data[key]) {
+        // ストレージにキーが存在しない
+        if(defaultOptions.hasOwnProperty(key)){
+          console.log("loading default option of " + key);
+          resolve(defaultOptions[key]);
+        }else{
+          reject('undefined key: ' + key);
+        }
+      }else{
+        resolve(data.backgroundColor);
+      }
+    });
   });
 }
 
-function setOptions(options) {
-  // TODO: 関数名にToPageをつけるか？
-  console.log('setPage: ' + options.backgroundColor);
-  pageElements.backgroundColorInput.value = options.backgroundColor;
-  return options;
+async function loadOptions(options) {
+  // storageから現在の設定を取得
+
+  try{
+    options.backgroundColor = await getStorage('backgroundColor');
+    options.hideNavOnVideo = await getStorage('hideNavOnVideo');
+  }catch(e){
+    console.log(e);
+  }
 }
 
-function loadPageOptions() {
-  return (loadedOptions = {
-    backgroundColor: pageElements.backgroundColorInput.value,
-    invisibleLeftNavigationOnlyVideo:
-      pageElements.invisibleLeftNavigationOnlyVideo.checked,
-  });
+function applyOptions(options){
+  // ページに設定を反映
+
+  $('#backgroundColor').val(options.backgroundColor);
+  $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
 }
 
-function saveToStorage(options) {
-  console.log('save: ' + options);
-  chrome.storage.local.set(options); // TODO
+function saveOptions(options) {
+  // storageにデータを保存
+  console.log('save: ', options);
+   chrome.storage.local.set(options); // TODO
   // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
   // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
 }
-
-// page load時.start
-console.log('default: ' + defaultOptions.backgroundColor);
-setOptionsFromStorage();
-// page load時.finish
-
-// Pageのボタンなどの設定.start
-document.getElementById('save').addEventListener('click', function () {
-  saveToStorage(loadPageOptions());
-});
-
-// loadDefault
-document.getElementById('loadDefault').addEventListener('click', function () {
-  setOptions(defaultOptions);
-  // saveToStorage(setOptions(defaultOptions));
-});
-
-// loadCurrent
-document.getElementById('loadCurrent').addEventListener('click', function () {
-  setOptionsFromStorage();
-  // saveToStorage(setOptions(defaultOptions));
-});
-// Pageのボタンなどの設定.finish
