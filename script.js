@@ -175,53 +175,31 @@ $(function onLoad() {
       let oldmin;
       let newmin;
 
-      // TODO:
+      // TODO: なんか変 minutesで判定？
       setInterval(() => {
         const now_date = new Date();
         oldmin = newmin;
         newmin = now_date.getMinutes();
 
         if (oldmin != newmin) {
-          // 分が変わってなければ (-> else)
+          // ( 分が変わってなければ (-> else: 現在なし) )
+
           // 分が変わっていれば
           $('.date-left-extension').empty();
+
+          // 各eventに対して、残り時間と、期限(日時?時間?)を取得し、ページに対して処理を行う(たぶん)
           for (let i = 0; i < events.length; i++) {
             const task_date_txt = $(events[i]).children('.date').text();
             const task_date = task_date_txt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
-            let task_date_calc;
-            let date_now;
 
-            if (task_date.length == 6) {
-              task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]);
-              date_now = new Date();
-            } else {
-              if (task_date[0] == '明') {
-                date_now = new Date();
-                task_date_calc = new Date(
-                  date_now.getFullYear(),
-                  date_now.getMonth(),
-                  date_now.getDate(),
-                  task_date[1],
-                  task_date[2],
-                );
-                task_date_calc.setDate(task_date_calc.getDate() + 1);
-              } else {
-                date_now = new Date();
-                task_date_calc = new Date(
-                  date_now.getFullYear(),
-                  date_now.getMonth(),
-                  date_now.getDate(),
-                  task_date[1],
-                  task_date[2],
-                );
-              }
-            }
+            // TODO: createTaskDateDatas関数名を変えたい
+            const { task_date_calc, date_now } = createTaskDateDatas(task_date);
 
             $($('.date-left-extension')[i]).text(msToTime(task_date_calc - date_now));
 
             if (task_date_calc - date_now < 86400000) {
               // 1日を切ってたら文字を赤くしよう
-              changeToDoListRed(todolist, events, i, task_date_calc, date_now);
+              changeToDoListRed(todolist, events, task_date_calc, date_now, i);
             } else {
               $($('.date-left-extension')[i]).css('color', 'black');
             }
@@ -268,6 +246,42 @@ $(function onLoad() {
     });
   }
 });
+
+function createTaskDateDatas(task_date) {
+  // TODO: 関数名
+  // TODO: if式っぽく書きたい気もしなくはない。
+  // const date_datas = {task_date_calc: task_date_calc, date_now: date_now};
+
+  const date_datas = { task_date_calc: {}, date_now: {} };
+  // let task_date_calc ;
+  // let date_now;
+  if (task_date.length == 6) {
+    date_datas.task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]);
+    date_datas.date_now = new Date();
+  } else {
+    if (task_date[0] == '明') {
+      date_datas.date_now = new Date();
+      date_datas.task_date_calc = new Date(
+        date_datas.date_now.getFullYear(),
+        date_datas.date_now.getMonth(),
+        date_datas.date_now.getDate(),
+        task_date[1],
+        task_date[2],
+      );
+      date_datas.task_date_calc.setDate(date_datas.task_date_calc.getDate() + 1);
+    } else {
+      date_datas.date_now = new Date();
+      date_datas.task_date_calc = new Date(
+        date_datas.date_now.getFullYear(),
+        date_datas.date_now.getMonth(),
+        date_datas.date_now.getDate(),
+        task_date[1],
+        task_date[2],
+      );
+    }
+  }
+  return date_datas;
+}
 
 function refleshTodo(todolist) {
   console.log('reflesh todo');
@@ -553,7 +567,7 @@ function convertAndLoadCourses(courseSize) {
   return courses;
 }
 
-function changeToDoListRed(todolist, events, i, task_date_calc, date_now) {
+function changeToDoListRed(todolist, events, task_date_calc, date_now, i) {
   // 1日を切ってたら文字を赤くしよう
   $($('.date-left-extension')[i]).css('color', 'red');
   let already_exixsts = false;
