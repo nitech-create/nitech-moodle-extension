@@ -55,90 +55,10 @@ $(function () {
       let todolist = data_todolist.todolist || []; // 正しく得られたら左 (左falsy => 左)
       // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
 
-      const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|');
-
-      const courselist = $('.course-listitem .coursename').text().replace(/\s+/g, '').split('コース星付きコース名');
-      courselist.shift();
-
-      console.log($('.course-listitem .coursename').first().attr('href'));
-
-      const short = new Array(courseSize);
-      const term = new Array(courseSize);
-      const day = new Array(courseSize);
-      const name = new Array(courseSize);
-      const time = new Array(courseSize);
-      const url = new Array(courseSize);
-
-      const courses = new Array(courseSize);
-      // 以下でやってること?: courses <- courselist, courselist_short(取得してきたcourseの要素達)
-
-      for (let i = 0; i < courseSize; i++) {
-        short[i] = courselist_short[i]; // TODO: !?
-        courselist_short[i] = String(20) + courselist_short[i].replace(/-/g, '');
-
-        let courseContainer = []; // TODO: 配列ということを強調？
-        courseContainer = courselist[i].split(courselist_short[i]);
-
-        // TODO
-        console.log('courseContainer, courselist_short: ', courseContainer, courselist_short);
-
-        if (courseContainer.length == 1) {
-          // 特殊なクラス(時間割じゃないコース)
-          term[i] = 'none';
-          name[i] = courseContainer[0];
-          time[i] = 'none';
-          url[i] = $('.course-listitem .coursename').eq(i).attr('href');
-        } else {
-          // 通常クラス
-          name[i] = courseContainer[0];
-          courseContainer[1] = courseContainer[1].split('期');
-          term[i] = courseContainer[1].shift();
-          courseContainer[1] = courseContainer[1][0].split('曜');
-          day[i] = courseContainer[1].shift();
-          courseContainer[1] = courseContainer[1][0].split('限');
-          time[i] = courseContainer[1].shift();
-          url[i] = $('.course-listitem .coursename').eq(i).attr('href');
-        }
-
-        courses[i] = {
-          term: term[i],
-          name: name[i],
-          day: day[i],
-          short: short[i],
-          time: time[i],
-          url: url[i],
-        };
-      }
+      const courses = convertAndLoadCourses(courseSize);
 
       // ナビゲーション文字入れ替え
-      const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
-
-      let count = 0;
-      $('.depth_1 ul')
-        .first()
-        .children('li')
-        .last()
-        .children('ul')
-        .children('li')
-        .each(function () {
-          let tf = false;
-          count++;
-          for (let i = 0; i < courseSize; i++) {
-            if ($(this).children('p').children('a').text() == courses[i].short) {
-              $(this).children('p').children('a').text(courses[i].name);
-              tf = true;
-              console.log('replaced');
-            }
-          }
-          if (tf === false) {
-            if (count == listnum) {
-              // トップに戻るボタン
-              $(this).remove();
-            } else {
-              $(this).remove();
-            }
-          }
-        });
+      reformNavi(courseSize, courses);
 
       // ストレージに保持(local->syncで他拡張機能と共有可能?)
       chrome.storage.local.set({ courses: courses }, function () {});
@@ -153,16 +73,7 @@ $(function () {
       $('nav').prepend('<p>Hello Moodle</p>');
 
       // navを左に集める＆順番最適化
-      $('#page-header').after('<div id="side-nav-extension"></div>');
-      const side_nav_extensions_css = {
-        width: '360px',
-        margin: '0px 0 0 0',
-      };
-      $('#side-nav-extension').css(side_nav_extensions_css);
-      $('#side-nav-extension').append($('.columnleft').html());
-      $('.columnleft').remove();
-      $('#side-nav-extension').append($('.columnright').html());
-      $('.columnright').remove();
+      moveNaviToLeft();
 
       const search_course = $('[data-block="html"]').last();
       // let jyouhou_security=$("[data-block=\"html\"]").first()
@@ -896,6 +807,120 @@ $(function () {
     });
   }
 });
+
+function moveNaviToLeft() {
+  $('#page-header').after('<div id="side-nav-extension"></div>');
+  const side_nav_extensions_css = {
+    width: '360px',
+    margin: '0px 0 0 0',
+  };
+  $('#side-nav-extension').css(side_nav_extensions_css);
+  $('#side-nav-extension').append($('.columnleft').html());
+  $('.columnleft').remove();
+  $('#side-nav-extension').append($('.columnright').html());
+  $('.columnright').remove();
+}
+
+function reformNavi(courseSize, courses) {
+  // ナビゲーション文字入れ替え
+  const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
+
+  let count = 0;
+  $('.depth_1 ul')
+    .first()
+    .children('li')
+    .last()
+    .children('ul')
+    .children('li')
+    .each(function () {
+      // function this注意
+      let tf = false; // TODO: tfとは？
+      count++;
+
+      for (let i = 0; i < courseSize; i++) {
+        if ($(this).children('p').children('a').text() == courses[i].short) {
+          $(this).children('p').children('a').text(courses[i].name);
+          tf = true;
+          console.log('replaced');
+        }
+      }
+
+      if (tf === false) {
+        if (count == listnum) {
+          // トップに戻るボタン
+          $(this).remove();
+        } else {
+          $(this).remove();
+        }
+      }
+    });
+}
+
+// TODO: 関数名
+function convertAndLoadCourses(courseSize) {
+  const courses = new Array(courseSize);
+  // 以下でやってること?: courses <- courselist, courselist_short(取得してきたcourseの要素達)
+  const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|');
+
+  const courselist = $('.course-listitem .coursename').text().replace(/\s+/g, '').split('コース星付きコース名');
+  courselist.shift();
+
+  console.log($('.course-listitem .coursename').first().attr('href'));
+
+  const short = new Array(courseSize);
+  const term = new Array(courseSize);
+  const day = new Array(courseSize);
+  const name = new Array(courseSize);
+  const time = new Array(courseSize);
+  const url = new Array(courseSize);
+
+  for (let i = 0; i < courseSize; i++) {
+    short[i] = courselist_short[i]; // TODO: !?
+    courselist_short[i] = String(20) + courselist_short[i].replace(/-/g, ''); // constなのに！？ <- 配列なので書き換えできる
+
+    let courseContainer = []; // TODO: 配列ということを強調？
+    courseContainer = courselist[i].split(courselist_short[i]);
+    // ["授業名", "(前/後)期(月/...)曜(n-n')限_cls"]
+    // TODO:
+    console.log('courseContainer0: ', courseContainer);
+
+    if (courseContainer.length == 1) {
+      // 特殊なクラス(時間割じゃないコース)
+      term[i] = 'none';
+      name[i] = courseContainer[0];
+      time[i] = 'none';
+      url[i] = $('.course-listitem .coursename').eq(i).attr('href');
+    } else {
+      // 通常クラス
+      name[i] = courseContainer[0];
+
+      // TODO: ここ絶対キレイに書ける
+      courseContainer[1] = courseContainer[1].split('期');
+      console.log('courseContainer[1] ', courseContainer[1]);
+      term[i] = courseContainer[1].shift();
+
+      courseContainer[1] = courseContainer[1][0].split('曜');
+      console.log(courseContainer[1]);
+      day[i] = courseContainer[1].shift();
+
+      console.log(courseContainer[1]);
+      courseContainer[1] = courseContainer[1][0].split('限');
+      time[i] = courseContainer[1].shift();
+
+      url[i] = $('.course-listitem .coursename').eq(i).attr('href');
+    }
+
+    courses[i] = {
+      term: term[i],
+      name: name[i],
+      day: day[i],
+      short: short[i],
+      time: time[i],
+      url: url[i],
+    };
+  }
+  return courses;
+}
 
 // ミリ秒から時間計算するやつ ->マイナスの時間の処
 function msToTime(duration) {
