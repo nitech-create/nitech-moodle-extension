@@ -2,52 +2,6 @@ let defaultOptions;
 // onInstalled: 拡張機能がインストールされたときの処理
 chrome.runtime.onInstalled.addListener(onLoad);
 
-function loadJson(filePath, callback) {
-  chrome.runtime.getPackageDirectoryEntry(function (root) {
-    // get file
-    root.getFile(filePath, { create: false }, function (sample) {
-      // callback
-      sample.file(function (file) {
-        // read file
-        const reader = new FileReader();
-        reader.readAsText(file);
-        reader.addEventListener('load', function (e) {
-          // parse and return json
-          // const response = {
-          //   url: chrome.extension.getURL('data'),
-          //   settings: JSON.parse(e.target.result),
-          // };
-
-          const json = JSON.parse(e.target.result);
-          callback(json, chrome.extension.getURL('data'));
-        });
-      });
-    });
-  });
-}
-
-const accessOptions = {
-  // eslint-disable-next-line no-unused-vars
-  loadOptions: async function(options) {
-    // storageから現在の設定を取得
-
-    try {
-      options.backgroundColor = await getStorage('backgroundColor');
-      options.hideNavOnVideo = await getStorage('hideNavOnVideo');
-    } catch (e) {
-      console.log(e);
-    }
-  },
-
-  saveOptions: function(options) {
-    // storageにデータを保存
-    console.log('save: ', options);
-    chrome.storage.local.set(options); // TODO
-    // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
-    // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
-  },
-};
-
 // request Listener処理
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log('sender: ', sender);
@@ -89,10 +43,56 @@ function onLoad() {
   });
 }
 
+function loadJson(filePath, callback) {
+  chrome.runtime.getPackageDirectoryEntry(function (root) {
+    // get file
+    root.getFile(filePath, { create: false }, function (sample) {
+      // callback
+      sample.file(function (file) {
+        // read file
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.addEventListener('load', function (e) {
+          // parse and return json
+          // const response = {
+          //   url: chrome.extension.getURL('data'),
+          //   settings: JSON.parse(e.target.result),
+          // };
+
+          const json = JSON.parse(e.target.result);
+          callback(json, chrome.extension.getURL('data'));
+        });
+      });
+    });
+  });
+}
+
+const accessOptions = {
+  // eslint-disable-next-line no-unused-vars
+  loadOptions: async function (options) {
+    // storageから現在の設定を取得
+
+    try {
+      options.backgroundColor = await getStorage('backgroundColor');
+      options.hideNavOnVideo = await getStorage('hideNavOnVideo');
+    } catch (e) {
+      console.log(e);
+    }
+  },
+
+  saveOptions: function (options) {
+    // storageにデータを保存
+    console.log('save: ', options);
+    chrome.storage.local.set(options); // TODO
+    // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
+    // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
+  },
+};
+
 // eslint-disable-next-line no-unused-vars
 const accessStorage = {
   // eslint-disable-next-line no-unused-vars
-  getStorage: function getStorage(key) {
+  getStorage: key => {
     // chrome.storage.local.getのPromiseラッパー
 
     return new Promise((resolve, reject) => {
