@@ -1,6 +1,33 @@
-let defaultOptions;
 // onInstalled: 拡張機能がインストールされたときの処理
 chrome.runtime.onInstalled.addListener(onLoad);
+
+let defaultOptions;
+function onLoad() {
+  console.log('onLoad');
+
+  // load defaultOptions
+  loadJson('./options/defaultOptions.json', loadedDefaultOptions => {
+    defaultOptions = loadedDefaultOptions; // backgroundEvent.jsが値を保持。
+
+    // storageにoptionsが無い時、defaultを読み込んで保存する
+    const key = 'optionsVersion';
+    chrome.storage.local.get(key, data => {
+      console.log('data: ', data[key]);
+
+      if (
+        !data.hasOwnProperty(key) ||
+        !(data[key] === defaultOptions.optionsVersion)
+      ) {
+        // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
+
+        console.log('None options. And save options.');
+
+        chrome.storage.local.set(defaultOptions);
+        console.log('saved default options.');
+      }
+    });
+  });
+}
 
 // request Listener処理
 // TODO: 複数同時指定
@@ -42,29 +69,29 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   const src = request.src;
   switch (request.item) {
     case 'defaultOptions':
-      sendResponse({ defaultOptions: defaultOptions });
+      sendResponse(defaultOptions);
       break;
     case 'loadJson':
       loadJson(src, json => {
-        sendResponse({ loadJson: json });
+        sendResponse(json);
       });
       break;
     case 'loadOptions':
-      sendResponse({ loadOptions: accessOptions.loadOptions(src) });
+      accessOptions.loadOptionsWrapper(loadedOptions => {
+        sendResponse(loadedOptions);
+      });
       break;
     case 'saveOptions':
-      sendResponse({ saveOptions: accessOptions.saveOptions(src) });
+      sendResponse(accessOptions.saveOptions(src));
       break;
     case 'clearStorage':
-      sendResponse({ clearStorage: accessStorage.clearStorage() });
+      sendResponse(accessStorage.clearStorage());
       break;
     case 'getStorage':
-      // accessStorage.getStorageWrapper()
-      getStorageWrapper(src, item => {
-        console.log('getStorage item: ', item);
-        sendResponse({ getStorage: item });
+      accessStorage.getStorageWrapper(src, item => {
+        // console.log('getStorage item: ', item);
+        sendResponse(item);
       });
-
       break;
   }
   return true;
@@ -94,62 +121,31 @@ function loadJson(filePath, callback) {
   });
 }
 
-function onLoad() {
-  console.log('onLoad');
-
-  // load defaultOptions
-  loadJson('./options/defaultOptions.json', loadedDefaultOptions => {
-    defaultOptions = loadedDefaultOptions; // backgroundEvent.jsが値を保持。
-
-    // storageにoptionsが無い時、defaultを読み込んで保存する
-    const key = 'optionsVersion';
-    chrome.storage.local.get(key, data => {
-      console.log('data: ', data[key]);
-
-      if (
-        !data.hasOwnProperty(key) ||
-        !(data[key] === loadedDefaultOptions.optionsVersion)
-      ) {
-        // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
-
-        console.log('None options. And save options.');
-
-        chrome.storage.local.set(loadedDefaultOptions);
-        console.log('saved default options.');
-      }
-    });
-  });
-}
-
-async function getStorageWrapper(key, callback) {
-  const item = await accessStorage.getStorage(key);
-  callback(item);
-}
-
 const accessOptions = {
-  getStorageWrapper: async function (key, callback) {
-    const item = await getStorage(key);
-    callback(item);
-    return item;
+  // eslint-disable-next-line no-unused-vars
+  loadOptionsWrapper: async callback => {
+    const options = {};
+    Object.assign(options, defaultOptions);
+    accessOptions.loadOptions(options, callback);
   },
 
-  // eslint-disable-next-line no-unused-vars
-  loadOptions: async options => {
+  loadOptions: async (options, callback) => {
     // storageから現在の設定を取得
-
     try {
-      options.backgroundColor = await getStorage('backgroundColor');
-      options.hideNavOnVideo = await getStorage('hideNavOnVideo');
+      options.backgroundColor = await accessStorage.getStorage(
+        'backgroundColor',
+      );
+      options.hideNavOnVideo = await accessStorage.getStorage('hideNavOnVideo');
     } catch (e) {
       console.log(e);
     }
-    return options;
+    callback(options);
   },
 
   saveOptions: options => {
     // storageにデータを保存
-    console.log('save: ', options);
-    chrome.storage.local.set(options); // TODO
+    chrome.storage.local.set(options);
+    console.log('saved: ', options);
     // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
     // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
   },
@@ -157,6 +153,12 @@ const accessOptions = {
 
 // eslint-disable-next-line no-unused-vars
 const accessStorage = {
+  getStorageWrapper: async (key, callback) => {
+    const item = await accessStorage.getStorage(key);
+    callback(item);
+    return item;
+  },
+
   // eslint-disable-next-line no-unused-vars
   getStorage: key => {
     // chrome.storage.local.getのPromiseラッパー
