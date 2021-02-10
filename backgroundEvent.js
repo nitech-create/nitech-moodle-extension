@@ -1,21 +1,7 @@
-let defaultOptions;
 // onInstalled: 拡張機能がインストールされたときの処理
 chrome.runtime.onInstalled.addListener(onLoad);
 
-// request Listener処理
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('sender: ', sender);
-  switch (request.item) {
-    case 'defaultOptions':
-      sendResponse({ defaultOptions: defaultOptions });
-    case 'accessStorage':
-      sendResponse({ accessStorage: accessStorage });
-    case 'accessOptions':
-      console.log('response accessOptions: ', accessOptions);
-      sendResponse({ accessOptions: accessOptions });
-  }
-});
-
+let defaultOptions;
 function onLoad() {
   console.log('onLoad');
 
@@ -30,18 +16,86 @@ function onLoad() {
 
       if (
         !data.hasOwnProperty(key) ||
-        !(data[key] === loadedDefaultOptions.optionsVersion)
+        !(data[key] === defaultOptions.optionsVersion)
       ) {
         // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
 
         console.log('None options. And save options.');
 
-        chrome.storage.local.set(loadedDefaultOptions);
+        chrome.storage.local.set(defaultOptions);
         console.log('saved default options.');
       }
     });
   });
 }
+
+// request Listener処理
+// TODO: 複数同時指定
+/*
+chrome.runtime.onConnect.addListener(function (port) {
+  console.log('port: ', port);
+  // console.assert(port.name == 'backgroundEvent');
+  port.onMessage.addListener(function (request) {
+    console.log('request: ', request);
+    const src = request.src;
+    switch (request.item) {
+      case 'defaultOptions':
+        port.postMessage({ defaultOptions: defaultOptions });
+        break;
+      case 'loadJson':
+        loadJson(src, json => {
+          port.postMessage({ loadJson: json });
+        });
+        break;
+      case 'loadOptions':
+        port.postMessage({ loadOptions: accessOptions.loadOptions(src) });
+        break;
+      case 'saveOptions':
+        port.postMessage({ saveOptions: accessOptions.saveOptions(src) });
+      case 'clearStorage':
+        port.postMessage({ clearStorage: accessStorage.clearStorage() });
+        break;
+      case 'getStorage':
+        getStorageWrapper(src, item => {
+          port.postMessage({ getStorage: item });
+        });
+        break;
+    }
+  });
+});*/
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log('sender: ', sender);
+  const src = request.src;
+  switch (request.item) {
+    case 'defaultOptions':
+      sendResponse(defaultOptions);
+      break;
+    case 'loadJson':
+      loadJson(src, json => {
+        sendResponse(json);
+      });
+      break;
+    case 'loadOptions':
+      accessOptions.loadOptionsWrapper(loadedOptions => {
+        sendResponse(loadedOptions);
+      });
+      break;
+    case 'saveOptions':
+      sendResponse(accessOptions.saveOptions(src));
+      break;
+    case 'clearStorage':
+      sendResponse(accessStorage.clearStorage());
+      break;
+    case 'getStorage':
+      accessStorage.getStorageWrapper(src, item => {
+        // console.log('getStorage item: ', item);
+        sendResponse(item);
+      });
+      break;
+  }
+  return true;
+});
 
 function loadJson(filePath, callback) {
   chrome.runtime.getPackageDirectoryEntry(function (root) {
@@ -69,21 +123,29 @@ function loadJson(filePath, callback) {
 
 const accessOptions = {
   // eslint-disable-next-line no-unused-vars
-  loadOptions: async function (options) {
-    // storageから現在の設定を取得
+  loadOptionsWrapper: async callback => {
+    const options = {};
+    Object.assign(options, defaultOptions);
+    accessOptions.loadOptions(options, callback);
+  },
 
+  loadOptions: async (options, callback) => {
+    // storageから現在の設定を取得
     try {
-      options.backgroundColor = await getStorage('backgroundColor');
-      options.hideNavOnVideo = await getStorage('hideNavOnVideo');
+      options.backgroundColor = await accessStorage.getStorage(
+        'backgroundColor',
+      );
+      options.hideNavOnVideo = await accessStorage.getStorage('hideNavOnVideo');
     } catch (e) {
       console.log(e);
     }
+    callback(options);
   },
 
-  saveOptions: function (options) {
+  saveOptions: options => {
     // storageにデータを保存
-    console.log('save: ', options);
-    chrome.storage.local.set(options); // TODO
+    chrome.storage.local.set(options);
+    console.log('saved: ', options);
     // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
     // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
   },
@@ -91,6 +153,12 @@ const accessOptions = {
 
 // eslint-disable-next-line no-unused-vars
 const accessStorage = {
+  getStorageWrapper: async (key, callback) => {
+    const item = await accessStorage.getStorage(key);
+    callback(item);
+    return item;
+  },
+
   // eslint-disable-next-line no-unused-vars
   getStorage: key => {
     // chrome.storage.local.getのPromiseラッパー
@@ -113,7 +181,7 @@ const accessStorage = {
   },
 
   // eslint-disable-next-line no-unused-vars
-  clearStorage: function clearStorage() {
+  clearStorage: () => {
     chrome.storage.local.clear(function () {
       const error = chrome.runtime.lastError;
       if (error) {

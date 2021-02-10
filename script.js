@@ -1,47 +1,33 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
+
+// TODO: 名前かぶりそう
+function hideNav() {
+  $('#page-content.blocks-pre .columnleft ').css({
+    display: 'none',
+  });
+  $('#page-content.blocks-pre .region-main').css({
+    flex: '0 0 100%',
+    'max-width': '100%',
+    padding: '0 1rem 0 1rem',
+  });
+}
+
 $(function () {
   console.log('[moodle assistant for NITech] page: ' + location.href);
 
-  chrome.runtime.sendMessage({ item: 'defaultOptions' }, function (response) {
-    console.log('response defaultOptions: ', response.defaultOptions);
-  });
+  chrome.runtime.sendMessage({ item: 'loadOptions' }, options => {
+    console.log('response options: ', options);
+    console.log(options.backgroundColor);
+    $('body').css('background-color', options.backgroundColor); // 背景色変更
 
-  chrome.runtime.sendMessage({ item: 'accessOptions' }, function (response) {
-    console.log('response: ', response.accessOptions);
-    // response.accessOptions.loadOptions(options => {
-    //   console.log('options.backgroundColor: ', options.backgroundColor);
-    // });
-  });
-
-  chrome.storage.local.get('backgroundColor', function (data) {
-    if (data.backgroundColor == undefined) {
-      // TODO: 現在はoptionsにも、呼び出す側にもこれがあるため、散らばっている。たとえばプラグイン初回読み込み時に初期化(default値を定義する関数を呼び出す)するだとかが必要だと思われる。
-      data.backgroundColor = 'NavajoWhite';
-    }
-    $('body').css('background-color', data.backgroundColor); // 背景色変更
-  });
-
-  // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
-  chrome.storage.local.get('hideNavOnVideo', function (data) {
-    const hideNav = data.hideNavOnVideo;
-    console.log(
-      '[moodle assistant for NITech] hideNavOnVideo: ' + (hideNav || 'false'),
-    );
-
+    // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
     if (
-      hideNav === true &&
+      options.hideNavOnVideo === true &&
       location.href ===
         'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
     ) {
-      $('#page-content.blocks-pre .columnleft ').css({
-        display: 'none',
-      });
-      $('#page-content.blocks-pre .region-main').css({
-        flex: '0 0 100%',
-        'max-width': '100%',
-        padding: '0 1rem 0 1rem',
-      });
+      hideNav();
     }
   });
 
