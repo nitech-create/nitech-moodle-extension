@@ -38,6 +38,14 @@ $(function () {
     location.href == 'https://cms6.ict.nitech.ac.jp/moodle38a/my/#'
   ) {
     // topページでの処理
+    onTopPage();
+  } else {
+    // topページ以外での処理
+    outTopPage();
+  }
+
+  function onTopPage() {
+    // topページでの処理
     let load = setInterval(function () {
       if (value[0] === undefined) {
         // メインコンテンツ読み込めたかcheck
@@ -116,6 +124,7 @@ $(function () {
             .eq(2)
             .children('ul')
             .children('li').length;
+
           let count = 0;
           $('.depth_1 ul')
             .first()
@@ -190,7 +199,9 @@ $(function () {
             badges,
           );
 
-          // 直近イベントを見やすく  ->http requestつかって何の教科か出したいけど、セッションとかがわからん ->サーバーには負荷をかけない方向でいこう(http requestとかはなしで)
+          // 直近イベントを見やすく
+          // -> http requestつかって何の教科か出したいけど、セッションとかがわからん
+          // -> サーバーには負荷をかけない方向でいこう(http requestとかはなしで)
           const events = calendar_upcoming
             .children('div')
             .children('div')
@@ -369,6 +380,7 @@ $(function () {
                       todo_remain = true;
                     }
                   }
+
                   if (todo_remain == true) {
                     $('#today_todo_extension').append(
                       '<tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>',
@@ -378,6 +390,7 @@ $(function () {
                       '<tr><td id="task_done_extension">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>',
                     );
                   }
+
                   for (let i = 0; i < todolist.length; i++) {
                     const todolist_index = i;
                     if (todolist[i].time.match(/-/)) {
@@ -405,6 +418,7 @@ $(function () {
                           '">この課題の提出先に移動する</a></td></tr>',
                       );
                     }
+
                     if (todolist[i].complete == true) {
                       // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension"))
                       // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension").parent())
@@ -926,8 +940,9 @@ $(function () {
         }
       }
     }
-  } else {
-    // topページ以外での処理
+  }
+
+  function outTopPage() {
     chrome.storage.local.get('courses', function (data) {
       const coursenum = data.courses.length;
       // ナビゲーション文字入れ替え
@@ -969,6 +984,7 @@ $(function () {
     });
   }
 });
+
 // ミリ秒から時間計算するやつ ->マイナスの時間の処
 function msToTime(duration) {
   let message_return;
@@ -1015,7 +1031,6 @@ function msToTime(duration) {
 }
 
 // 時間割から時間にするやつ
-
 function timetableToTime(timetable) {
   let truetime;
   switch (timetable) {
