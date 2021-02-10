@@ -33,20 +33,17 @@ $(function () {
 
   function onTopPage() {
     // topページでの処理
-    let value = $('.coursename');
-    const load = setInterval(function () {
-      if (value[0]) {
-        // メインコンテンツ読み込めていない
+    const reload = function(){
+      const value = $('.coursename');
+      if(isUndefined(value[0])){
         console.log('yet');
-
-        // interval後に再取得
-        value = $('.coursename');
-      } else {
-        clearInterval(load);
+        setTimeout(reload, 500);
+      }else{
         console.log('done');
         reformTopPage(value);
       }
-    }, 500);
+    }
+    reload();
   }
 
   function reformTopPage(value) {
