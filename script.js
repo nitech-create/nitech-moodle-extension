@@ -11,8 +11,7 @@ $(function () {
     // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
     if (
       options.hideNavOnVideo === true &&
-      location.href ===
-        'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
+      location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
     ) {
       hideNav();
     }
@@ -33,79 +32,71 @@ $(function () {
 
   function onTopPage() {
     // topページでの処理
-    const reload = function(){
-      const value = $('.coursename');
-      if(isUndefined(value[0])){
+    const reload = () => {
+      const courseValue = $('.coursename');
+      if (isUndefined(courseValue[0])) {
         console.log('yet');
         setTimeout(reload, 500);
-      }else{
+      } else {
         console.log('done');
-        reformTopPage(value);
+        reformTopPage(courseValue.length);
+        // TODO:
+        console.log('value: ', courseValue.length, courseValue);
       }
-    }
+    };
+
     reload();
   }
 
-  function reformTopPage(value) {
+  function reformTopPage(courseSize) {
     // 読み込み終わったらの処理
     // todolistの作成(取得?)
-    chrome.storage.local.get('todolist', function (data_todolist) {
-      // TODO
+    chrome.storage.local.get('todolist', data_todolist => {
       let todolist = data_todolist.todolist || []; // 正しく得られたら左 (左falsy => 左)
+      // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
 
-      const courselist_short = $('.course-listitem .text-muted div')
-        .text()
-        .slice(1)
-        .split('|');
+      const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|');
 
-      let courselist = []; // TODO: ?
-      courselist = $('.course-listitem .coursename')
-        .text()
-        .replace(/\s+/g, '')
-        .split('コース星付きコース名');
+      const courselist = $('.course-listitem .coursename').text().replace(/\s+/g, '').split('コース星付きコース名');
       courselist.shift();
 
       console.log($('.course-listitem .coursename').first().attr('href'));
 
-      const for_split = courselist_short; // ?
+      const short = new Array(courseSize);
+      const term = new Array(courseSize);
+      const day = new Array(courseSize);
+      const name = new Array(courseSize);
+      const time = new Array(courseSize);
+      const url = new Array(courseSize);
 
-      // TODO:
-      console.log('value: ', value.length, value);
+      const courses = new Array(courseSize);
+      // 以下でやってること?: courses <- courselist, courselist_short(取得してきたcourseの要素達)
 
-      const coursenum = value.length;
-      const short = new Array(coursenum);
-      const term = new Array(coursenum);
-      const day = new Array(coursenum);
-      const name = new Array(coursenum);
-      const time = new Array(coursenum);
-      const url = new Array(coursenum);
+      for (let i = 0; i < courseSize; i++) {
+        short[i] = courselist_short[i]; // TODO: !?
+        courselist_short[i] = String(20) + courselist_short[i].replace(/-/g, '');
 
-      const courses = new Array(coursenum);
-
-      for (let i = 0; i < coursenum; i++) {
-        let container = []; // TODO: ?
-        short[i] = courselist_short[i];
-        for_split[i] = String(20) + for_split[i].replace(/-/g, '');
-        container = courselist[i].split(for_split[i]);
+        let courseContainer = []; // TODO: 配列ということを強調？
+        courseContainer = courselist[i].split(courselist_short[i]);
 
         // TODO
-        console.log('container: ', container);
+        console.log('courseContainer, courselist_short: ', courseContainer, courselist_short);
 
-        if (container.length == 1) {
+        if (courseContainer.length == 1) {
           // 特殊なクラス(時間割じゃないコース)
           term[i] = 'none';
-          name[i] = container[0];
+          name[i] = courseContainer[0];
           time[i] = 'none';
           url[i] = $('.course-listitem .coursename').eq(i).attr('href');
         } else {
           // 通常クラス
-          name[i] = container[0];
-          container[1] = container[1].split('期');
-          term[i] = container[1].shift();
-          container[1] = container[1][0].split('曜');
-          day[i] = container[1].shift();
-          container[1] = container[1][0].split('限');
-          time[i] = container[1].shift();
+          name[i] = courseContainer[0];
+          courseContainer[1] = courseContainer[1].split('期');
+          term[i] = courseContainer[1].shift();
+          courseContainer[1] = courseContainer[1][0].split('曜');
+          day[i] = courseContainer[1].shift();
+          courseContainer[1] = courseContainer[1][0].split('限');
+          time[i] = courseContainer[1].shift();
           url[i] = $('.course-listitem .coursename').eq(i).attr('href');
         }
 
@@ -120,12 +111,7 @@ $(function () {
       }
 
       // ナビゲーション文字入れ替え
-      const listnum = $('.depth_1 ul')
-        .first()
-        .children('li')
-        .eq(2)
-        .children('ul')
-        .children('li').length;
+      const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
 
       let count = 0;
       $('.depth_1 ul')
@@ -137,10 +123,8 @@ $(function () {
         .each(function () {
           let tf = false;
           count++;
-          for (let i = 0; i < coursenum; i++) {
-            if (
-              $(this).children('p').children('a').text() == courses[i].short
-            ) {
+          for (let i = 0; i < courseSize; i++) {
+            if ($(this).children('p').children('a').text() == courses[i].short) {
               $(this).children('p').children('a').text(courses[i].name);
               tf = true;
               console.log('replaced');
@@ -214,11 +198,7 @@ $(function () {
 
       for (let i = 0; i < events.length; i++) {
         $(events[i]).children('.date').append('');
-        $(events[i])
-          .children('.date')
-          .append(
-            '<br>残り時間 ： <span class="date-left-extension">計算中</span>',
-          );
+        $(events[i]).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
       }
 
       $('.date-left-extension').css('color', 'black');
@@ -292,20 +272,12 @@ $(function () {
           $('.date-left-extension').empty();
           for (let i = 0; i < events.length; i++) {
             const task_date_txt = $(events[i]).children('.date').text();
-            const task_date = task_date_txt
-              .replace(/[\s+,]/g, '')
-              .split(/[:年日月残]/);
+            const task_date = task_date_txt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
             let task_date_calc;
             let date_now;
 
             if (task_date.length == 6) {
-              task_date_calc = new Date(
-                task_date[0],
-                task_date[1] - 1,
-                task_date[2],
-                task_date[3],
-                task_date[4],
-              );
+              task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]);
               date_now = new Date();
             } else {
               if (task_date[0] == '明') {
@@ -330,9 +302,7 @@ $(function () {
               }
             }
 
-            $($('.date-left-extension')[i]).text(
-              msToTime(task_date_calc - date_now),
-            );
+            $($('.date-left-extension')[i]).text(msToTime(task_date_calc - date_now));
 
             if (task_date_calc - date_now < 86400000) {
               // 1日を切ってたら文字を赤くしよう
@@ -465,34 +435,15 @@ $(function () {
                 if ($(this).parent().parent().css('opacity') == '1') {
                   $(this).parent().parent().animate({ opacity: '0.6' }, 100);
                   $(this).text('未完了に戻す');
-                  $(this)
-                    .parent()
-                    .parent()
-                    .children('.strike_todo_extension')
-                    .wrap('<s>');
-                  todolist[
-                    $(this).attr('data-index_extension')
-                  ].complete = true;
-                  chrome.storage.local.set(
-                    { todolist: todolist },
-                    function () {},
-                  );
+                  $(this).parent().parent().children('.strike_todo_extension').wrap('<s>');
+                  todolist[$(this).attr('data-index_extension')].complete = true;
+                  chrome.storage.local.set({ todolist: todolist }, function () {});
                 } else {
                   $(this).parent().parent().animate({ opacity: '1.0' }, 100);
                   $(this).text('完了する');
-                  $(this)
-                    .parent()
-                    .parent()
-                    .children('s')
-                    .children('.strike_todo_extension')
-                    .unwrap();
-                  todolist[
-                    $(this).attr('data-index_extension')
-                  ].complete = false;
-                  chrome.storage.local.set(
-                    { todolist: todolist },
-                    function () {},
-                  );
+                  $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
+                  todolist[$(this).attr('data-index_extension')].complete = false;
+                  chrome.storage.local.set({ todolist: todolist }, function () {});
                 }
                 let todo_remain = false;
                 for (let i = 0; i < todolist.length; i++) {
@@ -555,10 +506,7 @@ $(function () {
       // eslint-disable-next-line no-undef
       editCalender(calendar_month);
 
-      $('#link-to-calendar').attr(
-        'href',
-        $('.current').eq(1).children('a').attr('href'),
-      );
+      $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
       $('#link-to-calendar').css('margin', 'auto auto auto 150px');
     });
   }
@@ -603,9 +551,7 @@ $(function () {
       }
     }
     if (special_exists == false) {
-      $('#special_class_extension').append(
-        '<tr><td>登録されていないようです。</td></tr>',
-      );
+      $('#special_class_extension').append('<tr><td>登録されていないようです。</td></tr>');
     }
   }
 
@@ -645,52 +591,32 @@ $(function () {
             case '1-2':
               $('#onegen_extension').css('background-color', 'white');
               $('#onegen_extension').text(courses[i].name);
-              $('#onegen_extension').append(
-                '<br><a href="' +
-                  courses[i].url +
-                  '">この授業のページに移動する</a>',
-              );
+              $('#onegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
               set[0] = true;
 
               break;
             case '3-4':
               $('#threegen_extension').css('background-color', 'white');
               $('#threegen_extension').text(courses[i].name + '\n');
-              $('#threegen_extension').append(
-                '<br><a href="' +
-                  courses[i].url +
-                  '">この授業のページに移動する</a>',
-              );
+              $('#threegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
               set[1] = true;
               break;
             case '5-6':
               $('#fivegen_extension').css('background-color', 'white');
               $('#fivegen_extension').text(courses[i].name + '\n');
-              $('#fivegen_extension').append(
-                '<br><a href="' +
-                  courses[i].url +
-                  '">この授業のページに移動する</a>',
-              );
+              $('#fivegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
               set[2] = true;
               break;
             case '7-8':
               $('#sevengen_extension').css('background-color', 'white');
               $('#sevengen_extension').text(courses[i].name + '\n');
-              $('#sevengen_extension').append(
-                '<br><a href="' +
-                  courses[i].url +
-                  '">この授業のページに移動する</a>',
-              );
+              $('#sevengen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
               set[3] = true;
               break;
             case '9-10':
               $('#ninegen_extension').css('background-color', 'white');
               $('#ninegen_extension').text(courses[i].name + '\n');
-              $('#ninegen_extension').append(
-                '<br><a href="' +
-                  courses[i].url +
-                  '">この授業のページに移動する</a>',
-              );
+              $('#ninegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
               set[4] = true;
               break;
           }
@@ -833,11 +759,7 @@ $(function () {
             };
             $('#overlay_extension tr td').css(classtableoverlaytrtd);
           }
-          drawClasses(
-            $('#term_select_extension').val(),
-            $(this).val(),
-            courses,
-          );
+          drawClasses($('#term_select_extension').val(), $(this).val(), courses);
           $('.extension_delete').empty();
         });
         $('#term_select_extension').change(function () {
@@ -863,22 +785,13 @@ $(function () {
           if ($(this).parent().parent().css('opacity') == '1') {
             $(this).parent().parent().animate({ opacity: '0.6' }, 100);
             $(this).text('未完了に戻す');
-            $(this)
-              .parent()
-              .parent()
-              .children('.strike_todo_extension')
-              .wrap('<s>');
+            $(this).parent().parent().children('.strike_todo_extension').wrap('<s>');
             todolist[$(this).attr('data-index_extension')].complete = true;
             chrome.storage.local.set({ todolist: todolist }, function () {});
           } else {
             $(this).parent().parent().animate({ opacity: '1.0' }, 100);
             $(this).text('完了する');
-            $(this)
-              .parent()
-              .parent()
-              .children('s')
-              .children('.strike_todo_extension')
-              .unwrap();
+            $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
             todolist[$(this).attr('data-index_extension')].complete = false;
             chrome.storage.local.set({ todolist: todolist }, function () {});
           }
@@ -953,12 +866,7 @@ $(function () {
     chrome.storage.local.get('courses', function (data) {
       const coursenum = data.courses.length;
       // ナビゲーション文字入れ替え
-      const listnum = $('.depth_1 ul')
-        .first()
-        .children('li')
-        .eq(2)
-        .children('ul')
-        .children('li').length;
+      const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
       let count = 0;
 
       $('.depth_1 ul')
@@ -971,10 +879,7 @@ $(function () {
           let tf = false;
           count++;
           for (let i = 0; i < coursenum; i++) {
-            if (
-              $(this).children('p').children('a').text() ==
-              data.courses[i].short
-            ) {
+            if ($(this).children('p').children('a').text() == data.courses[i].short) {
               $(this).children('p').children('a').text(data.courses[i].name);
               tf = true;
             }
@@ -1034,8 +939,7 @@ function msToTime(duration) {
       return hours + '時間 ' + minutes + '分 超過しています';
     }
 
-    message_return =
-      days + '日 ' + hours + '時間 ' + minutes + '分 超過しています';
+    message_return = days + '日 ' + hours + '時間 ' + minutes + '分 超過しています';
   }
   return message_return;
 }
