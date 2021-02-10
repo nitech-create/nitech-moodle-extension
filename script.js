@@ -51,9 +51,9 @@ $(function () {
     // todolistの作成(取得?)
     let todolist = [];
     chrome.storage.local.get('todolist', function (data_todolist) {
-      if (isUndefined(data_todolist.todolist)) {
-        // TODO
-      }
+      // TODO
+      // if (isUndefined(data_todolist.todolist)) {
+      // }
       if (data_todolist.todolist != undefined) {
         todolist = data_todolist.todolist;
       }
@@ -252,10 +252,10 @@ $(function () {
         $('#term_select_extension option').eq(1).prop('selected', true);
       }
 
-      draw_classes(term_now, now_day, courses, todolist);
+      drawClasses(term_now, now_day, courses, todolist);
 
       // 時間割外のクラスを追加
-      draw_specialclasses(courses);
+      drawSpecialclasses(courses);
 
       const specialtrtd = {
         padding: '0px 10px 0px 10px',
@@ -579,7 +579,7 @@ $(function () {
     }
   }
 
-  function draw_specialclasses(courses) {
+  function drawSpecialclasses(courses) {
     let special_exists = false;
     $('#special_class_extension').empty();
     for (let i = 0; i < courses.length; i++) {
@@ -601,14 +601,18 @@ $(function () {
     }
   }
 
-  function draw_classes(term_now, now_day, courses, todolist) {
+  function drawClasses(term_now, now_day, courses, todolist) {
     $('#classtable_extension_term').text(term_now);
     $('#day_select_extension option')
       .eq(now_day - 1)
       .prop('selected', true);
+
     now_day = ['日', '月', '火', '水', '木', '金', '土'][now_day];
+
     $('#classtable_extension_day').text(now_day);
+
     const set = [false, false, false, false, false];
+
     for (let i = 0; i < courses.length; i++) {
       if (courses[i].term == term_now) {
         if (courses[i].day == now_day) {
@@ -685,6 +689,7 @@ $(function () {
         }
       }
     }
+
     // todoリストにあるけどクラスにないもの消去(昨日の授業)
     if (todolist != undefined) {
       const new_todolist = todolist.filter(function (element) {
@@ -820,7 +825,7 @@ $(function () {
             };
             $('#overlay_extension tr td').css(classtableoverlaytrtd);
           }
-          draw_classes(
+          drawClasses(
             $('#term_select_extension').val(),
             $(this).val(),
             courses,
@@ -828,11 +833,7 @@ $(function () {
           $('.extension_delete').empty();
         });
         $('#term_select_extension').change(function () {
-          draw_classes(
-            $(this).val(),
-            $('#day_select_extension').val(),
-            courses,
-          );
+          drawClasses($(this).val(), $('#day_select_extension').val(), courses);
           $('.extension_delete').empty();
         });
 
@@ -911,6 +912,7 @@ $(function () {
         });
       });
     }
+
     for (let i = 0; i < set.length; i++) {
       if (set[i] == false) {
         switch (i) {
