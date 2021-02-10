@@ -33,11 +33,14 @@ $(function () {
 
   function onTopPage() {
     // topページでの処理
+    let value = $('.coursename');
     const load = setInterval(function () {
-      const value = $('.coursename');
       if (value[0]) {
-        // メインコンテンツ読み込めたかcheck
+        // メインコンテンツ読み込めていない
         console.log('yet');
+
+        // interval後に再取得
+        value = $('.coursename');
       } else {
         clearInterval(load);
         console.log('done');
@@ -49,30 +52,30 @@ $(function () {
   function reformTopPage(value) {
     // 読み込み終わったらの処理
     // todolistの作成(取得?)
-    let todolist = [];
     chrome.storage.local.get('todolist', function (data_todolist) {
       // TODO
-      // if (isUndefined(data_todolist.todolist)) {
-      // }
-      if (data_todolist.todolist != undefined) {
-        todolist = data_todolist.todolist;
-      }
+      let todolist = data_todolist.todolist || []; // 正しく得られたら左 (左falsy => 左)
 
-      const coursenum = value.length;
       const courselist_short = $('.course-listitem .text-muted div')
         .text()
         .slice(1)
         .split('|');
-      let courselist = [];
+
+      let courselist = []; // TODO: ?
       courselist = $('.course-listitem .coursename')
         .text()
         .replace(/\s+/g, '')
         .split('コース星付きコース名');
       courselist.shift();
+
       console.log($('.course-listitem .coursename').first().attr('href'));
 
-      const for_split = courselist_short;
+      const for_split = courselist_short; // ?
 
+      // TODO:
+      console.log('value: ', value.length, value);
+
+      const coursenum = value.length;
       const short = new Array(coursenum);
       const term = new Array(coursenum);
       const day = new Array(coursenum);
@@ -83,10 +86,14 @@ $(function () {
       const courses = new Array(coursenum);
 
       for (let i = 0; i < coursenum; i++) {
-        let container = [];
+        let container = []; // TODO: ?
         short[i] = courselist_short[i];
         for_split[i] = String(20) + for_split[i].replace(/-/g, '');
         container = courselist[i].split(for_split[i]);
+
+        // TODO
+        console.log('container: ', container);
+
         if (container.length == 1) {
           // 特殊なクラス(時間割じゃないコース)
           term[i] = 'none';
@@ -223,6 +230,7 @@ $(function () {
 
       // メインの時間割とか
       $('#page').append(
+        // TODO
         '<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id="main_extension"style="position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;"><div id="content_extension" style="padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割・授業</h1><div style="display: flex; margin: 50px 50px;"><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;"><span class="extension_delete">今日(</span><span id="classtable_extension_term">NaN</span>期<span id="classtable_extension_day">NaN</span>曜日<span class="extension_delete">)</span>の時間割<select name="term_select_extension" id="term_select_extension"><option value="前">前期</option><option value="後">後期</option></select><select name="day_select_extension" id="day_select_extension"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">週刊表示</option></select></h1><table style="border-collapse: collapse" id="classtable_extension"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">今日やるべきこと</h1><table id="today_todo_extension"><tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割外のクラス</h1><table id="special_class_extension"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>',
       );
 
@@ -275,7 +283,8 @@ $(function () {
       let oldmin;
       let newmin;
 
-      setInterval(function () {
+      // TODO:
+      setInterval(() => {
         const now_date = new Date();
         oldmin = newmin;
         newmin = now_date.getMinutes();
@@ -356,9 +365,11 @@ $(function () {
                 return exists;
               });
               todolist = new_todolist;
+
               // todoを更新
               console.log('reflesh todo');
               console.log(todolist);
+
               $('#today_todo_extension').empty();
               let todo_remain = false;
               for (let i = 0; i < todolist.length; i++) {
