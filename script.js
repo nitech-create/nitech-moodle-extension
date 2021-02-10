@@ -31,6 +31,7 @@ $(function () {
     }
   });
 
+  // TODO
   let value = $('.coursename');
   if (
     location.href == 'https://cms6.ict.nitech.ac.jp/moodle38a/my/' ||
@@ -46,7 +47,7 @@ $(function () {
 
   function onTopPage() {
     // topページでの処理
-    let load = setInterval(function () {
+    const load = setInterval(function () {
       if (value[0] === undefined) {
         // メインコンテンツ読み込めたかcheck
         value = $('.coursename');
@@ -55,7 +56,7 @@ $(function () {
         clearInterval(load);
         console.log('done');
         // 読み込み終わったらの処理
-        // todolistの作成
+        // todolistの作成(取得?)
         let todolist = [];
         chrome.storage.local.get('todolist', function (data_todolist) {
           if (data_todolist.todolist != undefined) {
@@ -86,7 +87,7 @@ $(function () {
 
           const courses = new Array(coursenum);
 
-          for (i = 0; i < coursenum; i++) {
+          for (let i = 0; i < coursenum; i++) {
             let container = [];
             short[i] = courselist_short[i];
             for_split[i] = String(20) + for_split[i].replace(/-/g, '');
@@ -281,7 +282,7 @@ $(function () {
               $('.date-left-extension').empty();
               for (let i = 0; i < events.length; i++) {
                 const task_date_txt = $(events[i]).children('.date').text();
-                let task_date = task_date_txt
+                const task_date = task_date_txt
                   .replace(/[\s+,]/g, '')
                   .split(/[:年日月残]/);
                 let task_date_calc;
@@ -989,15 +990,17 @@ $(function () {
 function msToTime(duration) {
   let message_return;
   if (duration > 0) {
-    let milliseconds = parseInt((duration % 1000) / 100);
+    // const milliseconds = parseInt((duration % 1000) / 100);
     let seconds = Math.floor((duration / 1000) % 60);
     let minutes = Math.floor((duration / (1000 * 60)) % 60);
     let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-    days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
+    const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
 
     hours = hours < 10 ? '0' + hours : hours;
     minutes = minutes < 10 ? '0' + minutes : minutes;
-    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+    // eslint-disable-next-line no-unused-vars
+    seconds = seconds < 10 ? '0' + seconds : seconds; // TODO: ESLint syntax error
     if (days == 0) {
       if (hours == 0) {
         return minutes + '分';
@@ -1008,15 +1011,16 @@ function msToTime(duration) {
     message_return = days + '日 ' + hours + '時間 ' + minutes + '分';
   } else {
     duration = -duration;
-    let milliseconds = parseInt((duration % 1000) / 100);
+    // const milliseconds = parseInt((duration % 1000) / 100);
     let seconds = Math.floor((duration / 1000) % 60);
     let minutes = Math.floor((duration / (1000 * 60)) % 60);
     let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-    days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
+    const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
 
     hours = hours < 10 ? '0' + hours : hours;
     minutes = minutes < 10 ? '0' + minutes : minutes;
-    seconds = seconds < 10 ? '0' + seconds : seconds;
+    // eslint-disable-next-line no-unused-vars
+    seconds = seconds < 10 ? '0' + seconds : seconds; // TODO: ESLint syntax error
     if (days == 0) {
       if (hours == 0) {
         return minutes + '分 超過しています';
