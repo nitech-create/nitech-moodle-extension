@@ -8,6 +8,8 @@
     "ecmaVersion": 12
   },
   "rules": {
+    "no-extra-semi": "warn",
+    "no-undef": "warn",
     "linebreak-style": ["error", "windows"],
     "require-jsdoc": [
       "error",
@@ -21,5 +23,12 @@
         }
       }
     ]
+  },
+  "globals": {
+    "alert": false,
+    "document": false,
+    "$": false,
+    "console": false,
+    "chrome": false
   }
 }
