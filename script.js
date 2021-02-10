@@ -182,7 +182,7 @@ $(function onLoad() {
         newmin = now_date.getMinutes();
 
         if (oldmin != newmin) {
-          // ( 分が変わってなければ (-> else: 現在なし) )
+          // ( 分が変わってなければ (-> else: 現在elseなし) )
 
           // 分が変わっていれば
           $('.date-left-extension').empty();
@@ -190,7 +190,10 @@ $(function onLoad() {
           // 各eventに対して、残り時間と、期限(日時?時間?)を取得し、ページに対して処理を行う(たぶん)
           for (let i = 0; i < events.length; i++) {
             const task_date_txt = $(events[i]).children('.date').text();
+            // task_date_txt:
+            // YYYY年 0n月 nn日, 23:59<br>残り時間 ： n日 n時間 n分
             const task_date = task_date_txt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
+            // task_date: [YYYY, MM, DD, hh, mm, 余り]
 
             // TODO: createTaskDateDatas関数名を変えたい
             const { task_date_calc, date_now } = createTaskDateDatas(task_date);
@@ -201,12 +204,14 @@ $(function onLoad() {
               // 1日を切ってたら文字を赤くしよう
               changeToDoListRed(todolist, events, task_date_calc, date_now, i);
             } else {
+              // TODO: 何をしているか
               $($('.date-left-extension')[i]).css('color', 'black');
             }
           }
 
           console.log(todolist);
 
+          // TODO: ?
           chrome.storage.local.set({ todolist: todolist }, function () {
             // todoリストにあるけど課題一覧にないもの消去(過ぎた課題)
             // TODO: setしてgetしてる理由が知りたい.(一旦保存して変更を加えたいなら、copyとかしてほしい...)
@@ -248,39 +253,82 @@ $(function onLoad() {
 });
 
 function createTaskDateDatas(task_date) {
+  // TODO: task_date_calcとは？
   // TODO: 関数名
-  // TODO: if式っぽく書きたい気もしなくはない。
+  // TODO: if式っぽく書きたい気もしなくはない。→ この関数の下に内容がある
   // const date_datas = {task_date_calc: task_date_calc, date_now: date_now};
 
-  const date_datas = { task_date_calc: {}, date_now: {} };
-  // let task_date_calc ;
-  // let date_now;
+  let task_date_calc;
+  let date_now;
+
   if (task_date.length == 6) {
-    date_datas.task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]);
-    date_datas.date_now = new Date();
+    task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]);
+    date_now = new Date();
   } else {
     if (task_date[0] == '明') {
-      date_datas.date_now = new Date();
-      date_datas.task_date_calc = new Date(
-        date_datas.date_now.getFullYear(),
-        date_datas.date_now.getMonth(),
-        date_datas.date_now.getDate(),
+      date_now = new Date();
+      task_date_calc = new Date(
+        date_now.getFullYear(),
+        date_now.getMonth(),
+        date_now.getDate(),
         task_date[1],
         task_date[2],
       );
-      date_datas.task_date_calc.setDate(date_datas.task_date_calc.getDate() + 1);
+
+      task_date_calc.setDate(task_date_calc.getDate() + 1); // ？←ここでよくわからない
     } else {
-      date_datas.date_now = new Date();
-      date_datas.task_date_calc = new Date(
-        date_datas.date_now.getFullYear(),
-        date_datas.date_now.getMonth(),
-        date_datas.date_now.getDate(),
+      date_now = new Date();
+      task_date_calc = new Date(
+        date_now.getFullYear(),
+        date_now.getMonth(),
+        date_now.getDate(),
         task_date[1],
         task_date[2],
       );
     }
   }
-  return date_datas;
+
+  return { task_date_calc, date_now };
+
+  // TODO: 絶対うまく動かない以下のtest
+  // const date_datas = { task_date_calc: {}, date_now: {} };
+  // 型があったらばたぶんこれは有効。でも無いからreturnの値がやばいことになる・・・！！！
+  // const test = (task_date => {
+  //   if (task_date.length == 6) {
+  //     return {
+  //       task_date_calc: new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]),
+  //       date_now: new Date(),
+  //     };
+  //   } else {
+  //     if (task_date[0] == '明') {
+  //       const tmp_task_data_clac = new Date(
+  //         date_datas.date_now.getFullYear(),
+  //         date_datas.date_now.getMonth(),
+  //         date_datas.date_now.getDate(),
+  //         task_date[1],
+  //         task_date[2],
+  //       );
+  //       tmp_task_data_clac.setDate(date_datas.task_date_calc.getDate() + 1);
+
+  //       return {
+  //         task_date_calc: tmp_task_data_clac,
+  //         date_now: new Date(),
+  //       };
+  //     } else {
+  //       return {
+  //         task_date_calc: new Date(
+  //           date_datas.date_now.getFullYear(),
+  //           date_datas.date_now.getMonth(),
+  //           date_datas.date_now.getDate(),
+  //           task_date[1],
+  //           task_date[2],
+  //         ),
+  //         date_now: new Date(),
+  //       };
+  //     }
+  //   }
+  // })(task_date);
+  // return date_datas;
 }
 
 function refleshTodo(todolist) {
