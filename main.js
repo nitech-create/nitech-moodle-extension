@@ -147,13 +147,13 @@ async function reformTopPage(courseSize) {
 
   // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
   // 直近イベントを見やすくする
-  const events = calendar_upcoming
+  const events = Array.from(calendar_upcoming
     .children('div')
     .children('div')
     .children('div')
     .first()
     .children('div')
-    .children('div');
+    .children('div'));
 
   for (let i = 0; i < events.length; i++) {
     $(events[i]).children('.date').append('');
