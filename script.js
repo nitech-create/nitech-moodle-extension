@@ -331,7 +331,7 @@ function changeToDoListRed(todolist, events, date_now, task_date_calc, i) {
   }
 }
 
-function createTaskDueDate(task_due_date, date_now) {
+function createTaskDueDate(task_date_parsed_array, date_now) {
   // TODO: 残り期間(時間)を返す関数にする？(ラップする形が良さそう)
   // task_due_date: [YYYY, MM, DD, hh, mm, 余り]→Date型にする
   // TODO: task_date_calcとは？
@@ -340,24 +340,24 @@ function createTaskDueDate(task_due_date, date_now) {
   // const date_datas = {task_date_calc: task_date_calc, date_now: date_now};
 
   let task_due_date_calc; // TODO: calcいらない気がする
-  if (task_due_date.length == 6) {
+  if (task_date_parsed_array.length == 6) {
     task_due_date_calc = new Date(
-      task_due_date.getFullYear(),
-      task_due_date.getMonth() - 1,
-      task_due_date[2],
-      task_due_date[3],
-      task_due_date[4],
+      task_date_parsed_array[0],
+      task_date_parsed_array[1] - 1,
+      task_date_parsed_array[2],
+      task_date_parsed_array[3],
+      task_date_parsed_array[4],
     );
     // task_date[1] - 1: Monthが0-indexのため
   } else {
-    if (task_due_date[0] == '明') {
+    if (task_date_parsed_array[0] == '明') {
       // TODO: 明が取得されるのはどんな場合か
       task_due_date_calc = new Date(
         date_now.getFullYear(),
         date_now.getMonth(),
         date_now.getDate(),
-        task_due_date[1],
-        task_due_date[2],
+        task_date_parsed_array[1],
+        task_date_parsed_array[2],
       );
 
       task_due_date_calc.setDate(task_due_date_calc.getDate() + 1); // TODO: よくわからない
@@ -366,8 +366,8 @@ function createTaskDueDate(task_due_date, date_now) {
         date_now.getFullYear(),
         date_now.getMonth(),
         date_now.getDate(),
-        task_due_date[1],
-        task_due_date[2],
+        task_date_parsed_array[1],
+        task_date_parsed_array[2],
       );
     }
   }
