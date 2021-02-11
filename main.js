@@ -142,7 +142,7 @@ async function reformTopPage(courseSize) {
   // メインの時間割とか
   $('#page').append(
     // TODO
-    '<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id="main_extension"style="position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;"><div id="content_extension" style="padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割・授業</h1><div style="display: flex; margin: 50px 50px;"><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;"><span class="extension_delete">今日(</span><span id="classtable_extension_term">NaN</span>期<span id="classtable_extension_day">NaN</span>曜日<span class="extension_delete">)</span>の時間割<select name="term_select_extension" id="term_select_extension"><option value="前">前期</option><option value="後">後期</option></select><select name="day_select_extension" id="day_select_extension"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">週刊表示</option></select></h1><table style="border-collapse: collapse" id="classtable_extension"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">今日やるべきこと</h1><table id="today_todo_extension"><tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割外のクラス</h1><table id="special_class_extension"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>',
+    '<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id="main_extension"style="position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;"><div id="content_extension" style="padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割・授業</h1><div style="display: flex; margin: 50px 50px;"><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;"><span class="extension_delete">今日(</span><span id="classtable_extension_term">NaN</span>期<span id="classtable_extension_day">NaN</span>曜日<span class="extension_delete">)</span>の時間割<select name="term_select_extension" id="term_select_extension"><option value="前">前期</option><option value="後">後期</option></select><select name="day_select_extension" id="day_select_extension"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">週間表示</option></select></h1><table style="border-collapse: collapse" id="classtable_extension"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">今日やるべきこと</h1><table id="today_todo_extension"><tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割外のクラス</h1><table id="special_class_extension"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>',
   );
 
   // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
@@ -572,27 +572,21 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
 
     // TODO: ok?
     await promiseWrapper.storage.local.set({ todolist: newTodolist });
-    function updateTodo_(todolist) {
+    function updateTimeSchedule(todolist) {
       // todoを追加
       for (let i = 0; i < todolist.length; i++) {
         const todoItem = todolist[i];
         const todoItemIndex = i;
-        // helper.htmlに対して操作をする
+        // 各itemごとにhelper.htmlに対して操作をする
         updateTimeScheduleByTodoItem(todoItem, todoItemIndex);
       }
 
       $('#day_select_extension').change(function () {
         console.log($('#day_select_extension').val());
         if ($('#day_select_extension').val() == 6) {
-          // 週刊選択が一覧の場合の処理
-          console.log('syuukan');
-          $('body').append('<div id="overlay_extension"></div>');
-          $('head').append(
-            '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
-          );
-          $('#overlay_extension').append(
-            '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
-          );
+          // 週間の選択が、一覧の場合の処理
+          // 未実装
+          // drawWeekTimeSchedule();
         }
 
         drawCourses($('#term_select_extension').val(), $(this).val(), courses);
@@ -610,14 +604,13 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
           $(this).text('未完了に戻す');
           $(this).parent().parent().children('.strike_todo_extension').wrap('<s>');
           todolist[$(this).attr('data-index_extension')].complete = true;
-          chrome.storage.local.set({ todolist: todolist }, function () {});
         } else {
           $(this).parent().parent().animate({ opacity: '1.0' }, 100);
           $(this).text('完了する');
           $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
           todolist[$(this).attr('data-index_extension')].complete = false;
-          chrome.storage.local.set({ todolist: todolist }, function () {});
         }
+        chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO: 必要なのかとpromiseであるべきなのか
 
         if (isTodoItemRemainExixsts(todolist) == true) {
           $('#today_todo_extension tr').first().remove();
@@ -632,7 +625,7 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
         }
       });
     }
-    updateTodo_(newTodolist);
+    updateTimeSchedule(newTodolist);
   }
 
   for (let i = 0; i < timescheduleSet.length; i++) {
@@ -661,6 +654,17 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
       }
     }
   }
+}
+
+function drawWeekTimeSchedule() {
+  console.log('一週間表示');
+  $('body').append('<div id="overlay_extension"></div>');
+  $('head').append(
+    '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
+  );
+  $('#overlay_extension').append(
+    '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
+  );
 }
 
 function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
