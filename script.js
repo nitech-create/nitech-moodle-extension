@@ -215,8 +215,11 @@ function reformTopPage(courseSize) {
           $($('.date-left-extension')[i]).text(msToTime(task_due_date_calc - now_date));
 
           if (task_due_date_calc - now_date < 86400000) {
-            // 1日を切ってたら文字を赤くしよう
-            changeToDoListRed(todolist, events, now_date, task_due_date_calc, i);
+            // 1日を切っている
+            // 文字を赤くする
+            $($('.date-left-extension')[i]).addClass('deadline');
+            // ToDoリストに追加
+            addToToDoList(todolist, events[i], task_due_date_calc - now_date);
           } else {
             // 不要の可能性があったため、削除予定
             // $($('.date-left-extension')[i]).css('color', 'black');
@@ -287,28 +290,24 @@ function convertDateArrayToDate(dateArray) {
   return new Date(dateArray.getFullYear(), dateArray.getMonth() - 1, dateArray[2], dateArray[3], dateArray[4]);
 }
 
-function changeToDoListRed(todolist, events, date_now, task_date_calc, i) {
-  // 1日を切ってたら文字を赤くしよう
-  // events: moodleトップページにある直近イベント
-  $($('.date-left-extension')[i]).addClass('deadline');
-  let already_exixsts = false;
-  let index_todo_min;
-  for (let j = 0; j < todolist.length; j++) {
-    if (todolist[j].name == $(events[i]).children('a').text()) {
-      already_exixsts = true;
-      index_todo_min = j;
-    }
-  }
-  if (already_exixsts == false) {
+function addToToDoList(todolist, event, remainingTime) {
+  // イベントをToDoリストに追加
+
+  // ToDoリスト内を検索
+  const existToDoItem = todolist.some((item) => item.name === $(event).children('a').text());
+
+  if(isUndefined(existToDoItem)){
+    // ToDoリストに新規追加
     todolist.push({
-      name: $(events[i]).children('a').text(),
-      time: msToTime(task_date_calc - date_now),
-      url: $(events[i]).children('a').attr('href'),
+      name: $(event).children('a').text(),
+      time: msToTime(remainingTime),
+      url: $(event).children('a').attr('href'),
       complete: false,
     });
-  } else {
-    todolist[index_todo_min].time = msToTime(task_date_calc - date_now);
-    todolist[index_todo_min].url = $(events[i]).children('a').attr('href');
+  }else{
+    // リストのアイテムを書き換え
+    existToDoItem.time = msToTime(remainingTime);
+    existToDoItem.url = $(event).children('a').attr('href');
   }
 }
 
