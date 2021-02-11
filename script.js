@@ -135,6 +135,7 @@ function reformTopPage(courseSize) {
     );
 
     // TODO: eventsを後ろの方に持っていきたい。
+    // TODO: eventsとは例
     // 直近イベントを見やすく
     // -> http requestつかって何の教科か出したいけど、セッションとかがわからん
     // -> サーバーには負荷をかけない方向でいこう(http requestとかはなしで)
@@ -218,27 +219,36 @@ function reformTopPage(courseSize) {
       newmin = now_date.getMinutes();
 
       if (oldmin != newmin) {
+        // TODO: ここから下は課題がなかったため、デバッグができていません
+
         // ( 分が変わってなければ (-> else: 現在elseなし) )
 
         // 分が変わっていれば
         $('.date-left-extension').empty();
 
+        //  date_now: now (Date型)
+        const now_date = new Date();
+
         // 各eventに対して、残り時間と、期限(日時?時間?)を取得し、ページに対して処理を行う(たぶん)
         for (let i = 0; i < events.length; i++) {
-          const task_date_txt = $(events[i]).children('.date').text();
           // task_date_txt:
           // YYYY年 0n月 nn日, 23:59<br>残り時間 ： n日 n時間 n分
-          const task_date = task_date_txt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
-          // task_date: [YYYY, MM, DD, hh, mm, 余り]
+          const task_due_date_txt = $(events[i]).children('.date').text();
+
+          // TODO: debug! (課題が無いのでdebugできない)
+          // task_due_date: Date型 (じゃなかったりします！！←生成の中身の配列: [YYYY, MM, DD, hh, mm(, 余り)])
+          // TODO: DateのMonthは0-indexなので文字列にすれば関数にせずに済みます・・・。
+          const task_date_parsed_array = task_due_date_txt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
 
           // TODO: createTaskDateDatas関数名を変えたい
-          const { task_date_calc, date_now } = createTaskDateDatas(task_date);
+          // task_date_calc: 計算されたtaskの残り期間(Date型)
+          const task_due_date_calc = createTaskDueDate(task_date_parsed_array, now_date);
 
-          $($('.date-left-extension')[i]).text(msToTime(task_date_calc - date_now));
+          $($('.date-left-extension')[i]).text(msToTime(task_due_date_calc - now_date));
 
-          if (task_date_calc - date_now < 86400000) {
+          if (task_due_date_calc - now_date < 86400000) {
             // 1日を切ってたら文字を赤くしよう
-            changeToDoListRed(todolist, events, task_date_calc, date_now, i);
+            changeToDoListRed(todolist, events, now_date, task_due_date_calc, i);
           } else {
             // TODO: 何をしているか
             $($('.date-left-extension')[i]).css('color', 'black');
@@ -254,7 +264,7 @@ function reformTopPage(courseSize) {
           chrome.storage.local.get('todolist', function (data_min) {
             todolist = data_min.todolist;
 
-            // TODO: どうやって分割すればいいかわからない。
+            // TODO: メソッド分割?
             const new_todolist = todolist.filter(function (element) {
               let exists = false;
               if (!element.time.match(/-/)) {
@@ -287,43 +297,82 @@ function reformTopPage(courseSize) {
   });
 }
 
-function createTaskDateDatas(task_date) {
+/**
+ * Dateは0-indexのため、単純にコンストラクタに渡せないために作られた悲しい存在。
+ * @param {Array} dateArray - [YYYY, MM, DD, hh, mm(, 余り)]
+ * @return {Date} Date型
+ */
+function convertDateArrayToDate(dateArray) {
+  return new Date(dateArray.getFullYear(), dateArray.getMonth() - 1, dateArray[2], dateArray[3], dateArray[4]);
+}
+
+function changeToDoListRed(todolist, events, date_now, task_date_calc, i) {
+  // 1日を切ってたら文字を赤くしよう
+  // TODO: eventsとは
+  $($('.date-left-extension')[i]).css('color', 'red');
+  let already_exixsts = false;
+  let index_todo_min;
+  for (let j = 0; j < todolist.length; j++) {
+    if (todolist[j].name == $(events[i]).children('a').text()) {
+      already_exixsts = true;
+      index_todo_min = j;
+    }
+  }
+  if (already_exixsts == false) {
+    todolist.push({
+      name: $(events[i]).children('a').text(),
+      time: msToTime(task_date_calc - date_now),
+      url: $(events[i]).children('a').attr('href'),
+      complete: false,
+    });
+  } else {
+    todolist[index_todo_min].time = msToTime(task_date_calc - date_now);
+    todolist[index_todo_min].url = $(events[i]).children('a').attr('href');
+  }
+}
+
+function createTaskDueDate(task_due_date, date_now) {
+  // TODO: 残り期間(時間)を返す関数にする？(ラップする形が良さそう)
+  // task_due_date: [YYYY, MM, DD, hh, mm, 余り]→Date型にする
   // TODO: task_date_calcとは？
   // TODO: 関数名
   // TODO: if式っぽく書きたい気もしなくはない。→ この関数の下に内容がある
   // const date_datas = {task_date_calc: task_date_calc, date_now: date_now};
 
-  let task_date_calc;
-  let date_now;
-
-  if (task_date.length == 6) {
-    task_date_calc = new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]);
-    date_now = new Date();
+  let task_due_date_calc; // TODO: calcいらない気がする
+  if (task_due_date.length == 6) {
+    task_due_date_calc = new Date(
+      task_due_date.getFullYear(),
+      task_due_date.getMonth() - 1,
+      task_due_date[2],
+      task_due_date[3],
+      task_due_date[4],
+    );
+    // task_date[1] - 1: Monthが0-indexのため
   } else {
-    if (task_date[0] == '明') {
-      date_now = new Date();
-      task_date_calc = new Date(
+    if (task_due_date[0] == '明') {
+      // TODO: 明が取得されるのはどんな場合か
+      task_due_date_calc = new Date(
         date_now.getFullYear(),
         date_now.getMonth(),
         date_now.getDate(),
-        task_date[1],
-        task_date[2],
+        task_due_date[1],
+        task_due_date[2],
       );
 
-      task_date_calc.setDate(task_date_calc.getDate() + 1); // ？←ここでよくわからない
+      task_due_date_calc.setDate(task_due_date_calc.getDate() + 1); // TODO: よくわからない
     } else {
-      date_now = new Date();
-      task_date_calc = new Date(
+      task_due_date_calc = new Date(
         date_now.getFullYear(),
         date_now.getMonth(),
         date_now.getDate(),
-        task_date[1],
-        task_date[2],
+        task_due_date[1],
+        task_due_date[2],
       );
     }
   }
 
-  return { task_date_calc, date_now };
+  return task_due_date_calc;
 
   // TODO: 絶対うまく動かない以下のtest
   // const date_datas = { task_date_calc: {}, date_now: {} };
@@ -648,30 +697,6 @@ function convertAndLoadCourses(courseSize) {
     };
   }
   return courses;
-}
-
-function changeToDoListRed(todolist, events, task_date_calc, date_now, i) {
-  // 1日を切ってたら文字を赤くしよう
-  $($('.date-left-extension')[i]).css('color', 'red');
-  let already_exixsts = false;
-  let index_todo_min;
-  for (let j = 0; j < todolist.length; j++) {
-    if (todolist[j].name == $(events[i]).children('a').text()) {
-      already_exixsts = true;
-      index_todo_min = j;
-    }
-  }
-  if (already_exixsts == false) {
-    todolist.push({
-      name: $(events[i]).children('a').text(),
-      time: msToTime(task_date_calc - date_now),
-      url: $(events[i]).children('a').attr('href'),
-      complete: false,
-    });
-  } else {
-    todolist[index_todo_min].time = msToTime(task_date_calc - date_now);
-    todolist[index_todo_min].url = $(events[i]).children('a').attr('href');
-  }
 }
 
 function drawSpecialclasses(courses) {
