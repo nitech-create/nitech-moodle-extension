@@ -68,10 +68,11 @@ async function outTopPage() {
 
   const courses = (await promiseWrapper.storage.local.get('courses')).courses;
   const coursenum = courses.length;
-  // ナビゲーション文字入れ替え
-  const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
-  let count = 0;
 
+  // ナビゲーション文字入れ替え
+  const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
+
+  let navigationCount = 0;
   $('.depth_1 ul')
     .first()
     .children('li')
@@ -79,16 +80,17 @@ async function outTopPage() {
     .children('ul')
     .children('li')
     .each(function () {
-      let tf = false;
-      count++;
-      for (let i = 0; i < coursenum; i++) {
-        if ($(this).children('p').children('a').text() == courses[i].short) {
-          $(this).children('p').children('a').text(courses[i].name);
-          tf = true;
+      let okChangeCourseName = false;
+      navigationCount++;
+      for (const course of courses) {
+        if ($(this).children('p').children('a').text() == course.short) {
+          // course名の授業名への書き換え
+          $(this).children('p').children('a').text(course.name);
+          okChangeCourseName = true;
         }
       }
-      if (tf === false) {
-        if (count == listnum) {
+      if (okChangeCourseName === false) {
+        if (navigationCount == navigationSize) {
           // トップに戻るボタン
           $(this).children('p').children('a').text('マイページに戻る');
         } else {
