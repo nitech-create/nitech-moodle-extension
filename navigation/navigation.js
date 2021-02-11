@@ -1,7 +1,16 @@
+/* global promiseWrapper */ // <- ./lib/promiseWrapper.js must be loaded
+
 window.addEventListener('extensionPreprocessFinished', () => {
+  if($('.depth_1 ul')[0] !== undefined){
+    //reformNavi();
+    console.log('navigation');
+  }
 });
 
-function reformNavi(courseSize, courses) {
+async function reformNavi() {
+  const courses = await promiseWrapper.storage.local.get('courses');
+  const courseSize = courses.length;
+
   // ナビゲーション文字入れ替え
   const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
 

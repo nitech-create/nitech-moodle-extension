@@ -24,72 +24,80 @@ $(function onLoad() {
     }
   })();
 
-  // TODO
-  const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
-  if (topPageUrl.test(location.href)) {
-    // topページでの処理
-    onTopPage();
-  } else {
-    // topページ以外での処理
-    outTopPage();
-  }
+  (async () => {
+    const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
+    if (topPageUrl.test(location.href)) {
+      // topページでの処理
+      await onTopPage();
+    } else {
+      // topページ以外での処理
+      await outTopPage();
+    }
 
-  // 処理終了イベント発火
-  window.dispatchEvent(new Event('extensionPreprocessFinished'));
+    // 処理終了イベント発火
+    console.log('[Preprocess Finished]');
+    window.dispatchEvent(new Event('extensionPreprocessFinished'));
+  })();
 });
 
 function onTopPage() {
   // topページでの処理
-  const reload = () => {
-    const courseValue = $('.coursename');
-    if (isUndefined(courseValue[0])) {
-      console.log('yet');
-      setTimeout(reload, 500);
-    } else {
-      console.log('done');
-      reformTopPage(courseValue.length);
-      // TODO:
-      console.log('value: ', courseValue.length, courseValue);
-    }
-  };
 
-  reload();
+  // 読み込み待ち
+  return new Promise(function(resolve, reject) {
+    const reload = () => {
+      const courseValue = $('.coursename');
+      if (isUndefined(courseValue[0])) {
+        console.log('yet');
+        setTimeout(reload, 500);
+      } else {
+        console.log('done');
+        reformTopPage(courseValue.length);
+        // TODO:
+        console.log('value: ', courseValue.length, courseValue);
+        resolve();
+      }
+    };
+
+    reload();
+  });
 }
 
-function outTopPage() {
+async function outTopPage() {
   // topページ以外での処理
-  (async () => {
-    const courses = (await promiseWrapper.storage.local.get('courses')).courses;
-    const coursenum = courses.length;
-    // ナビゲーション文字入れ替え
-    const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
-    let count = 0;
 
-    $('.depth_1 ul')
-      .first()
-      .children('li')
-      .eq(2)
-      .children('ul')
-      .children('li')
-      .each(function () {
-        let tf = false;
-        count++;
-        for (let i = 0; i < coursenum; i++) {
-          if ($(this).children('p').children('a').text() == courses[i].short) {
-            $(this).children('p').children('a').text(courses[i].name);
-            tf = true;
-          }
+  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
+  const coursenum = courses.length;
+  // ナビゲーション文字入れ替え
+  const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
+  let count = 0;
+
+  $('.depth_1 ul')
+    .first()
+    .children('li')
+    .eq(2)
+    .children('ul')
+    .children('li')
+    .each(function () {
+      let tf = false;
+      count++;
+      for (let i = 0; i < coursenum; i++) {
+        if ($(this).children('p').children('a').text() == courses[i].short) {
+          $(this).children('p').children('a').text(courses[i].name);
+          tf = true;
         }
-        if (tf === false) {
-          if (count == listnum) {
-            // トップに戻るボタン
-            $(this).children('p').children('a').text('マイページに戻る');
-          } else {
-            $(this).remove();
-          }
+      }
+      if (tf === false) {
+        if (count == listnum) {
+          // トップに戻るボタン
+          $(this).children('p').children('a').text('マイページに戻る');
+        } else {
+          $(this).remove();
         }
-      });
-  })();
+      }
+    });
+
+  return;
 }
 
 async function reformTopPage(courseSize) {
