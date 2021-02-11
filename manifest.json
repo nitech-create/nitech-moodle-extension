@@ -34,6 +34,13 @@
 		{
 			"matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/calendar/view.php*"],
 			"js": ["calender.js"]
+		},
+		{
+			"matches": [
+				"https://cms6.ict.nitech.ac.jp/moodle38a/my/",
+				"https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php"
+			],
+			"css": ["topPageStyle.css"]
 		}
 	],
 	"background": {
