@@ -1,3 +1,17 @@
+/* 横のナビゲーション */
+#side-nav-extension {
+  width: 360px;
+  margin: 0, 0, 0, 0;
+}
+#page-content.blocks-pre.hidedenNavigation .columnleft {
+  display: none;
+}
+#page-content.blocks-pre.hidedenNavigation .region-main {
+  flex: 0 0 100%;
+  min-width: 100%;
+  padding: 1rem 0;
+}
+
 /* mini calender 関連 */
 table.minicalendar.calendartable {
   max-width: none;
@@ -46,4 +60,8 @@ td.calendar_event_course:hover {
 .mini-calender-caption a {
   margin-top: 4px;
   width: auto !important;
+}
+
+#link-to-calendar {
+  margin: auto auto auto 150px;
 }
