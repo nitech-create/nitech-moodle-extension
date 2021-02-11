@@ -484,7 +484,17 @@ function convertAndLoadCourses(courseSize) {
       term[i] = courseContainerArray[1].shift();
 
       courseContainerArray[1] = courseContainerArray[1][0].split('曜');
-      console.log(courseContainerArray[1]);
+      console.log("here")
+      day[i]=[]
+      let countdaynum=0
+      for(var j=0;j<courseContainerArray[1].length-1;j++){
+        day[i].push(courseContainerArray[1][0])
+        console.log(courseContainerArray[1])
+        countdaynum++
+      }
+      console.log(day[i]);
+      // courseContainerArray[1].splice(0,countdaynum)
+      //上のコメントアウトを外し下の行を消去するといろいろ止まるので、まとまった時間のある時に修正 --Sora513
       day[i] = courseContainerArray[1].shift();
 
       console.log(courseContainerArray[1]);
