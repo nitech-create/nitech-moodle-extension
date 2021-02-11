@@ -195,7 +195,7 @@ async function reformTopPage(courseSize) {
       console.log(taskDueDate);
 
       // 残り時間を表示
-      if(taskDueDate - now_date < 60000){
+      if(0 < taskDueDate - now_date && taskDueDate - now_date < 60000){
         $($('.date-left-extension')[i]).text('1分以下');
       }else{
         $($('.date-left-extension')[i]).text(msToTime(taskDueDate - now_date + 60000));
@@ -792,51 +792,23 @@ function drawClasses(term_now, now_day, courses, todolist) {
   }
 }
 
-// ミリ秒から時間計算するやつ ->マイナスの時間の処
+// ミリ秒から時間計算するやつ
 function msToTime(duration) {
-  let message_return;
-  if (duration > 0) {
-    // const milliseconds = parseInt((duration % 1000) / 100);
-    let seconds = Math.floor((duration / 1000) % 60);
-    let minutes = Math.floor((duration / (1000 * 60)) % 60);
-    let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-    const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
-
-    hours = hours < 10 ? '0' + hours : hours;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-
-    // eslint-disable-next-line no-unused-vars
-    seconds = seconds < 10 ? '0' + seconds : seconds; // TODO: ESLint syntax error
-    if (days == 0) {
-      if (hours == 0) {
-        return minutes + '分';
-      }
-      return hours + '時間 ' + minutes + '分';
-    }
-
-    message_return = days + '日 ' + hours + '時間 ' + minutes + '分';
-  } else {
-    duration = -duration;
-    // const milliseconds = parseInt((duration % 1000) / 100);
-    let seconds = Math.floor((duration / 1000) % 60);
-    let minutes = Math.floor((duration / (1000 * 60)) % 60);
-    let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-    const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
-
-    hours = hours < 10 ? '0' + hours : hours;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    // eslint-disable-next-line no-unused-vars
-    seconds = seconds < 10 ? '0' + seconds : seconds; // TODO: ESLint syntax error
-    if (days == 0) {
-      if (hours == 0) {
-        return minutes + '分 超過しています';
-      }
-      return hours + '時間 ' + minutes + '分 超過しています';
-    }
-
-    message_return = days + '日 ' + hours + '時間 ' + minutes + '分 超過しています';
+  if(duration < 0){
+    return msToTime(-duration) + ' 超過しています';
   }
-  return message_return;
+
+  const minutes = Math.floor((duration / (1000 * 60)) % 60);
+  const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 365);
+
+  if (days == 0) {
+    if (hours == 0) {
+      return minutes + '分';
+    }
+    return hours + '時間 ' + minutes + '分';
+  }
+  return days + '日 ' + hours + '時間 ' + minutes + '分';
 }
 
 // TODO: ここを書き換えれば issue#14 におおよそ対応できる?
