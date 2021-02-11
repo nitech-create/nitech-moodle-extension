@@ -134,9 +134,9 @@ function reformTopPage(courseSize) {
       badges,
     );
 
-    // TODO: eventsを後ろの方に持っていきたい。
-    // TODO: eventsとは例
-    // 直近イベントを見やすく
+    // TODO: eventsを後ろの方に持っていきたい。-> 影響範囲
+    // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
+    // 直近イベントを見やすくする
     // -> http requestつかって何の教科か出したいけど、セッションとかがわからん
     // -> サーバーには負荷をかけない方向でいこう(http requestとかはなしで)
     const events = calendar_upcoming
@@ -624,18 +624,18 @@ function reformNavi(courseSize, courses) {
     .children('li')
     .each(function () {
       // function this注意
-      let tf = false; // TODO: tfとは？
+      let success = false; // TODO: 関数に落とし込む
       count++;
 
       for (let i = 0; i < courseSize; i++) {
         if ($(this).children('p').children('a').text() == courses[i].short) {
           $(this).children('p').children('a').text(courses[i].name);
-          tf = true;
+          success = true;
           console.log('replaced');
         }
       }
 
-      if (tf === false) {
+      if (success === false) {
         if (count == listnum) {
           // トップに戻るボタン
           $(this).remove();
@@ -647,9 +647,14 @@ function reformNavi(courseSize, courses) {
 }
 
 // TODO: 関数名
+/**
+ * DOMからコースの情報courselist, courselist_short(取得してきたcourseの要素達)を抜いて、courseに変換する。
+ *
+ * @param {int} courseSize たぶん
+ * @return {Array} courses
+ */
 function convertAndLoadCourses(courseSize) {
   const courses = new Array(courseSize);
-  // 以下でやってること?: courses <- courselist, courselist_short(取得してきたcourseの要素達)
   const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|');
 
   const courselist = $('.course-listitem .coursename').text().replace(/\s+/g, '').split('コース星付きコース名');
@@ -668,35 +673,34 @@ function convertAndLoadCourses(courseSize) {
     short[i] = courselist_short[i]; // TODO: !?
     courselist_short[i] = String(20) + courselist_short[i].replace(/-/g, ''); // constなのに！？ <- 配列なので書き換えできる
 
-    let courseContainer = []; // TODO: 配列ということを強調？
-    courseContainer = courselist[i].split(courselist_short[i]);
+    const courseContainerArray = courselist[i].split(courselist_short[i]);
     // ["授業名", "(前/後)期(月/...)曜(n-n')限_cls"]
     // TODO:
-    console.log('courseContainer0: ', courseContainer);
+    console.log('courseContainer0: ', courseContainerArray);
 
-    if (courseContainer.length == 1) {
+    if (courseContainerArray.length == 1) {
       // 特殊なクラス(時間割じゃないコース)
       // 'none'ではなく「nilでもnullでもundefinedでもfalse」←ここらへんにしたい気がする。
       term[i] = 'none';
-      name[i] = courseContainer[0];
+      name[i] = courseContainerArray[0];
       time[i] = 'none';
       url[i] = $('.course-listitem .coursename').eq(i).attr('href');
     } else {
       // 通常クラス
-      name[i] = courseContainer[0];
+      name[i] = courseContainerArray[0];
 
       // TODO: ここ絶対キレイに書ける
-      courseContainer[1] = courseContainer[1].split('期');
-      console.log('courseContainer[1] ', courseContainer[1]);
-      term[i] = courseContainer[1].shift();
+      courseContainerArray[1] = courseContainerArray[1].split('期');
+      console.log('courseContainer[1] ', courseContainerArray[1]);
+      term[i] = courseContainerArray[1].shift();
 
-      courseContainer[1] = courseContainer[1][0].split('曜');
-      console.log(courseContainer[1]);
-      day[i] = courseContainer[1].shift();
+      courseContainerArray[1] = courseContainerArray[1][0].split('曜');
+      console.log(courseContainerArray[1]);
+      day[i] = courseContainerArray[1].shift();
 
-      console.log(courseContainer[1]);
-      courseContainer[1] = courseContainer[1][0].split('限');
-      time[i] = courseContainer[1].shift();
+      console.log(courseContainerArray[1]);
+      courseContainerArray[1] = courseContainerArray[1][0].split('限');
+      time[i] = courseContainerArray[1].shift();
 
       url[i] = $('.course-listitem .coursename').eq(i).attr('href');
     }
