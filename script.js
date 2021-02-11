@@ -25,11 +25,8 @@ $(function onLoad() {
   })();
 
   // TODO
-  if (
-    location.href == 'https://cms6.ict.nitech.ac.jp/moodle38a/my/' ||
-    location.href == 'https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php' ||
-    location.href == 'https://cms6.ict.nitech.ac.jp/moodle38a/my/#'
-  ) {
+  const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
+  if (topPageUrl.test(location.href)) {
     // topページでの処理
     onTopPage();
   } else {
