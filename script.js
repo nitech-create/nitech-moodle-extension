@@ -225,9 +225,6 @@ function reformTopPage(courseSize) {
             $($('.date-left-extension')[i]).addClass('deadline');
             // ToDoリストに追加
             addToToDoList(todolist, events[i], task_due_date_calc - now_date);
-          } else {
-            // 不要の可能性があったため、削除予定
-            // $($('.date-left-extension')[i]).css('color', 'black');
           }
         }
 
