@@ -192,8 +192,6 @@ async function reformTopPage(courseSize) {
       const taskDueDateString = $(events[i]).children('.date').text();
       const taskDueDate = taskDateStringToDate(taskDueDateString, now_date);
 
-      console.log(taskDueDate);
-
       // 残り時間を表示
       if(0 < taskDueDate - now_date && taskDueDate - now_date < 60000){
         $($('.date-left-extension')[i]).text('1分以下');
