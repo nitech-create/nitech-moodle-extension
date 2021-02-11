@@ -164,11 +164,7 @@ async function reformTopPage(courseSize) {
   console.log(todolist);
 
   const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
-  if (term_now == '前') {
-    $('#term_select_extension option').eq(0).prop('selected', true);
-  } else {
-    $('#term_select_extension option').eq(1).prop('selected', true);
-  }
+  selectTermOption(term_now);
 
   // 時間割内の授業を追加(描画)
   await drawCourses(term_now, now_day, courses, todolist);
@@ -220,6 +216,14 @@ async function reformTopPage(courseSize) {
   }, 1000);
 
   $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
+}
+
+function selectTermOption(term_now) {
+  if (term_now == '前') {
+    $('#term_select_extension option').eq(0).prop('selected', true);
+  } else {
+    $('#term_select_extension option').eq(1).prop('selected', true);
+  }
 }
 
 /**
@@ -525,7 +529,7 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
   const nowDayOfWeekTxt = ['日', '月', '火', '水', '木', '金', '土'][nowDay];
   $('#classtable_extension_day').text(nowDayOfWeekTxt);
 
-  const timescheduleSet = [false, false, false, false, false];
+  const timeScheduleSet = [false, false, false, false, false];
 
   for (const course of courses) {
     if (course.term == nowTerm && course.day == nowDayOfWeekTxt) {
@@ -540,7 +544,7 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
       }
 
       // helper.htmlの中身に対して、操作している！
-      renderTimeschedule(course, timescheduleSet);
+      renderTimeSchedule(course, timeScheduleSet);
     }
   }
 
@@ -561,8 +565,8 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
     updateTimeSchedule(newTodolist, courses);
   }
 
-  for (let i = 0; i < timescheduleSet.length; i++) {
-    if (timescheduleSet[i] == false) {
+  for (let i = 0; i < timeScheduleSet.length; i++) {
+    if (timeScheduleSet[i] == false) {
       switch (i) {
         case 0:
           $('#onegen_extension').addClass('blankClass');
@@ -657,7 +661,7 @@ function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
   }
 }
 
-function renderTimeschedule(course, set) {
+function renderTimeSchedule(course, set) {
   switch (course.time) {
     // TODO: これが時間割の根本部分！
     case '1-2':
