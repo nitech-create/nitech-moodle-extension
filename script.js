@@ -104,9 +104,6 @@ function reformTopPage(courseSize) {
     // myコースの表示設定消去
     $('.block_mycourse_config').remove();
 
-    // header消去
-    $('header').empty().css('height', '50px');
-
     // navバー操作
     $('nav').prepend('<p>Hello Moodle</p>');
 
@@ -152,8 +149,6 @@ function reformTopPage(courseSize) {
       $(events[i]).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
     }
 
-    $('.date-left-extension').css('color', 'black');
-
     console.log(todolist);
 
     // メインの時間割とか
@@ -162,25 +157,9 @@ function reformTopPage(courseSize) {
       '<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id="main_extension"style="position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;"><div id="content_extension" style="padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割・授業</h1><div style="display: flex; margin: 50px 50px;"><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;"><span class="extension_delete">今日(</span><span id="classtable_extension_term">NaN</span>期<span id="classtable_extension_day">NaN</span>曜日<span class="extension_delete">)</span>の時間割<select name="term_select_extension" id="term_select_extension"><option value="前">前期</option><option value="後">後期</option></select><select name="day_select_extension" id="day_select_extension"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">週刊表示</option></select></h1><table style="border-collapse: collapse" id="classtable_extension"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">今日やるべきこと</h1><table id="today_todo_extension"><tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割外のクラス</h1><table id="special_class_extension"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>',
     );
 
-    const classtabletrtd = {
-      padding: '0px 10px 0px 10px',
-      border: '2px solid orange',
-      'background-color': 'white',
-    };
-
-    $('#classtable_extension').css('border', '2px solid orange');
-    $('#classtable_extension tr td').css(classtabletrtd);
-    $('.tenminyasumi').css('background-color', 'gainsboro');
     const today = new Date();
     const now_day = today.getDay();
-    const day_select_css = {
-      'margin-left': '1em',
-      border: 'none',
-    };
-    $('#day_select_extension').css(day_select_css);
-    $('#term_select_extension').css(day_select_css);
 
-    $('#onegen_extension').css('min-width', '100px');
     const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
     if (term_now == '前') {
       $('#term_select_extension option').eq(0).prop('selected', true);
@@ -192,17 +171,6 @@ function reformTopPage(courseSize) {
 
     // 時間割外のクラスを追加
     drawSpecialclasses(courses);
-
-    const specialtrtd = {
-      padding: '0px 10px 0px 10px',
-      'background-color': 'white',
-      'border-radius': '3px',
-      padding: '10px',
-    };
-
-    $('#special_class_extension tr td').css(specialtrtd);
-    $('#special_class_extension').css('border-collapse', 'separate');
-    $('#special_class_extension').css('border-spacing', '0px 10px');
 
     // 元のコース概要消去
     $('#block-region-content').remove();
@@ -296,7 +264,6 @@ function reformTopPage(courseSize) {
     editCalender(calendar_month);
 
     $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
-    $('#link-to-calendar').css('margin', 'auto auto auto 150px');
   });
 }
 
@@ -323,7 +290,7 @@ function convertDateArrayToDate(dateArray) {
 function changeToDoListRed(todolist, events, date_now, task_date_calc, i) {
   // 1日を切ってたら文字を赤くしよう
   // events: moodleトップページにある直近イベント
-  $($('.date-left-extension')[i]).css('color', 'red');
+  $($('.date-left-extension')[i]).addClass('deadline');
   let already_exixsts = false;
   let index_todo_min;
   for (let j = 0; j < todolist.length; j++) {
@@ -508,25 +475,6 @@ function refleshTodo(todolist) {
     }
   }
 
-  const todotrtd = {
-    padding: '0px 10px 0px 10px',
-    'background-color': 'white',
-    'border-radius': '3px',
-    padding: '10px',
-  };
-  const buttoncss = {
-    border: 'solid 1px chocolate',
-    'font-size': '.9375rem',
-    'background-color': 'white',
-    color: 'chocolate',
-    'border-radius': '3px',
-    'margin-left': '10px',
-  };
-  $('#today_todo_extension tr td').css(todotrtd);
-  $('#today_todo_extension').css('border-collapse', 'separate');
-  $('#today_todo_extension').css('border-spacing', '0px 10px');
-  $('.todo_button_extension').css(buttoncss);
-
   $('.todo_button_extension').click(function () {
     if ($(this).parent().parent().css('opacity') == '1') {
       $(this).parent().parent().animate({ opacity: '0.6' }, 100);
@@ -558,51 +506,11 @@ function refleshTodo(todolist) {
         '<tr><td id="task_done_extension">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>',
       );
     }
-
-    const todotrtd = {
-      padding: '0px 10px 0px 10px',
-      'background-color': 'white',
-      'border-radius': '3px',
-      padding: '10px',
-    };
-    const buttoncss = {
-      border: 'solid 1px chocolate',
-      'font-size': '.9375rem',
-      'background-color': 'white',
-      color: 'chocolate',
-      'border-radius': '3px',
-      'margin-left': '10px',
-    };
-    $('#today_todo_extension tr td').css(todotrtd);
-    $('#today_todo_extension').css('border-collapse', 'separate');
-    $('#today_todo_extension').css('border-spacing', '0px 10px');
-    $('.todo_button_extension').css(buttoncss);
-  });
-
-  $('.todo_button_extension').on({
-    mouseenter: function () {
-      $(this).css({
-        'background-color': 'chocolate',
-        color: 'white',
-      });
-    },
-    mouseleave: function () {
-      $(this).css({
-        'background-color': 'white',
-        color: 'chocolate',
-      });
-    },
   });
 }
 
 function moveNaviToLeft() {
   $('#page-header').after('<div id="side-nav-extension"></div>');
-  const side_nav_extensions_css = {
-    width: '360px',
-    margin: '0px 0 0 0',
-  };
-
-  $('#side-nav-extension').css(side_nav_extensions_css);
 
   $('#side-nav-extension').append($('.columnleft').html());
   $('.columnleft').remove();
@@ -766,32 +674,27 @@ function drawClasses(term_now, now_day, courses, todolist) {
         switch (courses[i].time) {
           // TODO: これが時間割の根本部分！
           case '1-2':
-            $('#onegen_extension').css('background-color', 'white');
             $('#onegen_extension').text(courses[i].name);
             $('#onegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
             set[0] = true;
 
             break;
           case '3-4':
-            $('#threegen_extension').css('background-color', 'white');
             $('#threegen_extension').text(courses[i].name + '\n');
             $('#threegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
             set[1] = true;
             break;
           case '5-6':
-            $('#fivegen_extension').css('background-color', 'white');
             $('#fivegen_extension').text(courses[i].name + '\n');
             $('#fivegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
             set[2] = true;
             break;
           case '7-8':
-            $('#sevengen_extension').css('background-color', 'white');
             $('#sevengen_extension').text(courses[i].name + '\n');
             $('#sevengen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
             set[3] = true;
             break;
           case '9-10':
-            $('#ninegen_extension').css('background-color', 'white');
             $('#ninegen_extension').text(courses[i].name + '\n');
             $('#ninegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
             set[4] = true;
@@ -883,25 +786,6 @@ function drawClasses(term_now, now_day, courses, todolist) {
         }
       }
 
-      const todotrtd = {
-        padding: '0px 10px 0px 10px',
-        'background-color': 'white',
-        'border-radius': '3px',
-        padding: '10px',
-      };
-      const buttoncss = {
-        border: 'solid 1px chocolate',
-        'font-size': '.9375rem',
-        'background-color': 'white',
-        color: 'chocolate',
-        'border-radius': '3px',
-        'margin-left': '10px',
-      };
-      $('#today_todo_extension tr td').css(todotrtd);
-      $('#today_todo_extension').css('border-collapse', 'separate');
-      $('#today_todo_extension').css('border-spacing', '0px 10px');
-      $('.todo_button_extension').css(buttoncss);
-
       $('#day_select_extension').change(function () {
         console.log($('#day_select_extension').val());
         if ($('#day_select_extension').val() == 6) {
@@ -911,34 +795,9 @@ function drawClasses(term_now, now_day, courses, todolist) {
           $('head').append(
             '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
           );
-          const overlaycss = {
-            position: 'fixed',
-            'z-index': '9999',
-            'background-color': 'rgba(0,0,0,0.5)',
-            top: '10vh',
-            left: '10vw',
-            width: '80vw',
-            height: '80vh',
-            'border-radius': '3px',
-            color: 'black',
-          };
-          $('#overlay_extension').css(overlaycss);
           $('#overlay_extension').append(
             '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
           );
-          const classoverlaycss = {
-            'overflow-x': 'hidden',
-            'overflow-y': 'scroll',
-            border: '2px solid orange',
-            padding: '10px',
-          };
-          $('#overlay_extension').css(classoverlaycss);
-          const classtableoverlaytrtd = {
-            padding: '0px 10px 0px 10px',
-            border: '2px solid orange',
-            'background-color': 'white',
-          };
-          $('#overlay_extension tr td').css(classtableoverlaytrtd);
         }
         drawClasses($('#term_select_extension').val(), $(this).val(), courses);
         $('.extension_delete').empty();
@@ -948,20 +807,6 @@ function drawClasses(term_now, now_day, courses, todolist) {
         $('.extension_delete').empty();
       });
 
-      $('.todo_button_extension').on({
-        mouseenter: function () {
-          $(this).css({
-            'background-color': 'chocolate',
-            color: 'white',
-          });
-        },
-        mouseleave: function () {
-          $(this).css({
-            'background-color': 'white',
-            color: 'chocolate',
-          });
-        },
-      });
       $('.todo_button_extension').click(function () {
         if ($(this).parent().parent().css('opacity') == '1') {
           $(this).parent().parent().animate({ opacity: '0.6' }, 100);
@@ -993,24 +838,6 @@ function drawClasses(term_now, now_day, courses, todolist) {
             '<tr><td id="task_done_extension">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>',
           );
         }
-        const todotrtd = {
-          padding: '0px 10px 0px 10px',
-          'background-color': 'white',
-          'border-radius': '3px',
-          padding: '10px',
-        };
-        const buttoncss = {
-          border: 'solid 1px chocolate',
-          'font-size': '.9375rem',
-          'background-color': 'white',
-          color: 'chocolate',
-          'border-radius': '3px',
-          'margin-left': '10px',
-        };
-        $('#today_todo_extension tr td').css(todotrtd);
-        $('#today_todo_extension').css('border-collapse', 'separate');
-        $('#today_todo_extension').css('border-spacing', '0px 10px');
-        $('.todo_button_extension').css(buttoncss);
       });
     });
   }
@@ -1019,23 +846,23 @@ function drawClasses(term_now, now_day, courses, todolist) {
     if (set[i] == false) {
       switch (i) {
         case 0:
-          $('#onegen_extension').css('background-color', 'gainsboro');
+          $('#onegen_extension').addClass('blankClass');
           $('#onegen_extension').empty();
           break;
         case 1:
-          $('#threegen_extension').css('background-color', 'gainsboro');
+          $('#onegen_extension').addClass('blankClass');
           $('#threegen_extension').empty();
           break;
         case 2:
-          $('#fivegen_extension').css('background-color', 'gainsboro');
+          $('#onegen_extension').addClass('blankClass');
           $('#fivegen_extension').empty();
           break;
         case 3:
-          $('#sevengen_extension').css('background-color', 'gainsboro');
+          $('#onegen_extension').addClass('blankClass');
           $('#sevengen_extension').empty();
           break;
         case 4:
-          $('#ninegen_extension').css('background-color', 'gainsboro');
+          $('#onegen_extension').addClass('blankClass');
           $('#ninegen_extension').empty();
           break;
       }
@@ -1120,12 +947,5 @@ function isUndefined(value) {
 
 // TODO: 名前かぶりそう
 function hideNav() {
-  $('#page-content.blocks-pre .columnleft ').css({
-    display: 'none',
-  });
-  $('#page-content.blocks-pre .region-main').css({
-    flex: '0 0 100%',
-    'max-width': '100%',
-    padding: '0 1rem 0 1rem',
-  });
+  $('#page-content.blocks-pre').addClass('hidedenNavigation');
 }
