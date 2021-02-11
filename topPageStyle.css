@@ -5,6 +5,11 @@ header > * {
   display: none;
 }
 
+/* コース概要 */
+section[data-block="myoverview"] {
+  display: none;
+}
+
 /* 残り時間表示 */
 .date-left-extension {
   color: black;

@@ -20,7 +20,7 @@ $(function onLoad() {
       options.hideNavOnVideo === true &&
       location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
     ) {
-      hideNav();
+      $('#page-content.blocks-pre').addClass('hidedenNavigation');
     }
   })();
 
@@ -33,6 +33,9 @@ $(function onLoad() {
     // topページ以外での処理
     outTopPage();
   }
+
+  // 処理終了イベント発火
+  window.dispatchEvent(new Event('extensionPreprocessFinished'));
 });
 
 function onTopPage() {
@@ -89,187 +92,129 @@ function outTopPage() {
   })();
 }
 
-function reformTopPage(courseSize) {
+async function reformTopPage(courseSize) {
   // 読み込み終わったらの処理
   // todolistの作成(取得?)
-  chrome.storage.local.get('todolist', data_todolist => {
-    let todolist = data_todolist.todolist || []; // 正しく得られたら左 (左falsy => 左)
-    // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
 
-    const courses = convertAndLoadCourses(courseSize);
+  const courses = convertAndLoadCourses(courseSize);
 
-    // ナビゲーション文字入れ替え
-    reformNavi(courseSize, courses);
+  // ストレージに保持(local->syncで他拡張機能と共有可能?)
+  // awaitする必要はない
+  promiseWrapper.storage.local.set({ courses: courses });
 
-    // ストレージに保持(local->syncで他拡張機能と共有可能?)
-    chrome.storage.local.set({ courses: courses }, () => {});
+  // nav: ページ上部にあるトップページとかマイページへのリンクがある領域
+  // navバー操作
+  // $('nav').prepend('<p>Hello Moodle</p>');
 
-    // myコースの表示設定消去
-    $('.block_mycourse_config').remove();
+  // naviを左に集める＆順番最適化
+  // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
+  moveNaviToLeft();
 
-    // nav: ページ上部にあるトップページとかマイページへのリンクがある領域
-    // navバー操作
-    $('nav').prepend('<p>Hello Moodle</p>');
+  const search_course = $('[data-block="html"]').last();
+  // let jyouhou_security=$("[data-block=\"html\"]").first()
+  const navigator = $('[data-block="navigation"]');
+  const mysyllabus = $('[data-block="mysyllabus"]');
+  const private_files = $('[data-block="private_files"]');
+  const calendar_upcoming = $('[data-block="calendar_upcoming"]');
+  const badges = $('[data-block="badges"]');
+  const calendar_month = $('[data-block="calendar_month"]');
 
-    // naviを左に集める＆順番最適化
-    // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
-    moveNaviToLeft();
+  $('#block-region-side-post').empty();
+  $('#block-region-side-pre').remove();
+  $('#block-region-side-post').append(
+    calendar_month,
+    calendar_upcoming,
+    navigator,
+    search_course,
+    mysyllabus,
+    private_files,
+    badges,
+  );
 
-    const search_course = $('[data-block="html"]').last();
-    // let jyouhou_security=$("[data-block=\"html\"]").first()
-    const navigator = $('[data-block="navigation"]');
-    const mysyllabus = $('[data-block="mysyllabus"]');
-    const private_files = $('[data-block="private_files"]');
-    const calendar_upcoming = $('[data-block="calendar_upcoming"]');
-    const badges = $('[data-block="badges"]');
-    const calendar_month = $('[data-block="calendar_month"]');
+  // メインの時間割とか
+  $('#page').append(
+    // TODO
+    '<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id="main_extension"style="position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;"><div id="content_extension" style="padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割・授業</h1><div style="display: flex; margin: 50px 50px;"><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;"><span class="extension_delete">今日(</span><span id="classtable_extension_term">NaN</span>期<span id="classtable_extension_day">NaN</span>曜日<span class="extension_delete">)</span>の時間割<select name="term_select_extension" id="term_select_extension"><option value="前">前期</option><option value="後">後期</option></select><select name="day_select_extension" id="day_select_extension"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">週刊表示</option></select></h1><table style="border-collapse: collapse" id="classtable_extension"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">今日やるべきこと</h1><table id="today_todo_extension"><tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割外のクラス</h1><table id="special_class_extension"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>',
+  );
 
-    $('#block-region-side-post').empty();
-    $('#block-region-side-pre').remove();
-    $('#block-region-side-post').append(
-      calendar_month,
-      calendar_upcoming,
-      navigator,
-      search_course,
-      mysyllabus,
-      private_files,
-      badges,
-    );
+  // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
+  // 直近イベントを見やすくする
+  const events = calendar_upcoming
+    .children('div')
+    .children('div')
+    .children('div')
+        .first()
+    .children('div')
+    .children('div');
 
-    // TODO: eventsを後ろの方に持っていきたい。-> 影響範囲
-    // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
-    // 直近イベントを見やすくする
-    // -> http requestつかって何の教科か出したいけど、セッションとかがわからん
-    // -> サーバーには負荷をかけない方向でいこう(http requestとかはなしで)
-    const events = calendar_upcoming
-      .children('div')
-      .children('div')
-      .children('div')
-      .first()
-      .children('div')
-      .children('div');
+  for (let i = 0; i < events.length; i++) {
+    $(events[i]).children('.date').append('');
+    $(events[i]).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
+  }
 
+  // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
+  await removeOldToDo(events);
+  const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+  const now_day = (new Date()).getDay();
+  console.log(todolist);
+
+  const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
+  if (term_now == '前') {
+    $('#term_select_extension option').eq(0).prop('selected', true);
+  } else {
+    $('#term_select_extension option').eq(1).prop('selected', true);
+  }
+
+  drawClasses(term_now, now_day, courses, todolist);
+
+  // 時間割外のクラスを追加
+  drawSpecialClasses(courses);
+
+  // 動的に残り時間を変更
+  // TODO:
+  let oldmin;
+  let newmin;
+
+  setInterval(async () => {
+    const now_date = new Date();
+    oldmin = newmin;
+    newmin = now_date.getMinutes();
+
+    if (oldmin == newmin) return;
+
+    // 分が変わっていれば表示を初期化
+    $('.date-left-extension').empty();
+
+    // 各eventに対して、残り時間と、期限(日時?時間?)を取得
     for (let i = 0; i < events.length; i++) {
-      $(events[i]).children('.date').append('');
-      $(events[i]).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
-    }
+      // task_date_txt:
+      // YYYY年 0n月 nn日, 23:59<br>残り時間 ： n日 n時間 n分
+      const taskDueDateString = $(events[i]).children('.date').text();
+      const taskDueDate = taskDateStringToDate(taskDueDateString, now_date);
 
-    console.log(todolist);
+      console.log(taskDueDate);
 
-    // メインの時間割とか
-    $('#page').append(
-      // TODO
-      '<!-- インテリセンスを使うためだけに生まれた悲しいHTML --><div id="main_extension"style="position:absolute; top:100px; left:400px; width: calc(100vw - 450px); background-color: #f8f9fa; border-radius:3px ;"><div id="content_extension" style="padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割・授業</h1><div style="display: flex; margin: 50px 50px;"><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;"><span class="extension_delete">今日(</span><span id="classtable_extension_term">NaN</span>期<span id="classtable_extension_day">NaN</span>曜日<span class="extension_delete">)</span>の時間割<select name="term_select_extension" id="term_select_extension"><option value="前">前期</option><option value="後">後期</option></select><select name="day_select_extension" id="day_select_extension"><option value="1">月曜日</option><option value="2">火曜日</option><option value="3">水曜日</option><option value="4">木曜日</option><option value="5">金曜日</option><option value="6">週刊表示</option></select></h1><table style="border-collapse: collapse" id="classtable_extension"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">今日やるべきこと</h1><table id="today_todo_extension"><tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr></table></div><div style="background-color: #e9ecef; border-radius: 3px; padding: 16px;"><h1 style="font-size:18.75px; font-weight: medium;">時間割外のクラス</h1><table id="special_class_extension"><tr><td>登録されていないようです。</td></tr></table></div></div></div></div>',
-    );
-
-    const today = new Date();
-    const now_day = today.getDay();
-
-    const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
-    if (term_now == '前') {
-      $('#term_select_extension option').eq(0).prop('selected', true);
-    } else {
-      $('#term_select_extension option').eq(1).prop('selected', true);
-    }
-
-    drawClasses(term_now, now_day, courses, todolist);
-
-    // 時間割外のクラスを追加
-    drawSpecialclasses(courses);
-
-    // 元のコース概要消去
-    $('#block-region-content').remove();
-
-    // 動的に残り時間を変更
-    // TODO:
-    let oldmin;
-    let newmin;
-
-    // TODO: なんか変 minutesで判定？
-    setInterval(() => {
-      const now_date = new Date();
-      oldmin = newmin;
-      newmin = now_date.getMinutes();
-
-      if (oldmin != newmin) {
-        // TODO: ここから下は課題がなかったため、デバッグができていません
-
-        // ( 分が変わってなければ (-> else: 現在elseなし) )
-
-        // 分が変わっていれば
-        $('.date-left-extension').empty();
-
-        //  date_now: now (Date型)
-        const now_date = new Date();
-
-        // 各eventに対して、残り時間と、期限(日時?時間?)を取得し、ページに対して処理を行う(たぶん)
-        for (let i = 0; i < events.length; i++) {
-          // task_date_txt:
-          // YYYY年 0n月 nn日, 23:59<br>残り時間 ： n日 n時間 n分
-          const task_due_date_txt = $(events[i]).children('.date').text();
-
-          // TODO: debug! (課題が無いのでdebugできない)
-          // task_due_date: Date型 (じゃなかったりします！！←生成の中身の配列: [YYYY, MM, DD, hh, mm(, 余り)])
-          // TODO: DateのMonthは0-indexなので文字列にすれば関数にせずに済みます・・・。
-          const task_date_parsed_array = task_due_date_txt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
-
-          // TODO: createTaskDateDatas関数名を変えたい
-          // task_date_calc: 計算されたtaskの残り期間(Date型)
-          const task_due_date_calc = createTaskDueDate(task_date_parsed_array, now_date);
-
-          $($('.date-left-extension')[i]).text(msToTime(task_due_date_calc - now_date));
-
-          if (task_due_date_calc - now_date < 86400000) {
-            // 1日を切っている
-            // 文字を赤くする
-            $($('.date-left-extension')[i]).addClass('deadline');
-            // ToDoリストに追加
-            addToToDoList(todolist, events[i], task_due_date_calc - now_date);
-          }
-        }
-
-        console.log(todolist);
-
-        // なぜset→getを行っているか:
-        // 過去に同期がとれていなかったので暫定の修正。
-        // todolistを変更したら必ずsetして、
-        // setが終了次第(処理が終わってから)、次の処理を行うのが必要(setが終了する前にgetされると困るため)。
-        chrome.storage.local.set({ todolist: todolist }, function () {
-          // todoリストにあるけど課題一覧にないもの消去(過ぎた課題)
-          // TODO: setしてgetしてる理由が知りたい.(一旦保存して変更を加えたいなら、copyとかしてほしい...)
-          chrome.storage.local.get('todolist', function (data_min) {
-            todolist = data_min.todolist;
-
-            // TODO: メソッド分割?
-            const new_todolist = todolist.filter(function (element) {
-              let exists = false;
-              if (!element.time.match(/-/)) {
-                for (let i = 0; i < events.length; i++) {
-                  if ($(events[i]).children('a').text() == element.name) {
-                    exists = true;
-                  }
-                }
-              } else {
-                exists = true;
-              }
-              return exists;
-            });
-
-            todolist = new_todolist;
-
-            // todoを更新
-            refleshTodo(todolist);
-          });
-        });
+      // 残り時間を表示
+      if(taskDueDate - now_date < 60000){
+        $($('.date-left-extension')[i]).text('1分以下');
+      }else{
+        $($('.date-left-extension')[i]).text(msToTime(taskDueDate - now_date + 60000));
       }
-    }, 1000);
 
-    // external file; ./miniCalender/miniCalender.js
-    // eslint-disable-next-line no-undef
-    editCalender(calendar_month);
+      if (taskDueDate - now_date < 86400000) {
+        // 1日を切っている場合
+        // 文字を赤くする
+        $($('.date-left-extension')[i]).addClass('deadline');
+        // ToDoリストに追加
+        addToToDoList(todolist, events[i], taskDueDate - now_date);
+      }
+    }
 
-    $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
-  });
+    // todoを更新
+    refleshTodo(todolist);
+  }, 1000);
+
+  $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
 }
 
 /**
@@ -283,13 +228,62 @@ function getCurrentTermLetter(today) {
   return '後';
 }
 
-/**
- * Dateは0-indexのため、単純にコンストラクタに渡せないために作られた悲しい存在。
- * @param {Array} dateArray - [YYYY, MM, DD, hh, mm(, 余り)]
- * @return {Date} Date型
- */
-function convertDateArrayToDate(dateArray) {
-  return new Date(dateArray.getFullYear(), dateArray.getMonth() - 1, dateArray[2], dateArray[3], dateArray[4]);
+async function removeOldToDo(events){
+  // 古いtodoを削除
+  const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+
+  const newTodolist = todolist.filter(function (element) {
+    let exists = false;
+    if (!element.time.match(/-/)) {
+      for (let i = 0; i < events.length; i++) {
+        if ($(events[i]).children('a').text() == element.name) {
+          exists = true;
+        }
+      }
+    } else {
+      exists = true;
+    }
+    return exists;
+  });
+
+  await promiseWrapper.storage.local.set({ todolist: newTodolist });
+}
+
+function taskDateStringToDate(taskDueDateString, nowDate){
+  // task_due_date: Array
+  //   [YYYY, MM, DD, hh, mm (, 余り)] or
+  //   [明日, hh, mm (, 余り)] or [本日, hh, mm (, 余り)]
+  const arr = taskDueDateString.replace(/[\s+,]/g, '').split(/[:年日月残]/);
+  let year = 0;
+  let month = 0;
+  let day = 0;
+  let hour = 0;
+  let minute = 0;
+
+  if(arr[0] == '本'){
+    // 本日, hh:mm
+    year = nowDate.getFullYear();
+    month = nowDate.getMonth();
+    day = nowDate.getDate();
+    hour = arr[1];
+    minute = arr[2];
+  }else if(arr[0] == '明'){
+    // 明日, hh:mm
+    year = nowDate.getFullYear();
+    month = nowDate.getMonth();
+    day = nowDate.getDate() + 1;
+    hour = arr[1];
+    minute = arr[2];
+  }else{
+    // YYYY年 MM月 DD日, hh:mm
+    year = arr[0];
+    month = arr[1] - 1;
+    day = arr[2];
+    hour = arr[3];
+    minute = arr[4];
+  }
+
+  return new Date(year, month, day, hour, minute);
 }
 
 function addToToDoList(todolist, event, remainingTime) {
@@ -311,89 +305,6 @@ function addToToDoList(todolist, event, remainingTime) {
     existToDoItem.time = msToTime(remainingTime);
     existToDoItem.url = $(event).children('a').attr('href');
   }
-}
-
-function createTaskDueDate(task_date_parsed_array, date_now) {
-  // TODO: 残り期間(時間)を返す関数にする？(ラップする形が良さそう)
-  // task_due_date: [YYYY, MM, DD, hh, mm, 余り]→Date型にする
-  // TODO: task_date_calcとは？
-  // TODO: 関数名
-  // TODO: if式っぽく書きたい気もしなくはない。→ この関数の下に内容がある
-
-  let task_due_date_calc; // TODO: calcいらない気がする
-  if (task_date_parsed_array.length == 6) {
-    task_due_date_calc = new Date(
-      task_date_parsed_array[0],
-      task_date_parsed_array[1] - 1,
-      task_date_parsed_array[2],
-      task_date_parsed_array[3],
-      task_date_parsed_array[4],
-    );
-    // task_date[1] - 1: Monthが0-indexのため
-  } else {
-    if (task_date_parsed_array[0] == '明') {
-      // 期限が"明日"となっている場合。
-
-      task_due_date_calc = new Date(
-        date_now.getFullYear(),
-        date_now.getMonth(),
-        date_now.getDate(),
-        task_date_parsed_array[1],
-        task_date_parsed_array[2],
-      );
-      task_due_date_calc.setDate(task_due_date_calc.getDate() + 1); // 今日の日付+1で明日の日付を取得後、Date型に変換して、明日の課題の提出期限をDate型にしている。
-    } else {
-      task_due_date_calc = new Date(
-        date_now.getFullYear(),
-        date_now.getMonth(),
-        date_now.getDate(),
-        task_date_parsed_array[1],
-        task_date_parsed_array[2],
-      );
-    }
-  }
-
-  return task_due_date_calc;
-
-  // TODO: 絶対うまく動かない以下のtest → 今なら改良すればいい感じになるかもしれないです。
-  // const date_datas = { task_date_calc: {}, date_now: {} };
-  // 型があったらばたぶんこれは有効。でも無いからreturnの値がやばいことになる・・・！！！
-  // const test = (task_date => {
-  //   if (task_date.length == 6) {
-  //     return {
-  //       task_date_calc: new Date(task_date[0], task_date[1] - 1, task_date[2], task_date[3], task_date[4]),
-  //       date_now: new Date(),
-  //     };
-  //   } else {
-  //     if (task_date[0] == '明') {
-  //       const tmp_task_data_clac = new Date(
-  //         date_datas.date_now.getFullYear(),
-  //         date_datas.date_now.getMonth(),
-  //         date_datas.date_now.getDate(),
-  //         task_date[1],
-  //         task_date[2],
-  //       );
-  //       tmp_task_data_clac.setDate(date_datas.task_date_calc.getDate() + 1);
-
-  //       return {
-  //         task_date_calc: tmp_task_data_clac,
-  //         date_now: new Date(),
-  //       };
-  //     } else {
-  //       return {
-  //         task_date_calc: new Date(
-  //           date_datas.date_now.getFullYear(),
-  //           date_datas.date_now.getMonth(),
-  //           date_datas.date_now.getDate(),
-  //           task_date[1],
-  //           task_date[2],
-  //         ),
-  //         date_now: new Date(),
-  //       };
-  //     }
-  //   }
-  // })(task_date);
-  // return date_datas;
 }
 
 function refleshTodo(todolist) {
@@ -632,7 +543,7 @@ function convertAndLoadCourses(courseSize) {
   return courses;
 }
 
-function drawSpecialclasses(courses) {
+function drawSpecialClasses(courses) {
   let special_exists = false;
   $('#special_class_extension').empty();
   for (let i = 0; i < courses.length; i++) {
@@ -954,9 +865,4 @@ function timetableToTime(timetable) {
 
 function isUndefined(value) {
   return typeof value === 'undefined';
-}
-
-// TODO: 名前かぶりそう
-function hideNav() {
-  $('#page-content.blocks-pre').addClass('hidedenNavigation');
 }
