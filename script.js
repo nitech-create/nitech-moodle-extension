@@ -181,7 +181,7 @@ function reformTopPage(courseSize) {
     $('#term_select_extension').css(day_select_css);
 
     $('#onegen_extension').css('min-width', '100px');
-    const term_now = '後'; // TODO: ？
+    const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
     if (term_now == '前') {
       $('#term_select_extension option').eq(0).prop('selected', true);
     } else {
@@ -301,6 +301,17 @@ function reformTopPage(courseSize) {
 }
 
 /**
+ * 今日が前期か後期か取得します。
+ * @param {Date} today 今日
+ * @return {String} 前期なら前, 後期なら後を返す
+ */
+function getCurrentTermLetter(today) {
+  // TODO: 実装はまだない
+  // if (("MM-DD"))
+  return '後';
+}
+
+/**
  * Dateは0-indexのため、単純にコンストラクタに渡せないために作られた悲しい存在。
  * @param {Array} dateArray - [YYYY, MM, DD, hh, mm(, 余り)]
  * @return {Date} Date型
@@ -311,7 +322,7 @@ function convertDateArrayToDate(dateArray) {
 
 function changeToDoListRed(todolist, events, date_now, task_date_calc, i) {
   // 1日を切ってたら文字を赤くしよう
-  // TODO: eventsとは
+  // events: moodleトップページにある直近イベント
   $($('.date-left-extension')[i]).css('color', 'red');
   let already_exixsts = false;
   let index_todo_min;
@@ -353,7 +364,8 @@ function createTaskDueDate(task_date_parsed_array, date_now) {
     // task_date[1] - 1: Monthが0-indexのため
   } else {
     if (task_date_parsed_array[0] == '明') {
-      // TODO: 明が取得されるのはどんな場合か
+      // 期限が"明日"となっている場合。
+
       task_due_date_calc = new Date(
         date_now.getFullYear(),
         date_now.getMonth(),
@@ -361,8 +373,7 @@ function createTaskDueDate(task_date_parsed_array, date_now) {
         task_date_parsed_array[1],
         task_date_parsed_array[2],
       );
-
-      task_due_date_calc.setDate(task_due_date_calc.getDate() + 1); // TODO: よくわからない
+      task_due_date_calc.setDate(task_due_date_calc.getDate() + 1); // 今日の日付+1で明日の日付を取得後、Date型に変換して、明日の課題の提出期限をDate型にしている。
     } else {
       task_due_date_calc = new Date(
         date_now.getFullYear(),
@@ -665,6 +676,7 @@ function convertAndLoadCourses(courseSize) {
 
     if (courseContainer.length == 1) {
       // 特殊なクラス(時間割じゃないコース)
+      // 'none'ではなく「nilでもnullでもundefinedでもfalse」←ここらへんにしたい気がする。
       term[i] = 'none';
       name[i] = courseContainer[0];
       time[i] = 'none';
@@ -730,7 +742,7 @@ function drawClasses(term_now, now_day, courses, todolist) {
 
   const set = [false, false, false, false, false];
 
-  // TODO: ifのネストがやばい
+  // TODO: forとifのネストがやばい
   for (let i = 0; i < courses.length; i++) {
     if (courses[i].term == term_now) {
       if (courses[i].day == now_day) {
@@ -752,6 +764,7 @@ function drawClasses(term_now, now_day, courses, todolist) {
           }
         }
         switch (courses[i].time) {
+          // TODO: これが時間割の根本部分！
           case '1-2':
             $('#onegen_extension').css('background-color', 'white');
             $('#onegen_extension').text(courses[i].name);
@@ -788,6 +801,7 @@ function drawClasses(term_now, now_day, courses, todolist) {
     }
   }
 
+  // TODO: ifのネストがやばい
   // todoリストにあるけどクラスにないもの消去(昨日の授業)
   if (todolist != undefined) {
     const new_todolist = todolist.filter(function (element) {
@@ -807,7 +821,9 @@ function drawClasses(term_now, now_day, courses, todolist) {
       }
       return exists;
     });
+
     todolist = new_todolist;
+
     chrome.storage.local.set({ todolist: todolist }, function () {
       // todoを追加
       for (let i = 0; i < todolist.length; i++) {
@@ -837,6 +853,7 @@ function drawClasses(term_now, now_day, courses, todolist) {
               '">この課題の提出先に移動する</a></td></tr>',
           );
         }
+
         if (todolist[i].complete == true) {
           // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension"))
           // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension").parent())
@@ -1073,7 +1090,8 @@ function msToTime(duration) {
   return message_return;
 }
 
-// 時間割から時間にするやつ
+// TODO: ここを書き換えれば issue#14 におおよそ対応できる?
+// 時間割(n-n')から時間(hh:mm～hh:mm)にするやつ
 function timetableToTime(timetable) {
   let truetime;
   switch (timetable) {
