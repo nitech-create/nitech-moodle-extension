@@ -587,6 +587,7 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
           // 週間の選択が、一覧の場合の処理
           // 未実装
           // drawWeekTimeSchedule();
+          console.log('週間表示は未実装です。');
         }
 
         drawCourses($('#term_select_extension').val(), $(this).val(), courses);
