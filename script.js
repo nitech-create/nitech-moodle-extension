@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
-/* global promiseWrapper */        // <- ./lib/promiseWrapper.js must be loaded
+/* global promiseWrapper */ // <- ./lib/promiseWrapper.js must be loaded
 
 $(function onLoad() {
   // pageのロードが終わった時
@@ -297,9 +297,9 @@ function addToToDoList(todolist, event, remainingTime) {
   // イベントをToDoリストに追加
 
   // ToDoリスト内を検索
-  const existToDoItem = todolist.some((item) => item.name === $(event).children('a').text());
+  const existToDoItem = todolist.some(item => item.name === $(event).children('a').text());
 
-  if(isUndefined(existToDoItem)){
+  if (isUndefined(existToDoItem)) {
     // ToDoリストに新規追加
     todolist.push({
       name: $(event).children('a').text(),
@@ -307,7 +307,7 @@ function addToToDoList(todolist, event, remainingTime) {
       url: $(event).children('a').attr('href'),
       complete: false,
     });
-  }else{
+  } else {
     // リストのアイテムを書き換え
     existToDoItem.time = msToTime(remainingTime);
     existToDoItem.url = $(event).children('a').attr('href');
@@ -422,7 +422,9 @@ function refleshTodo(todolist) {
 
   for (let i = 0; i < todolist.length; i++) {
     const todolist_index = i;
+    // todolistの中身を確認して、
     if (todolist[i].time.match(/-/)) {
+      // 時間割の授業(n-n')のとき (つまり、timeに-があるとき)
       $('#today_todo_extension').append(
         '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
           todolist_index +
@@ -435,6 +437,7 @@ function refleshTodo(todolist) {
           '">この授業のページに移動する</a></td></tr>',
       );
     } else {
+      // 直近イベントから取得した課題のとき (timeが上以外のとき)
       $('#today_todo_extension').append(
         '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">課題<button data-index_extension="' +
           todolist_index +
