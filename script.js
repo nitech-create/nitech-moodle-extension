@@ -250,14 +250,17 @@ function reformTopPage(courseSize) {
             // 1日を切ってたら文字を赤くしよう
             changeToDoListRed(todolist, events, now_date, task_due_date_calc, i);
           } else {
-            // TODO: 何をしているか
-            $($('.date-left-extension')[i]).css('color', 'black');
+            // 不要の可能性があったため、削除予定
+            // $($('.date-left-extension')[i]).css('color', 'black');
           }
         }
 
         console.log(todolist);
 
-        // TODO: ?
+        // なぜset→getを行っているか:
+        // 過去に同期がとれていなかったので暫定の修正。
+        // todolistを変更したら必ずsetして、
+        // setが終了次第(処理が終わってから)、次の処理を行うのが必要(setが終了する前にgetされると困るため)。
         chrome.storage.local.set({ todolist: todolist }, function () {
           // todoリストにあるけど課題一覧にないもの消去(過ぎた課題)
           // TODO: setしてgetしてる理由が知りたい.(一旦保存して変更を加えたいなら、copyとかしてほしい...)
@@ -337,7 +340,6 @@ function createTaskDueDate(task_date_parsed_array, date_now) {
   // TODO: task_date_calcとは？
   // TODO: 関数名
   // TODO: if式っぽく書きたい気もしなくはない。→ この関数の下に内容がある
-  // const date_datas = {task_date_calc: task_date_calc, date_now: date_now};
 
   let task_due_date_calc; // TODO: calcいらない気がする
   if (task_date_parsed_array.length == 6) {
@@ -374,7 +376,7 @@ function createTaskDueDate(task_date_parsed_array, date_now) {
 
   return task_due_date_calc;
 
-  // TODO: 絶対うまく動かない以下のtest
+  // TODO: 絶対うまく動かない以下のtest → 今なら改良すればいい感じになるかもしれないです。
   // const date_datas = { task_date_calc: {}, date_now: {} };
   // 型があったらばたぶんこれは有効。でも無いからreturnの値がやばいことになる・・・！！！
   // const test = (task_date => {
@@ -728,6 +730,7 @@ function drawClasses(term_now, now_day, courses, todolist) {
 
   const set = [false, false, false, false, false];
 
+  // TODO: ifのネストがやばい
   for (let i = 0; i < courses.length; i++) {
     if (courses[i].term == term_now) {
       if (courses[i].day == now_day) {
