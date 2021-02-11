@@ -338,27 +338,27 @@ function refleshTodo(todolist) {
       // 時間割の授業(n-n')のとき (つまり、timeに-があるとき)
       $('#today_todo_extension').append(
         '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
-          todolist_index +
-          '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-          todolist[i].name +
-          '<br>時間 ： ' +
-          timetableToTime(todolist[i].time) +
-          '</span><br><a href="' +
-          todolist[i].url +
-          '">この授業のページに移動する</a></td></tr>',
+        todolist_index +
+        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
+        todolist[i].name +
+        '<br>時間 ： ' +
+        timetableToTime(todolist[i].time) +
+        '</span><br><a href="' +
+        todolist[i].url +
+        '">この授業のページに移動する</a></td></tr>',
       );
     } else {
       // 直近イベントから取得した課題のとき (timeが上以外のとき)
       $('#today_todo_extension').append(
         '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">課題<button data-index_extension="' +
-          todolist_index +
-          '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-          todolist[i].name +
-          '<br>残り時間 ： <span style="color:red">' +
-          todolist[i].time +
-          '</span></span><br><a href="' +
-          todolist[i].url +
-          '">この課題の提出先に移動する</a></td></tr>',
+        todolist_index +
+        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
+        todolist[i].name +
+        '<br>残り時間 ： <span style="color:red">' +
+        todolist[i].time +
+        '</span></span><br><a href="' +
+        todolist[i].url +
+        '">この課題の提出先に移動する</a></td></tr>',
       );
     }
 
@@ -397,13 +397,13 @@ function refleshTodo(todolist) {
       $(this).text('未完了に戻す');
       $(this).parent().parent().children('.strike_todo_extension').wrap('<s>');
       todolist[$(this).attr('data-index_extension')].complete = true;
-      chrome.storage.local.set({ todolist: todolist }, function () {});
+      chrome.storage.local.set({ todolist: todolist }, function () { });
     } else {
       $(this).parent().parent().animate({ opacity: '1.0' }, 100);
       $(this).text('完了する');
       $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
       todolist[$(this).attr('data-index_extension')].complete = false;
-      chrome.storage.local.set({ todolist: todolist }, function () {});
+      chrome.storage.local.set({ todolist: todolist }, function () { });
     }
     let todo_remain = false;
     for (let i = 0; i < todolist.length; i++) {
@@ -542,7 +542,6 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
           complete: false,
         });
       }
-
       // helper.htmlの中身に対して、操作している！
       renderTimeSchedule(course, timeScheduleSet);
     }
@@ -609,26 +608,26 @@ function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
   if (todoItem.time.match(/-/)) {
     $('#today_todo_extension').append(
       '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
-        todoItemIndex +
-        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-        todoItem.name +
-        '<br>時間 ： ' +
-        timetableToTime(todoItem.time) +
-        '</span><br><a href="' +
-        todoItem.url +
-        '">この授業のページに移動する</a></td></tr>',
+      todoItemIndex +
+      '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
+      todoItem.name +
+      '<br>時間 ： ' +
+      timetableToTime(todoItem.time) +
+      '</span><br><a href="' +
+      todoItem.url +
+      '">この授業のページに移動する</a></td></tr>',
     );
   } else {
     $('#today_todo_extension').append(
       '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">課題<button data-index_extension="' +
-        todoItemIndex +
-        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-        todoItem.name +
-        '<br>残り時間 ： ' +
-        todoItem.time +
-        '</span><br><a href="' +
-        todoItem.url +
-        '">この課題の提出先に移動する</a></td></tr>',
+      todoItemIndex +
+      '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
+      todoItem.name +
+      '<br>残り時間 ： ' +
+      todoItem.time +
+      '</span><br><a href="' +
+      todoItem.url +
+      '">この課題の提出先に移動する</a></td></tr>',
     );
   }
 
@@ -731,7 +730,7 @@ function updateTimeSchedule(todolist, courses) {
       $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
       todolist[$(this).attr('data-index_extension')].complete = false;
     }
-    chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO: 必要なのかとpromiseであるべきなのか
+    chrome.storage.local.set({ todolist: todolist }, function () { }); // TODO: 必要なのかとpromiseであるべきなのか
 
     if (isTodoItemRemainExixsts(todolist) == true) {
       $('#today_todo_extension tr').first().remove();
@@ -794,23 +793,11 @@ function msToTime(duration) {
 // 時間割(n-n')から時間(hh:mm～hh:mm)にするやつ
 function timetableToTime(timetable) {
   let truetime;
-  switch (timetable) {
-    case '1-2':
-      truetime = '8：50～10：20';
-      break;
-    case '3-4':
-      truetime = '10：30～12：00';
-      break;
-    case '5-6':
-      truetime = '13：00～14：30';
-      break;
-    case '7-8':
-      truetime = '14：40～16：10';
-      break;
-    case '9-10':
-      truetime = '16：20～17：50';
-      break;
-  }
+  var timetable_start=timetable.split(/-/)[0]
+  var timetable_end=timetable.split(/-/)[1]
+  const timearray_start = ['8：50', '9：35', '10：30', '11：15', '13：00', '13：45', '14：40', '15：25', '16：20', '17：05']
+  const timearray_end = ['9：35', '10：20', '11：15', '12：00', '13：45', '14：30', '15：25', '16：10', '17：05', '17：50']
+  truetime=timearray_start[timetable_start -1] +"～"+timearray_end[timetable_end -1]
   return truetime;
 }
 
