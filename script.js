@@ -54,8 +54,10 @@ function onTopPage() {
 }
 
 function outTopPage() {
-  chrome.storage.local.get('courses', function (data) {
-    const coursenum = data.courses.length;
+  // topページ以外での処理
+  (async () => {
+    const courses = await promiseWrapper.storage.local.get('courses');
+    const coursenum = courses.length;
     // ナビゲーション文字入れ替え
     const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
     let count = 0;
@@ -70,8 +72,8 @@ function outTopPage() {
         let tf = false;
         count++;
         for (let i = 0; i < coursenum; i++) {
-          if ($(this).children('p').children('a').text() == data.courses[i].short) {
-            $(this).children('p').children('a').text(data.courses[i].name);
+          if ($(this).children('p').children('a').text() == courses[i].short) {
+            $(this).children('p').children('a').text(courses[i].name);
             tf = true;
           }
         }
@@ -84,7 +86,7 @@ function outTopPage() {
           }
         }
       });
-  });
+  })();
 }
 
 function reformTopPage(courseSize) {
