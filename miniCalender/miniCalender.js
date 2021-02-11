@@ -6,9 +6,10 @@ window.addEventListener('extensionPreprocessFinished', () => {
 
 function editCalender(calendarMonth){
   // カレンダーが動くように初期化
-  const code = `require(['jquery', 'core_calendar/calendar_mini'], function($, CalendarMini) {
-      CalendarMini.init($('[id^=calendar-month]')[0], !0);
-  });`;
+  const code =
+    `require(['jquery', 'core_calendar/calendar_mini'], function($, CalendarMini) {
+        CalendarMini.init($('[id^=calendar-month]')[0], !0);
+    });`;
   const script = $('<script>')[0];
   script.textContent = code;
   (document.head||document.documentElement).appendChild(script);
