@@ -67,7 +67,6 @@ async function outTopPage() {
   // topページ以外での処理
 
   const courses = (await promiseWrapper.storage.local.get('courses')).courses;
-  const coursenum = courses.length;
 
   // ナビゲーション文字入れ替え
   const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
@@ -149,17 +148,13 @@ async function reformTopPage(courseSize) {
 
   // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
   // 直近イベントを見やすくする
-  const events = Array.from(calendar_upcoming
-    .children('div')
-    .children('div')
-    .children('div')
-    .first()
-    .children('div')
-    .children('div'));
+  const events = Array.from(
+    calendar_upcoming.children('div').children('div').children('div').first().children('div').children('div'),
+  );
 
-  for (let i = 0; i < events.length; i++) {
-    $(events[i]).children('.date').append('');
-    $(events[i]).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
+  for (const event of events) {
+    $(event).children('.date').append('');
+    $(event).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
   }
 
   await updateStorageToDo(events);
@@ -659,6 +654,7 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function drawWeekTimeSchedule() {
   console.log('一週間表示');
   $('body').append('<div id="overlay_extension"></div>');
