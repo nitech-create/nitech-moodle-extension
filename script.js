@@ -107,10 +107,12 @@ function reformTopPage(courseSize) {
     // myコースの表示設定消去
     $('.block_mycourse_config').remove();
 
+    // nav: ページ上部にあるトップページとかマイページへのリンクがある領域
     // navバー操作
     $('nav').prepend('<p>Hello Moodle</p>');
 
-    // navを左に集める＆順番最適化
+    // naviを左に集める＆順番最適化
+    // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
     moveNaviToLeft();
 
     const search_course = $('[data-block="html"]').last();
