@@ -1,12 +1,16 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
+/* global promiseWrapper */        // <- ./lib/promiseWrapper.js must be loaded
+
 $(function onLoad() {
   // pageのロードが終わった時
   // TODO: chrome拡張機能のapiでもok?
 
   console.log('[moodle assistant for NITech] page: ' + location.href);
 
-  chrome.runtime.sendMessage({ item: 'loadOptions' }, options => {
+  // オプションを読み込んで対応する処理を行う
+  (async () => {
+    const options = await promiseWrapper.runtime.sendMessage({ item: 'loadOptions' });
     console.log('response options: ', options);
     console.log(options.backgroundColor);
     $('body').css('background-color', options.backgroundColor); // 背景色変更
@@ -18,7 +22,7 @@ $(function onLoad() {
     ) {
       hideNav();
     }
-  });
+  })();
 
   // TODO
   if (
