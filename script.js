@@ -56,7 +56,7 @@ function onTopPage() {
 function outTopPage() {
   // topページ以外での処理
   (async () => {
-    const courses = await promiseWrapper.storage.local.get('courses');
+    const courses = (await promiseWrapper.storage.local.get('courses')).courses;
     const coursenum = courses.length;
     // ナビゲーション文字入れ替え
     const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
