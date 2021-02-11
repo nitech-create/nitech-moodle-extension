@@ -44,7 +44,7 @@ function onTopPage() {
   // topページでの処理
 
   // 読み込み待ち
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const reload = () => {
       const courseValue = $('.coursename');
       if (isUndefined(courseValue[0])) {
@@ -151,7 +151,7 @@ async function reformTopPage(courseSize) {
     .children('div')
     .children('div')
     .children('div')
-        .first()
+    .first()
     .children('div')
     .children('div');
 
@@ -160,10 +160,10 @@ async function reformTopPage(courseSize) {
     $(events[i]).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
   }
 
+  await updateStorageToDo(events);
   // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
-  await removeOldToDo(events);
   const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
-  const now_day = (new Date()).getDay();
+  const now_day = new Date().getDay();
   console.log(todolist);
 
   const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
@@ -173,10 +173,12 @@ async function reformTopPage(courseSize) {
     $('#term_select_extension option').eq(1).prop('selected', true);
   }
 
-  drawClasses(term_now, now_day, courses, todolist);
+  // 時間割内の授業を追加(描画)
+  await drawCourses(term_now, now_day, courses, todolist);
+  // 本当にawaitの必要があるんか？
 
-  // 時間割外のクラスを追加
-  drawSpecialClasses(courses);
+  // 時間割外の授業を追加
+  drawSpecialCourses(courses);
 
   // 動的に残り時間を変更
   // TODO:
@@ -201,9 +203,9 @@ async function reformTopPage(courseSize) {
       const taskDueDate = taskDateStringToDate(taskDueDateString, now_date);
 
       // 残り時間を表示
-      if(0 < taskDueDate - now_date && taskDueDate - now_date < 60000){
+      if (0 < taskDueDate - now_date && taskDueDate - now_date < 60000) {
         $($('.date-left-extension')[i]).text('1分以下');
-      }else{
+      } else {
         $($('.date-left-extension')[i]).text(msToTime(taskDueDate - now_date + 60000));
       }
 
@@ -234,28 +236,19 @@ function getCurrentTermLetter(today) {
   return '後';
 }
 
-async function removeOldToDo(events){
-  // 古いtodoを削除
-  const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+async function updateStorageToDo(events) {
+  // 古いtodoを新しくする
 
-  const newTodolist = todolist.filter(function (element) {
-    let exists = false;
-    if (!element.time.match(/-/)) {
-      for (let i = 0; i < events.length; i++) {
-        if ($(events[i]).children('a').text() == element.name) {
-          exists = true;
-        }
-      }
-    } else {
-      exists = true;
-    }
-    return exists;
+  const oldTodolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+
+  const newTodolist = oldTodolist.filter(element => {
+    return /-/.test(element.time) || events.some(event => $(event).children('a').text() == element.name);
   });
 
   await promiseWrapper.storage.local.set({ todolist: newTodolist });
 }
 
-function taskDateStringToDate(taskDueDateString, nowDate){
+function taskDateStringToDate(taskDueDateString, nowDate) {
   // task_due_date: Array
   //   [YYYY, MM, DD, hh, mm (, 余り)] or
   //   [明日, hh, mm (, 余り)] or [本日, hh, mm (, 余り)]
@@ -266,21 +259,21 @@ function taskDateStringToDate(taskDueDateString, nowDate){
   let hour = 0;
   let minute = 0;
 
-  if(arr[0] == '本'){
+  if (arr[0] == '本') {
     // 本日, hh:mm
     year = nowDate.getFullYear();
     month = nowDate.getMonth();
     day = nowDate.getDate();
     hour = arr[1];
     minute = arr[2];
-  }else if(arr[0] == '明'){
+  } else if (arr[0] == '明') {
     // 明日, hh:mm
     year = nowDate.getFullYear();
     month = nowDate.getMonth();
     day = nowDate.getDate() + 1;
     hour = arr[1];
     minute = arr[2];
-  }else{
+  } else {
     // YYYY年 MM月 DD日, hh:mm
     year = arr[0];
     month = arr[1] - 1;
@@ -336,6 +329,7 @@ function refleshTodo(todolist) {
     );
   }
 
+  // TODO: 同じ処理？
   for (let i = 0; i < todolist.length; i++) {
     const todolist_index = i;
     // todolistの中身を確認して、
@@ -511,7 +505,7 @@ function convertAndLoadCourses(courseSize) {
   return courses;
 }
 
-function drawSpecialClasses(courses) {
+function drawSpecialCourses(courses) {
   let special_exists = false;
   $('#special_class_extension').empty();
   for (let i = 0; i < courses.length; i++) {
@@ -528,152 +522,63 @@ function drawSpecialClasses(courses) {
 }
 
 // TODO:
-function drawClasses(term_now, now_day, courses, todolist) {
-  $('#classtable_extension_term').text(term_now);
+async function drawCourses(nowTerm, nowDay, courses, todolist) {
+  $('#classtable_extension_term').text(nowTerm);
   $('#day_select_extension option')
-    .eq(now_day - 1)
+    .eq(nowDay - 1)
     .prop('selected', true);
 
-  now_day = ['日', '月', '火', '水', '木', '金', '土'][now_day];
+  const nowDayOfWeekTxt = ['日', '月', '火', '水', '木', '金', '土'][nowDay];
 
-  $('#classtable_extension_day').text(now_day);
+  // TODO
+  $('#classtable_extension_day').text(nowDayOfWeekTxt);
 
-  const set = [false, false, false, false, false];
+  const timescheduleSet = [false, false, false, false, false];
 
-  // TODO: forとifのネストがやばい
-  for (let i = 0; i < courses.length; i++) {
-    if (courses[i].term == term_now) {
-      if (courses[i].day == now_day) {
+  for (const course of courses) {
+    if (course.term == nowTerm) {
+      if (course.day == nowDayOfWeekTxt) {
         if (todolist != undefined) {
-          let already_exixsts_todo = false;
-          for (let j = 0; j < todolist.length; j++) {
-            if (todolist[j].name == courses[i].name) {
-              already_exixsts_todo = true;
-            }
-          }
-
-          if (already_exixsts_todo == false) {
+          // TODO: does this works?
+          if (!isExixstsTodo(todolist, course)) {
             todolist.push({
-              time: courses[i].time,
-              name: courses[i].name,
-              url: courses[i].url,
+              time: course.time,
+              name: course.name,
+              url: course.url,
               complete: false,
             });
           }
         }
-        switch (courses[i].time) {
-          // TODO: これが時間割の根本部分！
-          case '1-2':
-            $('#onegen_extension').text(courses[i].name);
-            $('#onegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
-            set[0] = true;
 
-            break;
-          case '3-4':
-            $('#threegen_extension').text(courses[i].name + '\n');
-            $('#threegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
-            set[1] = true;
-            break;
-          case '5-6':
-            $('#fivegen_extension').text(courses[i].name + '\n');
-            $('#fivegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
-            set[2] = true;
-            break;
-          case '7-8':
-            $('#sevengen_extension').text(courses[i].name + '\n');
-            $('#sevengen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
-            set[3] = true;
-            break;
-          case '9-10':
-            $('#ninegen_extension').text(courses[i].name + '\n');
-            $('#ninegen_extension').append('<br><a href="' + courses[i].url + '">この授業のページに移動する</a>');
-            set[4] = true;
-            break;
-        }
+        // helper.htmlの中身に対して操作している！
+        renderTimeschedule(course, timescheduleSet);
       }
     }
   }
 
-  // TODO: ifのネストがやばい
-  // todoリストにあるけどクラスにないもの消去(昨日の授業)
+  // TODO: 長い
+  // todoリストにあるけど今日の授業にない昨日の授業を消去?
   if (todolist != undefined) {
-    const new_todolist = todolist.filter(function (element) {
-      let exists = false;
-      if (element.time.match(/-/)) {
-        for (let j = 0; j < courses.length; j++) {
-          if (courses[j].term == term_now) {
-            if (courses[j].day == now_day) {
-              if (courses[j].name == element.name) {
-                exists = true;
-              }
-            }
-          }
-        }
-      } else {
-        exists = true;
-      }
-      return exists;
+    const newTodolist = todolist.filter(function (element) {
+      return (
+        !/-/.test(element.time) ||
+        courses.some(course => {
+          return course.term == nowTerm && course.day == nowDay && course.name == element.name;
+        })
+      );
     });
 
-    todolist = new_todolist;
+    // todolist = new_todolist; // TODO: 信じられない
 
-    chrome.storage.local.set({ todolist: todolist }, function () {
+    // TODO: ok?
+    await promiseWrapper.storage.local.set({ todolist: newTodolist });
+    function updateTodo_(todolist) {
       // todoを追加
       for (let i = 0; i < todolist.length; i++) {
-        const todolist_index = i;
-        if (todolist[i].time.match(/-/)) {
-          $('#today_todo_extension').append(
-            '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
-              todolist_index +
-              '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-              todolist[i].name +
-              '<br>時間 ： ' +
-              timetableToTime(todolist[i].time) +
-              '</span><br><a href="' +
-              todolist[i].url +
-              '">この授業のページに移動する</a></td></tr>',
-          );
-        } else {
-          $('#today_todo_extension').append(
-            '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">課題<button data-index_extension="' +
-              todolist_index +
-              '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-              todolist[i].name +
-              '<br>残り時間 ： ' +
-              todolist[i].time +
-              '</span><br><a href="' +
-              todolist[i].url +
-              '">この課題の提出先に移動する</a></td></tr>',
-          );
-        }
-
-        if (todolist[i].complete == true) {
-          // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension"))
-          // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension").parent())
-          $('#today_todo_extension tr')
-            .last()
-            .children('td')
-            .children('h1')
-            .children('.todo_button_extension')
-            .parent()
-            .parent()
-            .animate({ opacity: '0.6' }, 100);
-          $('#today_todo_extension tr')
-            .last()
-            .children('td')
-            .children('h1')
-            .children('.todo_button_extension')
-            .text('未完了に戻す');
-          $('#today_todo_extension tr')
-            .last()
-            .children('td')
-            .children('h1')
-            .children('.todo_button_extension')
-            .parent()
-            .parent()
-            .children('.strike_todo_extension')
-            .wrap('<s>');
-        }
+        const todoItem = todolist[i];
+        const todoItemIndex = i;
+        // helper.htmlに対して操作をする
+        updateTimeScheduleByTodoItem(todoItem, todoItemIndex);
       }
 
       $('#day_select_extension').change(function () {
@@ -689,11 +594,13 @@ function drawClasses(term_now, now_day, courses, todolist) {
             '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
           );
         }
-        drawClasses($('#term_select_extension').val(), $(this).val(), courses);
+
+        drawCourses($('#term_select_extension').val(), $(this).val(), courses);
         $('.extension_delete').empty();
       });
+
       $('#term_select_extension').change(function () {
-        drawClasses($(this).val(), $('#day_select_extension').val(), courses);
+        drawCourses($(this).val(), $('#day_select_extension').val(), courses);
         $('.extension_delete').empty();
       });
 
@@ -711,13 +618,8 @@ function drawClasses(term_now, now_day, courses, todolist) {
           todolist[$(this).attr('data-index_extension')].complete = false;
           chrome.storage.local.set({ todolist: todolist }, function () {});
         }
-        let todo_remain = false;
-        for (let i = 0; i < todolist.length; i++) {
-          if (todolist[i].complete == false) {
-            todo_remain = true;
-          }
-        }
-        if (todo_remain == true) {
+
+        if (isTodoItemRemainExixsts(todolist) == true) {
           $('#today_todo_extension tr').first().remove();
           $('#today_todo_extension').prepend(
             '<tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>',
@@ -729,11 +631,12 @@ function drawClasses(term_now, now_day, courses, todolist) {
           );
         }
       });
-    });
+    }
+    updateTodo_(newTodolist);
   }
 
-  for (let i = 0; i < set.length; i++) {
-    if (set[i] == false) {
+  for (let i = 0; i < timescheduleSet.length; i++) {
+    if (timescheduleSet[i] == false) {
       switch (i) {
         case 0:
           $('#onegen_extension').addClass('blankClass');
@@ -760,9 +663,120 @@ function drawClasses(term_now, now_day, courses, todolist) {
   }
 }
 
+function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
+  if (todoItem.time.match(/-/)) {
+    $('#today_todo_extension').append(
+      '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
+        todoItemIndex +
+        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
+        todoItem.name +
+        '<br>時間 ： ' +
+        timetableToTime(todoItem.time) +
+        '</span><br><a href="' +
+        todoItem.url +
+        '">この授業のページに移動する</a></td></tr>',
+    );
+  } else {
+    $('#today_todo_extension').append(
+      '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">課題<button data-index_extension="' +
+        todoItemIndex +
+        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
+        todoItem.name +
+        '<br>残り時間 ： ' +
+        todoItem.time +
+        '</span><br><a href="' +
+        todoItem.url +
+        '">この課題の提出先に移動する</a></td></tr>',
+    );
+  }
+
+  if (todoItem.complete == true) {
+    // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension"))
+    // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension").parent())
+    $('#today_todo_extension tr')
+      .last()
+      .children('td')
+      .children('h1')
+      .children('.todo_button_extension')
+      .parent()
+      .parent()
+      .animate({ opacity: '0.6' }, 100);
+    $('#today_todo_extension tr')
+      .last()
+      .children('td')
+      .children('h1')
+      .children('.todo_button_extension')
+      .text('未完了に戻す');
+    $('#today_todo_extension tr')
+      .last()
+      .children('td')
+      .children('h1')
+      .children('.todo_button_extension')
+      .parent()
+      .parent()
+      .children('.strike_todo_extension')
+      .wrap('<s>');
+  }
+}
+
+function renderTimeschedule(course, set) {
+  switch (course.time) {
+    // TODO: これが時間割の根本部分！
+    case '1-2':
+      $('#onegen_extension').text(course.name);
+      $('#onegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      set[0] = true;
+      break;
+    case '3-4':
+      $('#threegen_extension').text(course.name + '\n');
+      $('#threegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      set[1] = true;
+      break;
+    case '5-6':
+      $('#fivegen_extension').text(course.name + '\n');
+      $('#fivegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      set[2] = true;
+      break;
+    case '7-8':
+      $('#sevengen_extension').text(course.name + '\n');
+      $('#sevengen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      set[3] = true;
+      break;
+    case '9-10':
+      $('#ninegen_extension').text(course.name + '\n');
+      $('#ninegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      set[4] = true;
+      break;
+  }
+}
+
+function isTodoItemRemainExixsts(todolist) {
+  let todo_remain = false;
+  for (let i = 0; i < todolist.length; i++) {
+    if (todolist[i].complete == false) {
+      // todoItemが未完了のとき
+      todo_remain = true;
+      break;
+    }
+  }
+  return todo_remain;
+}
+
+function isExixstsTodo(todolist, course) {
+  let already_exixsts_todo = false;
+
+  for (let j = 0; j < todolist.length; j++) {
+    if (todolist[j].name == course.name) {
+      // 授業がすでに存在するとき
+      already_exixsts_todo = true;
+    }
+  }
+  return already_exixsts_todo;
+}
+
 // ミリ秒から時間計算するやつ
 function msToTime(duration) {
-  if(duration < 0){
+  if (duration < 0) {
     return msToTime(-duration) + ' 超過しています';
   }
 
