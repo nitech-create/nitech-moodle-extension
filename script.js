@@ -611,24 +611,27 @@ function moveNaviToLeft() {
   $('.columnright').remove();
 }
 
+// TODO: bugの原因か？ issue#12
 function reformNavi(courseSize, courses) {
   // ナビゲーション文字入れ替え
   const listnum = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
 
   let count = 0;
+  // ナビゲーション(表)の最初の要素に対して、
   $('.depth_1 ul')
-    .first()
+    .first() /* ダッシュボード */
     .children('li')
-    .last()
+    .last() /* マイコース */
     .children('ul')
     .children('li')
     .each(function () {
-      // function this注意
+      /* マイコースの要素 */
       let success = false; // TODO: 関数に落とし込む
       count++;
 
       for (let i = 0; i < courseSize; i++) {
         if ($(this).children('p').children('a').text() == courses[i].short) {
+          // 授業名(コース名)がshort(授業番号)の表示だったら、授業名に書き換え
           $(this).children('p').children('a').text(courses[i].name);
           success = true;
           console.log('replaced');
