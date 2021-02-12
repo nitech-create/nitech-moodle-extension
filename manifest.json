@@ -30,14 +30,10 @@
     },
     {
       "matches": [
-        "https://cms6.ict.nitech.ac.jp/moodle38a/pluginfile.php/*/mod_scorm/content/1/index.html"
+        "https://cms6.ict.nitech.ac.jp/moodle38a/my/",
+        "https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php"
       ],
-      "all_frames": true,
-      "css": ["./videoArea/videoArea.css"]
-    },
-    {
-      "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php*"],
-      "js": ["./videoArea/styles.js"]
+      "css": ["topPageStyle.css"]
     },
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/calendar/view.php*"],
@@ -45,15 +41,19 @@
     },
     {
       "matches": [
-        "https://cms6.ict.nitech.ac.jp/moodle38a/my/",
-        "https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php"
+        "https://cms6.ict.nitech.ac.jp/moodle38a/pluginfile.php/*/mod_scorm/content/1/index.html*"
       ],
-      "css": ["topPageStyle.css"]
+      "all_frames": true,
+      "css": ["videoArea/videoArea.css"]
+    },
+    {
+      "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php*"],
+      "js": ["videoArea/videoArea.js"]
     }
   ],
   "background": {
     "scripts": ["backgroundEvent.js"],
     "persistent": false
   },
-  "permissions": ["tabs", "background", "http://*/*", "https://*/*", "storage"]
+  "permissions": ["https://cms6.ict.nitech.ac.jp/moodle38a/*", "activeTab", "background", "storage"]
 }
