@@ -80,8 +80,7 @@ async function onOtherPage(loc) {
     });
 
   // ナビゲーション文字入れ替え
-  const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li')
-    .length;
+  const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
 
   let navigationCount = 0;
   $('.depth_1 ul')
@@ -161,22 +160,14 @@ async function reformTopPage(courseSize) {
   // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
   // 直近イベントを見やすくする
   const events = Array.from(
-    calendar_upcoming
-      .children('div')
-      .children('div')
-      .children('div')
-      .first()
-      .children('div')
-      .children('div'),
+    calendar_upcoming.children('div').children('div').children('div').first().children('div').children('div'),
   );
 
   // TODO: 計算中って初期でこうやって管理するのやばいでしょ
   // eventを直近イベントに適応(描画).
   for (const event of events) {
     $(event).children('.date').append('');
-    $(event)
-      .children('.date')
-      .append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
+    $(event).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
   }
 
   // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
@@ -286,9 +277,7 @@ async function reloadStorageTodo(events) {
 
   // TODO: 後半の条件がわからない→わかったら上にも書く
   const newTodolist = oldTodolist.filter(element => {
-    return (
-      /-/.test(element.time) || events.some(event => $(event).children('a').text() == element.name)
-    );
+    return /-/.test(element.time) || events.some(event => $(event).children('a').text() == element.name);
   });
 
   await promiseWrapper.storage.local.set({ todolist: newTodolist });
@@ -493,10 +482,7 @@ function convertAndLoadCourses(courseSize) {
   const courses = new Array(courseSize);
   const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|');
 
-  const courselist = $('.course-listitem .coursename')
-    .text()
-    .replace(/\s+/g, '')
-    .split('コース星付きコース名');
+  const courselist = $('.course-listitem .coursename').text().replace(/\s+/g, '').split('コース星付きコース名');
   courselist.shift();
 
   console.log($('.course-listitem .coursename').first().attr('href'));
@@ -534,7 +520,17 @@ function convertAndLoadCourses(courseSize) {
       term[i] = courseContainerArray[1].shift();
 
       courseContainerArray[1] = courseContainerArray[1][0].split('曜');
-      console.log(courseContainerArray[1]);
+      console.log('here');
+      day[i] = [];
+      // let countdaynum = 0;
+      for (let j = 0; j < courseContainerArray[1].length - 1; j++) {
+        day[i].push(courseContainerArray[1][0]);
+        console.log(courseContainerArray[1]);
+        // countdaynum++;
+      }
+      console.log(day[i]);
+      // courseContainerArray[1].splice(0,countdaynum)
+      // 上のコメントアウトを外し下の行を消去するといろいろ止まるので、まとまった時間のある時に修正 --Sora513
       day[i] = courseContainerArray[1].shift();
 
       console.log(courseContainerArray[1]);
@@ -562,11 +558,7 @@ function drawSpecialCourses(courses) {
   if (specialCourses.length > 0) {
     specialCourses.forEach(course => {
       $('#special_class_extension').append(
-        '<tr><td>' +
-          course.name +
-          '<br><a href="' +
-          course.url +
-          '">この授業のページに移動する</a></td></tr>',
+        '<tr><td>' + course.name + '<br><a href="' + course.url + '">この授業のページに移動する</a></td></tr>',
       );
     });
   } else {
@@ -605,7 +597,6 @@ async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
           complete: false,
         });
       }
-
       // helper.htmlの中身に対して、操作している！
       renderTimeSchedule(course, timeScheduleSet);
     }
@@ -618,9 +609,7 @@ async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
       return (
         !/-/.test(element.time) ||
         courses.some(course => {
-          return (
-            course.term == nowTerm && course.day == nowDayOfWeek && course.name == element.name
-          );
+          return course.term == nowTerm && course.day == nowDayOfWeek && course.name == element.name;
         })
       );
     });
@@ -656,6 +645,18 @@ async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
       }
     }
   }
+}
+
+// eslint-disable-next-line no-unused-vars
+function drawWeekTimeSchedule(courses) {
+  console.log('一週間表示');
+  $('body').append('<div id="overlay_extension"></div>');
+  $('head').append(
+    '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
+  );
+  $('#overlay_extension').append(
+    '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><th></th><th>月曜</th><th>火曜</th><th>水曜</th><th>木曜</th><th>金曜</th></tr><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
+  );
 }
 
 function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
@@ -719,37 +720,27 @@ function renderTimeSchedule(course, set) {
     // TODO: これが時間割の根本部分！
     case '1-2':
       $('#onegen_extension').text(course.name);
-      $('#onegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
+      $('#onegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
       set[0] = true;
       break;
     case '3-4':
       $('#threegen_extension').text(course.name + '\n');
-      $('#threegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
+      $('#threegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
       set[1] = true;
       break;
     case '5-6':
       $('#fivegen_extension').text(course.name + '\n');
-      $('#fivegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
+      $('#fivegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
       set[2] = true;
       break;
     case '7-8':
       $('#sevengen_extension').text(course.name + '\n');
-      $('#sevengen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
+      $('#sevengen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
       set[3] = true;
       break;
     case '9-10':
       $('#ninegen_extension').text(course.name + '\n');
-      $('#ninegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
+      $('#ninegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
       set[4] = true;
       break;
   }
@@ -769,7 +760,8 @@ function updateTimeSchedule(todolist, courses) {
     if ($('#day_select_extension').val() == 6) {
       // 週間の選択が、一覧の場合の処理
       // 未実装
-      drawWeekTimeSchedule();
+      drawWeekTimeSchedule(courses);
+
       console.log('週間表示は未実装です。');
     }
 
@@ -796,7 +788,6 @@ function updateTimeSchedule(todolist, courses) {
       $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
       todolist[$(this).attr('data-index_extension')].complete = false;
     }
-
     chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO: 必要なのかとpromiseであるべきなのか
 
     if (isTodoItemRemainExixsts(todolist) == true) {
@@ -873,24 +864,33 @@ function msToTime(duration) {
 // TODO: ここを書き換えれば issue#14 におおよそ対応できる?
 // 時間割(n-n')から時間(hh:mm～hh:mm)にするやつ
 function timetableToTime(timetable) {
-  let truetime;
-  switch (timetable) {
-    case '1-2':
-      truetime = '8：50～10：20';
-      break;
-    case '3-4':
-      truetime = '10：30～12：00';
-      break;
-    case '5-6':
-      truetime = '13：00～14：30';
-      break;
-    case '7-8':
-      truetime = '14：40～16：10';
-      break;
-    case '9-10':
-      truetime = '16：20～17：50';
-      break;
-  }
+  const timetable_start = timetable.split(/-/)[0];
+  const timetable_end = timetable.split(/-/)[1];
+  const timearray_start = [
+    '8：50',
+    '9：35',
+    '10：30',
+    '11：15',
+    '13：00',
+    '13：45',
+    '14：40',
+    '15：25',
+    '16：20',
+    '17：05',
+  ];
+  const timearray_end = [
+    '9：35',
+    '10：20',
+    '11：15',
+    '12：00',
+    '13：45',
+    '14：30',
+    '15：25',
+    '16：10',
+    '17：05',
+    '17：50',
+  ];
+  const truetime = timearray_start[timetable_start - 1] + '～' + timearray_end[timetable_end - 1];
   return truetime;
 }
 
