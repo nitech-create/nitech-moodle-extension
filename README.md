@@ -1,6 +1,6 @@
 # nitech-moodle-chrome
 
-NITech の moodle を使いやすくする Chrome 拡張機能です。<br>
+名古屋工業大学のオンライン授業サポートシステムとして採用されているmoodleを使いやすくするChrome拡張機能です。<br>
 Chrome Extension for NITech moodle(38a).
 
 ## 対象
@@ -36,7 +36,7 @@ NITech 在校生。
 
 - 全体的に配置を大きく変更
 - 時間割
-- 今日やるべきこと一覧(ToDo リスト)
+- ToDo リスト: 課題と今日やるべきことの一覧
 
 ### 動画視聴ページ
 
