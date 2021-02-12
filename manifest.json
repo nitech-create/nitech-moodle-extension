@@ -4,7 +4,7 @@
   "homepage_url": "https://github.com/nitech-create/nitech-moodle-chrome",
   "name": "moodle assistant for NITech",
   "description": "名古屋工業大学のオンライン授業サポートシステムとして採用されているmoodleを使いやすくするChrome拡張機能です。nitech Create: http://nitech-create.com",
-  "version": "0.0.1.0",
+  "version": "0.0.1.1-dev",
   "icons": {
     "32": "icon.png",
     "48": "icon.png",
