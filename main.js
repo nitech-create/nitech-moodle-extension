@@ -69,7 +69,8 @@ async function outTopPage() {
   const courses = (await promiseWrapper.storage.local.get('courses')).courses;
 
   // ナビゲーション文字入れ替え
-  const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li').length;
+  const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li')
+    .length;
 
   let navigationCount = 0;
   $('.depth_1 ul')
@@ -149,25 +150,35 @@ async function reformTopPage(courseSize) {
   // events: moodleトップページにある「直近イベント」。moodleトップページの、eventクラスがついた部分のarray。
   // 直近イベントを見やすくする
   const events = Array.from(
-    calendar_upcoming.children('div').children('div').children('div').first().children('div').children('div'),
+    calendar_upcoming
+      .children('div')
+      .children('div')
+      .children('div')
+      .first()
+      .children('div')
+      .children('div'),
   );
 
+  // TODO: 計算中って初期でこうやって管理するのやばいでしょ
+  // eventを直近イベントに適応(描画).
   for (const event of events) {
     $(event).children('.date').append('');
-    $(event).children('.date').append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
+    $(event)
+      .children('.date')
+      .append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
   }
 
-  await updateStorageToDo(events);
   // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
-  const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
-  const now_day = new Date().getDay();
+  // const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+  const todolist = await reloadStorageTodo(events); // TODO: この書き方でok?(元々はここでgetしてた)
   console.log(todolist);
+  const nowDayOfWeek = new Date().getDay();
 
-  const term_now = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
-  selectTermOption(term_now);
+  const nowTerm = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
+  selectTermOption(nowTerm);
 
   // 時間割内の授業を追加(描画)
-  await drawCourses(term_now, now_day, courses, todolist);
+  await drawCourses(nowTerm, nowDayOfWeek, courses, todolist);
   // 本当にawaitの必要があるんか？
 
   // 時間割外の授業を追加
@@ -179,9 +190,9 @@ async function reformTopPage(courseSize) {
   let newmin;
 
   setInterval(async () => {
-    const now_date = new Date();
+    const nowDate = new Date();
     oldmin = newmin;
-    newmin = now_date.getMinutes();
+    newmin = nowDate.getMinutes();
 
     if (oldmin == newmin) return;
 
@@ -193,21 +204,21 @@ async function reformTopPage(courseSize) {
       // task_date_txt:
       // YYYY年 0n月 nn日, 23:59<br>残り時間 ： n日 n時間 n分
       const taskDueDateString = $(events[i]).children('.date').text();
-      const taskDueDate = taskDateStringToDate(taskDueDateString, now_date);
+      const taskDueDate = taskDateStringToDate(taskDueDateString, nowDate);
 
       // 残り時間を表示
-      if (0 < taskDueDate - now_date && taskDueDate - now_date < 60000) {
+      if (0 < taskDueDate - nowDate && taskDueDate - nowDate < 60000) {
         $($('.date-left-extension')[i]).text('1分以下');
       } else {
-        $($('.date-left-extension')[i]).text(msToTime(taskDueDate - now_date + 60000));
+        $($('.date-left-extension')[i]).text(msToTime(taskDueDate - nowDate + 60000));
       }
 
-      if (taskDueDate - now_date < 86400000) {
+      if (taskDueDate - nowDate < 86400000) {
         // 1日を切っている場合
         // 文字を赤くする
         $($('.date-left-extension')[i]).addClass('deadline');
-        // ToDoリストに追加
-        addToToDoList(todolist, events[i], taskDueDate - now_date);
+        // Todoリストに追加
+        addToTodoList(todolist, events[i], taskDueDate - nowDate);
       }
     }
 
@@ -216,6 +227,8 @@ async function reformTopPage(courseSize) {
   }, 1000);
 
   $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
+
+  // reformTopPage: last line.
 }
 
 function selectTermOption(term_now) {
@@ -237,16 +250,37 @@ function getCurrentTermLetter(today) {
   return '後';
 }
 
-async function updateStorageToDo(events) {
-  // 古いtodoを新しくする
+async function reloadStorageTodo(events) {
+  // events: 直近イベント
+  // 古いtodoを新しくするというか、時間割内授業をfilterする？
 
-  const oldTodolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+  // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
+  // const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
+  const oldTodolist = await promiseWrapper.storage.local
+    .get('todolist')
+    .then(data => {
+      return data.todolist;
+    })
+    .catch(reason => {
+      // console.log(reason);
+      console.log(
+        '[moodle assistant for NITech] INFO: cannot get todolist. (This loading might be the first time.)',
+      );
+      return [];
+    });
 
+  console.log('filterAndSaveStorageTodo: ', oldTodolist);
+
+  // TODO: 後半の条件がわからない→上に書く
   const newTodolist = oldTodolist.filter(element => {
-    return /-/.test(element.time) || events.some(event => $(event).children('a').text() == element.name);
+    return (
+      /-/.test(element.time) || events.some(event => $(event).children('a').text() == element.name)
+    );
   });
 
   await promiseWrapper.storage.local.set({ todolist: newTodolist });
+
+  return newTodolist;
 }
 
 function taskDateStringToDate(taskDueDateString, nowDate) {
@@ -286,14 +320,14 @@ function taskDateStringToDate(taskDueDateString, nowDate) {
   return new Date(year, month, day, hour, minute);
 }
 
-function addToToDoList(todolist, event, remainingTime) {
-  // イベントをToDoリストに追加
+function addToTodoList(todolist, event, remainingTime) {
+  // イベントをTodoリストに追加
 
-  // ToDoリスト内を検索
-  const existToDoItem = todolist.some(item => item.name === $(event).children('a').text());
+  // Todoリスト内を検索
+  const existTodoItem = todolist.some(item => item.name === $(event).children('a').text());
 
-  if (isUndefined(existToDoItem)) {
-    // ToDoリストに新規追加
+  if (isUndefined(existTodoItem)) {
+    // Todoリストに新規追加
     todolist.push({
       name: $(event).children('a').text(),
       time: msToTime(remainingTime),
@@ -302,8 +336,8 @@ function addToToDoList(todolist, event, remainingTime) {
     });
   } else {
     // リストのアイテムを書き換え
-    existToDoItem.time = msToTime(remainingTime);
-    existToDoItem.url = $(event).children('a').attr('href');
+    existTodoItem.time = msToTime(remainingTime);
+    existTodoItem.url = $(event).children('a').attr('href');
   }
 }
 
@@ -446,7 +480,10 @@ function convertAndLoadCourses(courseSize) {
   const courses = new Array(courseSize);
   const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|');
 
-  const courselist = $('.course-listitem .coursename').text().replace(/\s+/g, '').split('コース星付きコース名');
+  const courselist = $('.course-listitem .coursename')
+    .text()
+    .replace(/\s+/g, '')
+    .split('コース星付きコース名');
   courselist.shift();
 
   console.log($('.course-listitem .coursename').first().attr('href'));
@@ -512,7 +549,11 @@ function drawSpecialCourses(courses) {
   if (specialCourses.length > 0) {
     specialCourses.forEach(course => {
       $('#special_class_extension').append(
-        '<tr><td>' + course.name + '<br><a href="' + course.url + '">この授業のページに移動する</a></td></tr>',
+        '<tr><td>' +
+          course.name +
+          '<br><a href="' +
+          course.url +
+          '">この授業のページに移動する</a></td></tr>',
       );
     });
   } else {
@@ -521,12 +562,12 @@ function drawSpecialCourses(courses) {
 }
 
 // TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか
-async function drawCourses(nowTerm, nowDay, courses, todolist) {
+async function drawCourses(nowTerm, nowDayOfWeek, courses, todolist) {
   $('#classtable_extension_term').text(nowTerm);
   $('#day_select_extension option')
-    .eq(nowDay - 1)
+    .eq(nowDayOfWeek - 1)
     .prop('selected', true);
-  const nowDayOfWeekTxt = ['日', '月', '火', '水', '木', '金', '土'][nowDay];
+  const nowDayOfWeekTxt = ['日', '月', '火', '水', '木', '金', '土'][nowDayOfWeek];
   $('#classtable_extension_day').text(nowDayOfWeekTxt);
 
   const timeScheduleSet = [false, false, false, false, false];
@@ -535,6 +576,9 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
     if (course.term == nowTerm && course.day == nowDayOfWeekTxt) {
       if (todolist != undefined && !isExixstsTodo(todolist, course)) {
         // TODO: does this works?
+        // TODO: this throws ERROR!!!!
+        // 初回のとき？
+        console.log('test: ', course.name);
         todolist.push({
           time: course.time,
           name: course.name,
@@ -555,7 +599,9 @@ async function drawCourses(nowTerm, nowDay, courses, todolist) {
       return (
         !/-/.test(element.time) ||
         courses.some(course => {
-          return course.term == nowTerm && course.day == nowDay && course.name == element.name;
+          return (
+            course.term == nowTerm && course.day == nowDayOfWeek && course.name == element.name
+          );
         })
       );
     });
@@ -666,27 +712,37 @@ function renderTimeSchedule(course, set) {
     // TODO: これが時間割の根本部分！
     case '1-2':
       $('#onegen_extension').text(course.name);
-      $('#onegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      $('#onegen_extension').append(
+        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+      );
       set[0] = true;
       break;
     case '3-4':
       $('#threegen_extension').text(course.name + '\n');
-      $('#threegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      $('#threegen_extension').append(
+        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+      );
       set[1] = true;
       break;
     case '5-6':
       $('#fivegen_extension').text(course.name + '\n');
-      $('#fivegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      $('#fivegen_extension').append(
+        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+      );
       set[2] = true;
       break;
     case '7-8':
       $('#sevengen_extension').text(course.name + '\n');
-      $('#sevengen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      $('#sevengen_extension').append(
+        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+      );
       set[3] = true;
       break;
     case '9-10':
       $('#ninegen_extension').text(course.name + '\n');
-      $('#ninegen_extension').append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+      $('#ninegen_extension').append(
+        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+      );
       set[4] = true;
       break;
   }
