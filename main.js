@@ -204,7 +204,7 @@ async function reformTopPage(courseSize) {
       // task_date_txt:
       // YYYY年 0n月 nn日, 23:59<br>残り時間 ： n日 n時間 n分
       const taskDueDateString = $(events[i]).children('.date').text();
-      const taskDueDate = taskDateStringToDate(taskDueDateString, nowDate);
+      const taskDueDate = taskDueDateTxtToDate(taskDueDateString, nowDate);
 
       // 残り時間を表示
       if (0 < taskDueDate - nowDate && taskDueDate - nowDate < 60000) {
@@ -272,7 +272,7 @@ async function reloadStorageTodo(events) {
 
   console.log('reloadStorageTodo: ', oldTodolist);
 
-  // TODO: 後半の条件がわからない→上に書く
+  // TODO: 後半の条件がわからない→わかったら上にも書く
   const newTodolist = oldTodolist.filter(element => {
     return (
       /-/.test(element.time) || events.some(event => $(event).children('a').text() == element.name)
@@ -284,11 +284,11 @@ async function reloadStorageTodo(events) {
   return newTodolist;
 }
 
-function taskDateStringToDate(taskDueDateString, nowDate) {
+function taskDueDateTxtToDate(taskDueDateTxt, nowDate) {
   // task_due_date: Array
   //   [YYYY, MM, DD, hh, mm (, 余り)] or
   //   [明日, hh, mm (, 余り)] or [本日, hh, mm (, 余り)]
-  const arr = taskDueDateString.replace(/[\s+,]/g, '').split(/[:年日月残]/);
+  const arr = taskDueDateTxt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
   let year = 0;
   let month = 0;
   let day = 0;
