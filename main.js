@@ -28,10 +28,14 @@ $(function onLoad() {
     const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
     if (topPageUrl.test(location.href)) {
       // topページでの処理
-      await onTopPage();
+      await onTopPage(location.href);
+    } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
+      // loginページでの処理 -> 以降を処理しない?
+      console.log('login page.');
+      // return;
     } else {
       // topページ以外での処理
-      await outTopPage();
+      await onOtherPage(location.href);
     }
 
     // 処理終了イベント発火
@@ -40,7 +44,7 @@ $(function onLoad() {
   })();
 });
 
-function onTopPage() {
+function onTopPage(loc) {
   // topページでの処理
 
   // 読み込み待ち
@@ -63,10 +67,17 @@ function onTopPage() {
   });
 }
 
-async function outTopPage() {
+async function onOtherPage(loc) {
   // topページ以外での処理
 
-  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
+  const courses = (await promiseWrapper.storage.local.get('courses'))
+    .then(data => {
+      return data.courses;
+    })
+    .catch(reason => {
+      console.log('test', reason);
+      return {};
+    });
 
   // ナビゲーション文字入れ替え
   const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li')
@@ -265,7 +276,8 @@ async function reloadStorageTodo(events) {
     .catch(reason => {
       // console.log(reason);
       console.log(
-        '[moodle assistant for NITech] INFO: cannot get todolist. (This loading might be the first time.)',
+        '[moodle assistant for NITech] INFO: cannot get todolist. (This loading might be the first time.): ',
+        reason,
       );
       return [];
     });
