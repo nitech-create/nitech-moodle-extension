@@ -178,7 +178,7 @@ async function reformTopPage(courseSize) {
   selectTermOption(nowTerm);
 
   // 時間割内の授業を追加(描画)
-  await drawCourses(nowTerm, nowDayOfWeek, courses, todolist);
+  await drawCourses(courses, nowTerm, nowDayOfWeek, todolist);
   // 本当にawaitの必要があるんか？
 
   // 時間割外の授業を追加
@@ -251,6 +251,7 @@ function getCurrentTermLetter(today) {
 }
 
 async function reloadStorageTodo(events) {
+  // 関数名旧: filterAndSaveStorageTodo, updateにするかreloadにするか迷ったが、値を返すことでreloadとする。
   // events: 直近イベント
   // 古いtodoを新しくするというか、時間割内授業をfilterする？
 
@@ -269,7 +270,7 @@ async function reloadStorageTodo(events) {
       return [];
     });
 
-  console.log('filterAndSaveStorageTodo: ', oldTodolist);
+  console.log('reloadStorageTodo: ', oldTodolist);
 
   // TODO: 後半の条件がわからない→上に書く
   const newTodolist = oldTodolist.filter(element => {
@@ -561,8 +562,16 @@ function drawSpecialCourses(courses) {
   }
 }
 
-// TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか
-async function drawCourses(nowTerm, nowDayOfWeek, courses, todolist) {
+/**
+ *
+ * @param {Object} courses
+ * @param {String} nowTerm
+ * @param {String} nowDayOfWeek
+ * @param {Array} todolist
+ */
+async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
+  // TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか; courseの型
+
   $('#classtable_extension_term').text(nowTerm);
   $('#day_select_extension option')
     .eq(nowDayOfWeek - 1)
@@ -574,11 +583,9 @@ async function drawCourses(nowTerm, nowDayOfWeek, courses, todolist) {
 
   for (const course of courses) {
     if (course.term == nowTerm && course.day == nowDayOfWeekTxt) {
-      if (todolist != undefined && !isExixstsTodo(todolist, course)) {
-        // TODO: does this works?
-        // TODO: this throws ERROR!!!!
-        // 初回のとき？
-        console.log('test: ', course.name);
+      if (!isUndefined(todolist) && !isExixstsTodo(todolist, course)) {
+        // 当日の時間割であるとき(前後期、曜日)
+        console.log('drawCourses: ', course.name);
         todolist.push({
           time: course.time,
           name: course.name,
@@ -594,7 +601,7 @@ async function drawCourses(nowTerm, nowDayOfWeek, courses, todolist) {
 
   // TODO: 長い(上と統合できそう)
   // todoリストにあるけど今日の授業にない昨日の授業を消去?
-  if (todolist != undefined) {
+  if (!isUndefined(todolist)) {
     const newTodolist = todolist.filter(function (element) {
       return (
         !/-/.test(element.time) ||
@@ -637,18 +644,6 @@ async function drawCourses(nowTerm, nowDayOfWeek, courses, todolist) {
       }
     }
   }
-}
-
-// eslint-disable-next-line no-unused-vars
-function drawWeekTimeSchedule() {
-  console.log('一週間表示');
-  $('body').append('<div id="overlay_extension"></div>');
-  $('head').append(
-    '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
-  );
-  $('#overlay_extension').append(
-    '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
-  );
 }
 
 function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
@@ -762,16 +757,18 @@ function updateTimeSchedule(todolist, courses) {
     if ($('#day_select_extension').val() == 6) {
       // 週間の選択が、一覧の場合の処理
       // 未実装
-      // drawWeekTimeSchedule();
+      drawWeekTimeSchedule();
       console.log('週間表示は未実装です。');
     }
 
-    drawCourses($('#term_select_extension').val(), $(this).val(), courses);
+    // TODO: 時間割を表示している↓？
+    drawCourses(courses, $('#term_select_extension').val(), $(this).val(), todolist); // TODO: 引数にtodolistが必要なのか?
     $('.extension_delete').empty();
   });
 
+  // TODO: 重複処理？
   $('#term_select_extension').change(function () {
-    drawCourses($(this).val(), $('#day_select_extension').val(), courses);
+    drawCourses(courses, $(this).val(), $('#day_select_extension').val(), todolist); // TODO: どういう処理なのか, 引数にtodolistが必要なのか?
     $('.extension_delete').empty();
   });
 
@@ -787,6 +784,7 @@ function updateTimeSchedule(todolist, courses) {
       $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
       todolist[$(this).attr('data-index_extension')].complete = false;
     }
+
     chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO: 必要なのかとpromiseであるべきなのか
 
     if (isTodoItemRemainExixsts(todolist) == true) {
@@ -801,6 +799,20 @@ function updateTimeSchedule(todolist, courses) {
       );
     }
   });
+}
+
+/**
+ * 未実装です。
+ */
+function drawWeekTimeSchedule() {
+  // console.log('一週間表示');
+  // $('body').append('<div id="overlay_extension"></div>');
+  // $('head').append(
+  //   '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
+  // );
+  // $('#overlay_extension').append(
+  //   '<table style="border-collapse: collapse" id="classtable_extension_overlay"><tr><td style="height:90px">1限<br>8：50～9：35</td><td rowspan="2" id="onegen_extension_overlay"></td></tr><tr><td style="height:90px">2限<br>9：35～10：20</td></tr><tr><td style="height:20px">休憩<br>10：20～10：30</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">3限<br>10：30～11：15</td><td rowspan="2" id="threegen_extension_overlay"></td></tr><tr><td style="height:90px">4限<br>11：15～12：00</td></tr><tr><td style="height:120px">昼休み<br>12：00～13：00</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">5限<br>13：00～13：45</td><td rowspan="2" id="fivegen_extension_overlay"></td></tr><tr><td style="height:90px">6限<br>13：45～14：30</td></tr><tr><td style="height:20px">休憩<br>14：30～14：40</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">7限<br>14：40～15：25</td><td rowspan="2" id="sevengen_extension_overlay"></td></tr><tr><td style="height:90px">8限<br>15：25～16：10</td></tr><tr><td style="height:20px">休憩<br>16：10～60：20</td><td class="tenminyasumi"></td></tr><tr><td style="height:90px">9限<br>16：20～17：05</td><td rowspan="2" id="ninegen_extension_overlay"></td></tr><tr><td style="height:90px">10限<br>17：05～17：50</td></tr></table>',
+  // );
 }
 
 function isTodoItemRemainExixsts(todolist) {
@@ -820,7 +832,7 @@ function isExixstsTodo(todolist, course) {
 
   for (let j = 0; j < todolist.length; j++) {
     if (todolist[j].name == course.name) {
-      // 授業がすでに存在するとき
+      // TODO: todolistに授業がすでに存在するとき: これって書き込み段階でされるべき処理では？
       already_exixsts_todo = true;
     }
   }
