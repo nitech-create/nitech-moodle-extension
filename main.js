@@ -117,8 +117,8 @@ async function reformTopPage(courseSize) {
   // 読み込み終わったらの処理
   // todolistの作成(取得?)
 
-  const courselist_short = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
-  const courses = convertCourses(loadCourselist(), courselist_short, courseSize);
+  const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
+  const courses = convertCourses(loadCourselist(), courseNumberTxtList, courseSize);
   console.log(courses);
 
   // ストレージに保持(local->syncで他拡張機能と共有可能?)
@@ -188,7 +188,7 @@ async function reformTopPage(courseSize) {
   const nowDayOfWeek = new Date().getDay();
 
   const nowTerm = getCurrentTermLetter(); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
-  selectTermOption(nowTerm);
+  changeSelectTermOption(nowTerm);
 
   // 時間割内の授業を追加(描画)
   await drawCourses(courses, nowTerm, nowDayOfWeek, todolist);
@@ -244,8 +244,8 @@ async function reformTopPage(courseSize) {
   // reformTopPage: last line.
 }
 
-function selectTermOption(term_now) {
-  if (term_now == '前') {
+function changeSelectTermOption(nowTerm) {
+  if (nowTerm == '前') {
     $('#term_select_extension option').eq(0).prop('selected', true);
   } else {
     $('#term_select_extension option').eq(1).prop('selected', true);
@@ -480,7 +480,7 @@ function loadCourselist() {
  * @param {Array} courseList: 通常コース: (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_cls, 特殊コースはSpecialCourseはcourseShortNumberが無い。
  * @param {String} courseNumberTxtList: 授業番号表記(-あり)。 (-なしはshort付き)
  * @param {int} courseSize
- * @return {Object} courses = {term, name, dayOfWeeks, times, url, courseNumberTxt}
+ * @return {Object} courses = {term, name, dayOfWeeks, times, url, courseNumberTxt} (ただし特殊授業の場合: term, dayOfWeek = undefined)
  */
 function convertCourses(courseList, courseNumberTxtList, courseSize) {
   const courses = new Array(courseSize); // result
@@ -506,8 +506,8 @@ function convertCourses(courseList, courseNumberTxtList, courseSize) {
     if (courseContainerArray.length == 1) {
       // 特殊なクラス(時間割じゃないコース)
       // TODO: 'none'ではなく「nilでもnullでもundefinedでもfalse」←ここらへんにしたい気がする。
-      term[i] = 'none';
-      times[i] = 'none';
+      term[i] = undefined;
+      times[i] = undefined;
     } else {
       // 通常クラス
       term[i] = courseContainerArray[1];
@@ -535,7 +535,7 @@ function convertCourses(courseList, courseNumberTxtList, courseSize) {
 
 function drawSpecialCourses(courses) {
   $('#special_class_extension').empty();
-  const specialCourses = courses.filter(course => course.time == 'none');
+  const specialCourses = courses.filter(course => isUndefined(course.times));
   if (specialCourses.length > 0) {
     specialCourses.forEach(course => {
       $('#special_class_extension').append(
@@ -573,17 +573,18 @@ async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
   const classTableSet = [false, false, false, false, false];
 
   for (const course of courses) {
-    if (course.term == nowTerm && course.day == nowDayOfWeekTxt) {
+    if (course.term == nowTerm && course.dayOfWeeks.includes(nowDayOfWeekTxt)) {
       if (!isUndefined(todolist) && !isExixstsTodo(todolist, course)) {
         // 当日の時間割であるとき(前後期、曜日)
         console.log('drawCourses: ', course.name);
         todolist.push({
-          time: course.time,
+          times: course.times,
           name: course.name,
           url: course.url,
           complete: false,
         });
       }
+
       // helper.htmlの中身に対して、操作している！
       renderClassTable(course, classTableSet);
     }
@@ -597,7 +598,9 @@ async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
         !/-/.test(element.time) ||
         courses.some(course => {
           return (
-            course.term == nowTerm && course.day == nowDayOfWeek && course.name == element.name
+            course.term == nowTerm &&
+            course.dayOfWeeks.includes(nowDayOfWeek) &&
+            course.name == element.name
           );
         })
       );
@@ -609,6 +612,10 @@ async function drawCourses(courses, nowTerm, nowDayOfWeek, todolist) {
   }
 
   // 空きコマ埋め処理
+  fillBlankClass(classTableSet);
+}
+
+function fillBlankClass(classTableSet) {
   for (let i = 0; i < classTableSet.length; i++) {
     if (classTableSet[i] == false) {
       // まだtableが埋まってなかったら
@@ -709,6 +716,7 @@ function updateTimeScheduleByTodoItem(todoItem, todoItemIndex) {
   }
 }
 
+// TODO: 1-2だけじゃないやつなどの対応。動的にするべき！
 function renderClassTable(course, set) {
   switch (course.time) {
     // TODO: これが時間割の根本部分！
@@ -750,6 +758,7 @@ function renderClassTable(course, set) {
   }
 }
 
+// TODO: 神メソッド！
 function updateClassTable(todolist, courses) {
   // todoを追加
   for (let i = 0; i < todolist.length; i++) {
