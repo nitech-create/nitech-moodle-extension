@@ -575,7 +575,7 @@ async function drawTables(courses, selectedTerm, selectedNowDayOfWeek, todolist)
 
   if (!isUndefined(todolist)) {
     courses
-      .fileter(course => {
+      .filter(course => {
         return course.term == selectedTerm && course.dayOfWeeks.includes(selectedDayOfWeekTxt);
       })
       .forEach(course => {
@@ -587,7 +587,7 @@ async function drawTables(courses, selectedTerm, selectedNowDayOfWeek, todolist)
         if (!isExixstsTodo(todolist, course)) {
           // 当日の時間割であるとき(前後期、曜日)
           todolist.push({
-            times: course.times,
+            time: course.times[0] /* TODO: 暫定, todolist.timeは期限！ */,
             name: course.name,
             url: course.url,
             complete: false,
@@ -616,11 +616,22 @@ async function drawTables(courses, selectedTerm, selectedNowDayOfWeek, todolist)
     // todoを追加
     for (let i = 0; i < todolist.length; i++) {
       // 各itemごとにhelper.htmlに対して操作をする
+      // TODO: now working
+      console.log('todolist: ', todolist);
       renderTodolist(todolist[i], i);
     }
-    $('#day_select_extension').change(updateTablesSelect(courses, newTodolist)); // TODO:
-    $('#term_select_extension').change(updateTablesSelect_(courses, todolist));
-    $('.todo_button_extension').click(updateTodolistTable(newTodolist)); // onClick
+
+    // TODO: now working
+    // add event listener
+    $('#day_select_extension').change(() =>
+      updateTablesSelect.call($('#day_select_extension'), courses, newTodolist),
+    );
+    $('#term_select_extension').change(() =>
+      updateTablesSelect_.call($('#term_select_extension'), courses, newTodolist),
+    );
+    $('.todo_button_extension').click(() =>
+      updateTodolistTable.call($('.todo_button_extension'), newTodolist),
+    );
   }
 
   // 空きコマ埋め処理
@@ -629,7 +640,7 @@ async function drawTables(courses, selectedTerm, selectedNowDayOfWeek, todolist)
 
 function renderTodolist(todoItem, todoItemIndex) {
   // todolistの中身を確認して、
-  if (todoItem.time.match(/-/)) {
+  if (/-/.test(todoItem.time)) {
     // 時間割の授業(n-n')のとき (つまり、timeに-があるとき)
     $('#today_todo_extension').append(
       '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
@@ -649,8 +660,8 @@ function renderTodolist(todoItem, todoItemIndex) {
         todoItemIndex +
         '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
         todoItem.name +
-        '<br>残り時間 ： ' +
-        todoItem.time +
+        '<br>残り時間 ： ' /* TODO: 残り時間でtimeを用いるな仕様の非統一！！ */ +
+        timetableToTime(todoItem.time) +
         '</span><br><a href="' +
         todoItem.url +
         '">この課題の提出先に移動する</a></td></tr>',
