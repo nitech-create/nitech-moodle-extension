@@ -59,11 +59,11 @@ NITech 在校生。
 
 ### バグ報告
 
-GitHub の issue、または [moodle assistant for NITech バグ報告](http://nitech-create.com/forms/moodle-assistant/bug/) へ。
+GitHub の issue、または Discord の専用チャンネルへ。
 
 ### 質問
 
-とりあえず [KoNITechのTwitter](https://twitter.com/Ko_NITech) にて応対します。
+未定(Twitter で開発者に聞く…？)
 
 ### その他
 
