@@ -773,7 +773,7 @@ function onSelectTableDay(courses, todolist) {
 
   console.log('onSelectTableDay: ', selectedDayOfWeek); // 曜日
 
-  updateTablesSelect(courses, todolist, selectedTerm, selectedDayOfWeek);
+  updateTables(courses, todolist, selectedTerm, selectedDayOfWeek);
 }
 
 function onSelectTableTerm(courses, todolist) {
@@ -782,12 +782,12 @@ function onSelectTableTerm(courses, todolist) {
 
   console.log('onSelectTableTerm: ', selectedTerm);
 
-  updateTablesSelect(courses, todolist, selectedTerm, selectedDayOfWeek);
+  updateTables(courses, todolist, selectedTerm, selectedDayOfWeek);
   // $('.extension_delete').empty(); // TODO: ?
 }
 
 // TODO: this! 関数名
-function updateTablesSelect(courses, todolist, selectedTerm, selectedDayOfWeek) {
+function updateTables(courses, todolist, selectedTerm, selectedDayOfWeek) {
   if (selectedDayOfWeek == 6) {
     // 週間の選択が、一覧の場合の処理
     // 未実装
