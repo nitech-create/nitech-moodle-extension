@@ -548,6 +548,7 @@ function drawSpecialCourses(courses) {
 }
 
 /**
+ * Tablesを描画します。
  *
  * @param {Object} courses
  * @param {String} selectedTerm
@@ -555,6 +556,7 @@ function drawSpecialCourses(courses) {
  * @param {Array} todolist
  */
 async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist) {
+  // TODO: 内部を分割し、drawSpecialCoursesとdrawCoursesとdrawTodolistを呼び出す形にしたい
   resetTables();
 
   // TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか; courseの型
@@ -645,9 +647,9 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist)
   }
 
   // 空きコマ埋め処理
-  removeBlankClass();
+  removeBlankOfClassTables();
   console.log(classTableSet);
-  fillBlankOfClassTable(classTableSet);
+  fillBlankOfClassTables(classTableSet);
 
   function resetTables() {
     // TODO: emptyだとblankClassが消えなかったため、removeを使ってみると大丈夫。なぜ？
@@ -658,13 +660,42 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist)
     $('#ninegen_extension').empty();
   }
 
-  function removeBlankClass() {
+  function removeBlankOfClassTables() {
     // TODO: emptyだとblankClassが消えなかったため、removeを使ってみると大丈夫。なぜ？
     $('#onegen_extension').removeClass('blankClass');
     $('#threegen_extension').removeClass('blankClass');
     $('#fivegen_extension').removeClass('blankClass');
     $('#sevengen_extension').removeClass('blankClass');
     $('#ninegen_extension').removeClass('blankClass');
+  }
+
+  /**
+   * 空きコマをblankにする処理
+   * @param {Array.boolean} classTableSet 授業が入っているか(なし→false)を表す、5要素のboolean配列
+   */
+  function fillBlankOfClassTables(classTableSet) {
+    for (let i = 0; i < classTableSet.length; i++) {
+      if (classTableSet[i] == false) {
+        // まだtableが埋まってなかったら
+        switch (i) {
+          case 0:
+            $('#onegen_extension').addClass('blankClass');
+            break;
+          case 1:
+            $('#threegen_extension').addClass('blankClass');
+            break;
+          case 2:
+            $('#fivegen_extension').addClass('blankClass');
+            break;
+          case 3:
+            $('#sevengen_extension').addClass('blankClass');
+            break;
+          case 4:
+            $('#ninegen_extension').addClass('blankClass');
+            break;
+        }
+      }
+    }
   }
 }
 
@@ -762,35 +793,6 @@ function updateTablesSelect_(courses, todolist) {
 
   drawTables(courses, selectedTerm, selectedDayOfWeek, todolist); // TODO: どういう処理なのか, 引数にtodolistが必要なのか?
   $('.extension_delete').empty();
-}
-
-/**
- * 空きコマをblankにする処理
- * @param {Array.boolean} classTableSet 授業が入っているか(なし→false)を表す、5要素のboolean配列
- */
-function fillBlankOfClassTable(classTableSet) {
-  for (let i = 0; i < classTableSet.length; i++) {
-    if (classTableSet[i] == false) {
-      // まだtableが埋まってなかったら
-      switch (i) {
-        case 0:
-          $('#onegen_extension').addClass('blankClass');
-          break;
-        case 1:
-          $('#threegen_extension').addClass('blankClass');
-          break;
-        case 2:
-          $('#fivegen_extension').addClass('blankClass');
-          break;
-        case 3:
-          $('#sevengen_extension').addClass('blankClass');
-          break;
-        case 4:
-          $('#ninegen_extension').addClass('blankClass');
-          break;
-      }
-    }
-  }
 }
 
 /**
