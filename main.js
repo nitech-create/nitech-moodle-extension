@@ -709,44 +709,52 @@ async function drawTables(courses, todolist, selectedTerm, selectedDayOfWeekNum)
   }
 }
 
-// TODO: 1-2だけじゃないやつなどの対応。動的にするべき！
 function renderClassTable(course, time, set) {
-  switch (time) {
-    case '1-2':
-      $('#onegen_extension').text(course.name);
-      $('#onegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
-      set[0] = true;
-      break;
-    case '3-4':
-      $('#threegen_extension').text(course.name + '\n');
-      $('#threegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
-      set[1] = true;
-      break;
-    case '5-6':
-      $('#fivegen_extension').text(course.name + '\n');
-      $('#fivegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
-      set[2] = true;
-      break;
-    case '7-8':
-      $('#sevengen_extension').text(course.name + '\n');
-      $('#sevengen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
-      set[3] = true;
-      break;
-    case '9-10':
-      $('#ninegen_extension').text(course.name + '\n');
-      $('#ninegen_extension').append(
-        '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-      );
-      set[4] = true;
-      break;
+  // for-loopで回すのはやりすぎかもしれない
+  const timeArray = time.split(/-/); // 時間: 1-4を[1, 4]にする
+  for (const timeNum of timeArray) {
+    switch (timeNum) {
+      case '1':
+      case '2':
+        $('#onegen_extension').text(course.name);
+        $('#onegen_extension').append(
+          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+        );
+        set[0] = true;
+        break;
+      case '3':
+      case '4':
+        $('#threegen_extension').text(course.name + '\n');
+        $('#threegen_extension').append(
+          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+        );
+        set[1] = true;
+        break;
+      case '5':
+      case '6':
+        $('#fivegen_extension').text(course.name + '\n');
+        $('#fivegen_extension').append(
+          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+        );
+        set[2] = true;
+        break;
+      case '7':
+      case '8':
+        $('#sevengen_extension').text(course.name + '\n');
+        $('#sevengen_extension').append(
+          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+        );
+        set[3] = true;
+        break;
+      case '9':
+      case '10':
+        $('#ninegen_extension').text(course.name + '\n');
+        $('#ninegen_extension').append(
+          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
+        );
+        set[4] = true;
+        break;
+    }
   }
 }
 
