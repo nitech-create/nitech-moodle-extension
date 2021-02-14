@@ -557,10 +557,10 @@ function drawSpecialCourses(courses) {
  */
 async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist) {
   // TODO: 内部を分割し、drawSpecialCoursesとdrawCoursesとdrawTodolistを呼び出す形にしたい
-  resetTables();
-
   // TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか; courseの型
   // TODO: 土日のときどうするか？
+
+  resetTables();
 
   // 時間割の選択termの表示
   changeTermOption(selectedTerm);
@@ -634,11 +634,11 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist)
     // reset and add event listener
     $('#day_select_extension').off('change');
     $('#day_select_extension').change(() =>
-      updateTablesSelect.call($('#day_select_extension'), courses, newTodolist),
+      onSelectTableDay.call($('#day_select_extension'), courses, newTodolist),
     );
     $('#term_select_extension').off('change');
     $('#term_select_extension').change(() =>
-      updateTablesSelect_.call($('#term_select_extension'), courses, newTodolist),
+      onSelectTableTerm.call($('#term_select_extension'), courses, newTodolist),
     );
     $('.todo_button_extension').off('click');
     $('.todo_button_extension').click(() =>
@@ -767,12 +767,27 @@ function isExixstsTodo(todolist, course) {
   return already_exixsts_todo;
 }
 
-// TODO: this! 関数名
-function updateTablesSelect(courses, todolist) {
+function onSelectTableDay(courses, todolist) {
   const selectedDayOfWeek = $(this).val();
   const selectedTerm = $('#term_select_extension').val();
 
-  console.log(selectedDayOfWeek); // 曜日
+  console.log('onSelectTableDay: ', selectedDayOfWeek); // 曜日
+
+  updateTablesSelect(courses, todolist, selectedTerm, selectedDayOfWeek);
+}
+
+function onSelectTableTerm(courses, todolist) {
+  const selectedDayOfWeek = $('#day_select_extension').val();
+  const selectedTerm = $(this).val();
+
+  console.log('onSelectTableTerm: ', selectedTerm);
+
+  updateTablesSelect(courses, todolist, selectedTerm, selectedDayOfWeek);
+  // $('.extension_delete').empty(); // TODO: ?
+}
+
+// TODO: this! 関数名
+function updateTablesSelect(courses, todolist, selectedTerm, selectedDayOfWeek) {
   if (selectedDayOfWeek == 6) {
     // 週間の選択が、一覧の場合の処理
     // 未実装
@@ -781,17 +796,8 @@ function updateTablesSelect(courses, todolist) {
     console.log('週間表示は未実装です。');
   }
 
-  // TODO: 時間割を表示している↓？
-  drawTables(courses, selectedTerm, $(this).val(), todolist); // TODO: 引数にtodolistが必要なのか?
-  $('.extension_delete').empty();
-}
-
-// TODO: this! 関数名
-function updateTablesSelect_(courses, todolist) {
-  const selectedDayOfWeek = $('#day_select_extension').val();
-  const selectedTerm = $(this).val();
-
-  drawTables(courses, selectedTerm, selectedDayOfWeek, todolist); // TODO: どういう処理なのか, 引数にtodolistが必要なのか?
+  // TODO: 時間割を表示しているがこれでいいのか
+  drawTables(courses, selectedTerm, selectedDayOfWeek, todolist);
   $('.extension_delete').empty();
 }
 
