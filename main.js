@@ -133,6 +133,7 @@ async function reformTopPage(courseSize) {
   // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
   moveNaviToLeft();
 
+  // TODO: ここハードコーディング？
   const search_course = $('[data-block="html"]').last();
   // let jyouhou_security=$("[data-block=\"html\"]").first()
   const navigator = $('[data-block="navigation"]');
@@ -190,7 +191,7 @@ async function reformTopPage(courseSize) {
   const nowTerm = getCurrentTermLetter(nowDate); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
 
   // 時間割内の授業を追加(描画)
-  await drawTables(courses, nowTerm, nowDate.getDay(), todolist);
+  await drawTables(courses, todolist, nowTerm, nowDate.getDay());
   // 本当にawaitの必要があるんか？
 
   // 時間割外の授業を追加
@@ -551,11 +552,11 @@ function drawSpecialCourses(courses) {
  * Tablesを描画します。
  *
  * @param {Object} courses
+ * @param {Array} todolist
  * @param {String} selectedTerm
  * @param {String} selectedDayOfWeekNum
- * @param {Array} todolist
  */
-async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist) {
+async function drawTables(courses, todolist, selectedTerm, selectedDayOfWeekNum) {
   // TODO: 内部を分割し、drawSpecialCoursesとdrawCoursesとdrawTodolistを呼び出す形にしたい
   // TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか; courseの型
   // TODO: 土日のときどうするか？
@@ -579,6 +580,11 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist)
 
   const classTableSet = [false, false, false, false, false];
 
+  if (selectedDayOfWeekNum == 6) {
+    // 週間の選択が、一覧の場合の処理
+    renderWeekClassTable(courses);
+  }
+
   if (!isUndefined(todolist)) {
     courses
       .filter(course => {
@@ -586,12 +592,11 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, todolist)
         return course.term == selectedTerm && course.dayOfWeeks.includes(selectedDayOfWeekTxt);
       })
       .forEach(course => {
-        // toddolistに加える
-        // TODO: なぜ？
-        // helper.htmlの中身に対して、操作している！
         console.log('drawTables: course: ', course);
         renderClassTable(course, classTableSet);
 
+        // toddolistに加える
+        // TODO: なぜ？
         if (!isExixstsTodo(todolist, course)) {
           // 指定の時間割であるとき(前後期、曜日)←todoは当日のほうがいい？連動したいから？
           todolist.push({
@@ -768,56 +773,49 @@ function isExixstsTodo(todolist, course) {
 }
 
 function onSelectTableDay(courses, todolist) {
-  const selectedDayOfWeek = $(this).val();
+  const selectedDayOfWeekNum = $(this).val();
   const selectedTerm = $('#term_select_extension').val();
 
-  console.log('onSelectTableDay: ', selectedDayOfWeek); // 曜日
+  console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
 
-  updateTables(courses, todolist, selectedTerm, selectedDayOfWeek);
+  drawTables(courses, todolist, selectedTerm, selectedDayOfWeekNum);
 }
 
 function onSelectTableTerm(courses, todolist) {
-  const selectedDayOfWeek = $('#day_select_extension').val();
+  const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $(this).val();
 
   console.log('onSelectTableTerm: ', selectedTerm);
 
-  updateTables(courses, todolist, selectedTerm, selectedDayOfWeek);
-  // $('.extension_delete').empty(); // TODO: ?
-}
-
-// TODO: this! 関数名
-function updateTables(courses, todolist, selectedTerm, selectedDayOfWeek) {
-  if (selectedDayOfWeek == 6) {
-    // 週間の選択が、一覧の場合の処理
-    // 未実装
-    renderWeekClassTable(courses);
-
-    console.log('週間表示は未実装です。');
-  }
-
-  // TODO: 時間割を表示しているがこれでいいのか
-  drawTables(courses, selectedTerm, selectedDayOfWeek, todolist);
-  $('.extension_delete').empty();
+  drawTables(courses, todolist, selectedTerm, selectedDayOfWeekNum);
 }
 
 /**
- * 一週間表示の時間割の描画。
- * TODO: 未実装です。
+ * 週間表示の時間割の描画。
+ * TODO: 実装途中です。
  * @param {Object} courses = {}
  */
 async function renderWeekClassTable(courses) {
-  const weekClassTableFilePath = 'weekClassTable.html';
+  const weekClassTableHtmlPath = 'weekClassTable.html';
+  const weekClassTableCssPath = 'weekClassTable.css';
 
-  console.log('一週間表示');
-  $('#page').append();
-  $('body').append('<div id="overlay_extension"></div>');
-  $('head').append(
-    '<style>#overlay_extension::-webkit-scrollbar{width: 10px;}#overlay_extension::-webkit-scrollbar-track{background: #fff;border: none;border-radius: 10px;box-shadow: inset 0 0 2px #777;}#overlay_extension::-webkit-scrollbar-thumb{background: #ccc;border-radius: 10px;box-shadow: none;}</style>',
-  );
-  $('#overlay_extension').append(
-    await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: weekClassTableFilePath }),
-  );
+  console.log('週間表示');
+  if (isUndefined($('#overlay_extension').val())) {
+    $('#page').append();
+    $('body').append('<div id="overlay_extension"></div>');
+    $('head').append(
+      await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: weekClassTableCssPath }),
+    );
+    $('#overlay_extension').append(
+      await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: weekClassTableHtmlPath }),
+    );
+    $('#btnCloseWeekClassTable').on('click', () => {
+      console.log('close weekClassTable.');
+      $('#overlay_extension').addClass('hide');
+    });
+  } else {
+    $('#overlay_extension').removeClass('hide');
+  }
 }
 
 /**

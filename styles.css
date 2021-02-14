@@ -6,6 +6,7 @@
 #page-content.blocks-pre.hidedenNavigation .columnleft {
   display: none;
 }
+
 #page-content.blocks-pre.hidedenNavigation .region-main {
   flex: 0 0 100%;
   min-width: 100%;
@@ -22,7 +23,7 @@ table.minicalendar.calendartable {
   height: 26px;
 }
 .minicalendar th {
-  background-color: #F2A55C;
+  background-color: #f2a55c;
   color: white;
 }
 .minicalendar.calendartable td {
@@ -34,16 +35,16 @@ td.mini-calender-today {
   border: 2px solid orange;
 }
 td.calendar_event_course {
-  background-color: #E8E8E8;
+  background-color: #e8e8e8;
 }
 td.day:hover {
-  background-color: #F0F0F0;
+  background-color: #f0f0f0;
 }
 td.calendar_event_course:hover {
-  background-color: #E0E0E0;
+  background-color: #e0e0e0;
 }
 
-.minicalendar .arrow_link  svg{
+.minicalendar .arrow_link svg {
   display: block;
   width: 16px;
   height: 16px;
