@@ -593,7 +593,12 @@ async function drawTables(courses, todolist, selectedTerm, selectedDayOfWeekNum)
       })
       .forEach(course => {
         console.log('drawTables: course: ', course);
-        renderClassTable(course, classTableSet);
+        // classを描画！
+        renderClassTable(
+          course,
+          course.times[course.dayOfWeeks.indexOf(selectedDayOfWeekTxt)],
+          classTableSet,
+        );
 
         // toddolistに加える
         // TODO: なぜ？
@@ -705,9 +710,8 @@ async function drawTables(courses, todolist, selectedTerm, selectedDayOfWeekNum)
 }
 
 // TODO: 1-2だけじゃないやつなどの対応。動的にするべき！
-function renderClassTable(course, set) {
-  switch (course.times[0] /* TODO: 暫定 */) {
-    // TODO: これが時間割の根本部分！
+function renderClassTable(course, time, set) {
+  switch (time) {
     case '1-2':
       $('#onegen_extension').text(course.name);
       $('#onegen_extension').append(
@@ -832,7 +836,7 @@ function convertTaskDueDateTxtToDate(taskDueDateTxt, nowDate) {
   // task_due_date: Array
   //   [YYYY, MM, DD, hh, mm (, 余り)] or
   //   [明日, hh, mm (, 余り)] or [本日, hh, mm (, 余り)]
-  const arr = taskDueDateTxt.replace(/[\s+,]/g, '').split(/[:年日月残]/);
+  const arr = taskDueDateTxt.replace(/[\s+,]/g, '').split(/[:年日月残]/); // TODO: arr?
   let year = 0;
   let month = 0;
   let day = 0;
