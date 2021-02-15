@@ -18,11 +18,17 @@ NITech 在校生。
 
 - moodle サイトは落ちやすいため、リーロード処理、自分から情報を追加で呼び出すなどは控えること！
 
-## 利用方法(開発版)
+## 利用方法
 
-1. GitHub コードページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。(※開発版のため)
+### ChromeWebStore
+
+一般公開はChromeWebStoreにて行っております。
+
+### GitHub開発版
+
+1. GitHub コードページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
 1. Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
-1. 「デベロッパーモード」を有効にする。
+1. (右上の)「デベロッパーモード」を有効にする。
 1. 先程入手したフォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)
 1. NITech moodle サイトへログインし、拡張機能が動作しているか確認する。
 
@@ -45,6 +51,11 @@ NITech 在校生。
 - 動画の表示サイズを大きくする
 - 動画視聴時にナビゲーションを隠す
 
+### カレンダーページ
+
+- 課題の提出状況が確認できる ※予定
+- プルダウンメニューのコース名を授業名へ変更する
+
 ## 開発環境
 
 - jQuery v3.5.1
@@ -53,13 +64,13 @@ NITech 在校生。
 
 ## ライセンス
 
-未定
+未定(Apache licence 2.0 or MIT or LGPLの予定だが未定)
 
 ## 連絡先
 
 ### バグ報告
 
-GitHub の issue、または [moodle improvement for NITech バグ報告](http://nitech-create.com/forms/moodle-assistant/bug/) へ。
+GitHub の issue、または [moodle assistant for NITech バグ報告](http://nitech-create.com/forms/moodle-assistant/bug/) へ。
 
 ### 質問
 
