@@ -43,37 +43,12 @@ $(function onLoad() {
   })();
 });
 
-function onTopPageOldWithPromise(loc) {
-  // topページでの処理
-
-  // 読み込み待ち
-  return new Promise(function (resolve, reject) {
-    const reload = () => {
-      const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
-      if (isUndefined(courseValue[0])) {
-        console.log('yet');
-        setTimeout(reload, 500);
-      } else {
-        console.log('done');
-        reformTopPage(courseValue.length);
-        // TODO:
-        console.log('value: ', courseValue.length, courseValue);
-        resolve();
-      }
-    };
-
-    reload();
-  });
-}
-
 async function onTopPage() {
-  // TODO: now working
   // topページでの処理
-  // 読み込み待ち
-
   const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
   if (isUndefined(courseValue[0])) {
-    console.log('interval for loading');
+    // 読み込み待ち
+    console.log('wait interval for loading');
     await new Promise(() => {
       setTimeout(onTopPage, 200);
     });
