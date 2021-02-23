@@ -124,7 +124,8 @@ async function reformTopPage(courseSize) {
   // naviを左に集める＆順番最適化
   // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
   // TODO: ここなにをしているのか, 多分左に集めるやつ？, ハードコーディング？(関数内)
-  const calendarUpcomingEvent = reformBlocks();
+  const blocks = loadBlocks();
+  reformBlocks(blocks);
 
   // tables.html(時間割, Todoなど)をロードして表示
   const tablesFilePath = 'tables.html';
@@ -134,7 +135,7 @@ async function reformTopPage(courseSize) {
 
   // events: moodleトップページにある「直近イベント」のarray
   const events = Array.from(
-    calendarUpcomingEvent
+    blocks.calendarUpcomingEventBlock
       .children('div')
       .children('div')
       .children('div')
@@ -192,7 +193,21 @@ async function reformTopPage(courseSize) {
   $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
 }
 
-function reformBlocks() {
+function loadBlocks() {
+  const blocks = {
+    searchCourseBlock: $('[data-block="html"]').last(),
+    jyouhouSecurityBlock: $('[data-block="html"]').first(),
+    navigatorBlock: $('[data-block="navigation"]'),
+    mySyllabusBlock: $('[data-block="mysyllabus"]'),
+    privateFilesBlock: $('[data-block="private_files"]'),
+    calendarUpcomingEventBlock: $('[data-block="calendar_upcoming"]'),
+    badgesBlock: $('[data-block="badges"]'),
+    monthCalendarBlock: $('[data-block="calendar_month"]'),
+  };
+  return blocks;
+}
+
+function reformBlocks(blocks) {
   // TODO: 未リファクタリング
 
   $('#page-header').after('<div id="side-nav-extension"></div>');
@@ -203,25 +218,17 @@ function reformBlocks() {
   $('#side-nav-extension').append($('.columnright').html());
   $('.columnright').remove();
 
-  const searchCourseBlock = $('[data-block="html"]').last();
-  // let jyouhou_security=$("[data-block=\"html\"]").first()
-  const navigatorBlock = $('[data-block="navigation"]');
-  const mySyllabusBlock = $('[data-block="mysyllabus"]');
-  const privateFilesBlock = $('[data-block="private_files"]');
-  const calendarUpcomingEventBlock = $('[data-block="calendar_upcoming"]');
-  const badgesBlock = $('[data-block="badges"]');
-  const monthCalendarBlock = $('[data-block="calendar_month"]');
-
   $('#block-region-side-post').empty();
   $('#block-region-side-pre').remove();
   $('#block-region-side-post').append(
-    monthCalendarBlock,
-    calendarUpcomingEventBlock,
-    navigatorBlock,
-    searchCourseBlock,
-    mySyllabusBlock,
-    privateFilesBlock,
-    badgesBlock,
+    blocks.monthCalendarBlock,
+    blocks.calendarUpcomingEventBlock,
+    blocks.navigatorBlock,
+    blocks.searchCourseBlock,
+    blocks.mySyllabusBlock,
+    blocks.privateFilesBlock,
+    blocks.badgesBlock,
+    blocks.jyouhouSecurityBlock,
   );
 
   return calendarUpcomingEventBlock;
