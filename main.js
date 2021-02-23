@@ -138,10 +138,10 @@ async function reformTopPage(courseSize) {
 
   // 時間割内の授業を描画
   // TODO: 本当にawaitの必要があるか？
-  await drawTables(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
+  await renderTimeTable(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
 
   // 時間割外の授業を追加
-  drawSpecialCourses(courses);
+  renderSpecialCourses(courses);
 
   // 直近イベントに残り時間を描画
   renderEventDeadline(events);
@@ -346,7 +346,7 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
     courses[i] = {
       term: termArray[i],
       courseNumberTxt: courseNumberTxtList[i],
-      shortCourseNumberTxt: shortCourseNumberItem,
+      shortCourseNumberTxt: shortCourseNumberItem /* TODO: courseNumberで良いかもしれない */,
       name: nameArray[i],
       dayOfWeeks: dayOfWeeksArray[i],
       times: timesArray[i],
@@ -356,7 +356,7 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
   return courses;
 }
 
-function drawSpecialCourses(courses) {
+function renderSpecialCourses(courses) {
   $('#special_class_extension').empty();
   const specialCourses = courses.filter(course => isUndefined(course.times));
   if (specialCourses <= 0) {
@@ -383,7 +383,7 @@ function drawSpecialCourses(courses) {
  * @param {Integer} selectedDayOfWeekNum
  * @param {String} selectedDayOfWeekTxt
  */
-async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedDayOfWeekTxt) {
+async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, selectedDayOfWeekTxt) {
   console.log(
     'drawTables: term, dayOfWeekNum, dayOfWeekTxt: ',
     selectedTerm,
@@ -443,7 +443,6 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedD
   );
 
   function resetTables() {
-    // TODO: emptyだとblankClassが消えなかったため、removeを使ってみると大丈夫。なぜ？
     $('#onegen_extension').empty();
     $('#threegen_extension').empty();
     $('#fivegen_extension').empty();
@@ -452,7 +451,6 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedD
   }
 
   function removeBlankOfClassTables() {
-    // TODO: emptyだとblankClassが消えなかったため、removeを使ってみると大丈夫。なぜ？
     $('#onegen_extension').removeClass('blankClass');
     $('#threegen_extension').removeClass('blankClass');
     $('#fivegen_extension').removeClass('blankClass');
@@ -495,6 +493,7 @@ function getCourseTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
 }
 
 function renderClassTable(course, time, set) {
+  // TODO: 変数名renderClassTable?
   // for-loopで回すのはやりすぎかもしれない
   const timeArray = time.split(/-/); // 時間: 1-4を[1, 4]にする
   for (const timeNum of timeArray) {
@@ -549,7 +548,7 @@ function onSelectTableDay(courses) {
 
   console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
 
-  drawTables(
+  renderTimeTable(
     courses,
     selectedTerm,
     selectedDayOfWeekNum,
@@ -563,7 +562,7 @@ function onSelectTableTerm(courses) {
 
   console.log('onSelectTableTerm: ', selectedTerm);
 
-  drawTables(
+  renderTimeTable(
     courses,
     selectedTerm,
     selectedDayOfWeekNum,
@@ -577,6 +576,7 @@ function onSelectTableTerm(courses) {
  * @param {Object} courses = {}
  */
 async function renderWeekClassTable(courses) {
+  // TODO: renderWeekClassTable
   const weekClassTableHtmlPath = 'weekClassTable.html';
   const weekClassTableCssPath = 'weekClassTable.css';
 
@@ -646,13 +646,12 @@ function convertTaskDueDateTxtToDate(taskDueDateTxt, nowDate) {
   return new Date(year, month, day, hour, minute);
 }
 
-// TODO: ここを書き換えれば issue#14 におおよそ対応できる?
 // 時間割(n-n')から時間(hh:mm～hh:mm)にするやつ
-function timetableToTime(timetable) {
-  const timetableSplited = timetable.split(/-/);
-  const timetable_start = timetableSplited[0];
-  const timetable_end = timetableSplited[1];
-  const timearray_start = [
+function timeToTimeTxt(time) {
+  const timetableSplited = time.split(/-/);
+  const timetableStart = timetableSplited[0];
+  const timetableEnd = timetableSplited[1];
+  const timearrayStart = [
     '8：50',
     '9：35',
     '10：30',
@@ -676,8 +675,8 @@ function timetableToTime(timetable) {
     '17：05',
     '17：50',
   ];
-  const time = timearray_start[timetable_start - 1] + '～' + timearray_end[timetable_end - 1];
-  return time;
+  const timeTxt = timearrayStart[timetableStart - 1] + '～' + timearray_end[timetableEnd - 1];
+  return timeTxt;
 }
 
 // ミリ秒から時間計算するやつ
