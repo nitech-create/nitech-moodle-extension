@@ -2,45 +2,41 @@
 /* eslint-disable camelcase */
 /* global promiseWrapper */ // <- ./lib/promiseWrapper.js must be loaded
 
-$(function onLoad() {
+$(async function onLoad() {
   // pageのロードが終わった時
   // TODO: chrome拡張機能のapiでもok?
 
   console.log('[moodle assistant for NITech] page: ' + location.href);
 
   // オプションを読み込んで対応する処理を行う
-  (async () => {
-    const options = await promiseWrapper.runtime.sendMessage({ item: 'loadOptions' });
-    console.log('response options: ', options);
-    $('body').css('background-color', options.backgroundColor); // 背景色変更
+  const options = await promiseWrapper.runtime.sendMessage({ item: 'loadOptions' });
+  console.log('response options: ', options);
+  $('body').css('background-color', options.backgroundColor); // 背景色変更
 
-    // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
-    if (
-      options.hideNavOnVideo === true &&
-      location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
-    ) {
-      $('#page-content.blocks-pre').addClass('hidedenNavigation');
-    }
-  })();
+  // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
+  if (
+    options.hideNavOnVideo === true &&
+    location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
+  ) {
+    $('#page-content.blocks-pre').addClass('hidedenNavigation');
+  }
 
-  (async () => {
-    const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
-    if (topPageUrl.test(location.href)) {
-      // topページでの処理
-      await onTopPage(location.href);
-    } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
-      // loginページでの処理 -> 以降を処理しない
-      console.log('login page.');
-      // return;
-    } else {
-      // topページ以外での処理
-      await onOtherPage(location.href);
-    }
+  const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
+  if (topPageUrl.test(location.href)) {
+    // topページでの処理
+    await onTopPage(location.href);
+  } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
+    // loginページでの処理 -> 以降を処理しない
+    console.log('login page.');
+    // return;
+  } else {
+    // topページ以外での処理
+    await onOtherPage(location.href);
+  }
 
-    // 処理終了イベント発火
-    console.log('[Preprocess Finished]');
-    window.dispatchEvent(new Event('extensionPreprocessFinished'));
-  })();
+  // 処理終了イベント発火
+  console.log('[Preprocess Finished]');
+  window.dispatchEvent(new Event('extensionPreprocessFinished'));
 });
 
 async function onTopPage() {
