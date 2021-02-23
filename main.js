@@ -12,7 +12,6 @@ $(function onLoad() {
   (async () => {
     const options = await promiseWrapper.runtime.sendMessage({ item: 'loadOptions' });
     console.log('response options: ', options);
-    console.log(options.backgroundColor);
     $('body').css('background-color', options.backgroundColor); // 背景色変更
 
     // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
@@ -30,7 +29,7 @@ $(function onLoad() {
       // topページでの処理
       await onTopPage(location.href);
     } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
-      // loginページでの処理 -> 以降を処理しない?
+      // loginページでの処理 -> 以降を処理しない
       console.log('login page.');
       // return;
     } else {
@@ -44,13 +43,13 @@ $(function onLoad() {
   })();
 });
 
-function onTopPage(loc) {
+function onTopPageOldWithPromise(loc) {
   // topページでの処理
 
   // 読み込み待ち
   return new Promise(function (resolve, reject) {
     const reload = () => {
-      const courseValue = $('.coursename');
+      const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
       if (isUndefined(courseValue[0])) {
         console.log('yet');
         setTimeout(reload, 500);
@@ -65,6 +64,26 @@ function onTopPage(loc) {
 
     reload();
   });
+}
+
+async function onTopPage() {
+  // TODO: now working
+  // topページでの処理
+  // 読み込み待ち
+
+  const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
+  if (isUndefined(courseValue[0])) {
+    console.log('interval for loading');
+    await new Promise(() => {
+      setTimeout(onTopPage, 200);
+    });
+    return;
+  }
+
+  console.log('done');
+  console.log('value: ', courseValue.length, courseValue);
+
+  await reformTopPage(courseValue.length);
 }
 
 async function onOtherPage(loc) {
@@ -122,37 +141,30 @@ async function reformTopPage(courseSize) {
   const blocks = loadBlocks();
   reformBlocks(blocks);
 
-  // tables.html(時間割, Todoなど)をロードして表示
+  // monthCalenderBlockにカレンダーへのリンクを追加
+  $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
+
+  // events: moodleトップページにある「直近イベント」のarray
+  const events = convertToEvents(blocks.calendarUpcomingEventBlock);
+
+  // tables.html(時間割, Todoなど)をロードして描画
   const tablesFilePath = 'tables.html';
   $('#page').append(
     await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: tablesFilePath }),
   );
 
-  // events: moodleトップページにある「直近イベント」のarray
-  const events = Array.from(
-    blocks.calendarUpcomingEventBlock
-      .children('div')
-      .children('div')
-      .children('div')
-      .first()
-      .children('div')
-      .children('div'),
-  );
-
   const nowDate = new Date();
+  // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
   const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
-  const nowTerm = getTermLetter(nowDate); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
+  const nowTerm = getTermLetter(nowDate);
 
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
   const courses = convertToCourses(loadCourseList(), courseNumberTxtList, courseSize);
-  console.log('reformTopPage: ', courses);
+  console.log('reformTopPage: courses: ', courses);
   // ストレージに保持(local->syncで他拡張機能と共有可能?)
-  // awaitする必要はない
   promiseWrapper.storage.local.set({ courses: courses });
 
-  // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
-  // const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
   const todolist = await reloadStorageTodo(events); // TODO: この書き方でok?(元々はここでgetしてた)
 
   // 時間割内の授業を描画
@@ -174,9 +186,18 @@ async function reformTopPage(courseSize) {
       .then(value => (oldmin = value))
       .catch(reason => console.error(reason));
   }, 1000);
+}
 
-  // カレンダーへのリンクを追加
-  $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
+function convertToEvents(calendarUpcomingEventBlock) {
+  return Array.from(
+    calendarUpcomingEventBlock
+      .children('div')
+      .children('div')
+      .children('div')
+      .first()
+      .children('div')
+      .children('div'),
+  );
 }
 
 function renderEventDeadline(events) {
