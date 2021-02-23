@@ -136,13 +136,9 @@ async function reformTopPage(courseSize) {
   // ストレージに保持(local->syncで他拡張機能と共有可能?)
   promiseWrapper.storage.local.set({ courses: courses });
 
-  const todolist = await reloadStorageTodo(events); // TODO: この書き方でok?(元々はここでgetしてた)
-
   // 時間割内の授業を描画
   // TODO: 本当にawaitの必要があるか？
   await drawTables(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
-
-  await updateTodolistFromCourses(todolist, courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
 
   // 時間割外の授業を追加
   drawSpecialCourses(courses);
@@ -153,7 +149,7 @@ async function reformTopPage(courseSize) {
   // 動的に残り時間を変更
   let oldmin = nowDate.getMinutes();
   setInterval(async () => {
-    await updateTopPage(events, todolist, oldmin)
+    await updateTopPage(events, oldmin)
       .then(value => (oldmin = value))
       .catch(reason => console.error(reason));
   }, 1000);
@@ -224,7 +220,7 @@ function reformBlocks(blocks) {
 }
 
 // TODO: async 必要？
-async function updateTopPage(events, todolist, oldmin) {
+async function updateTopPage(events, oldmin) {
   console.log('updateTopPage');
   const doUpdate = await promiseWrapper.storage.local
     .get('doUpdate')
@@ -269,14 +265,8 @@ async function updateTopPage(events, todolist, oldmin) {
       // 1日を切っている場合
       // 文字を赤くする
       $($('.date-left-extension')[i]).addClass('deadline');
-
-      // Todoリストに追加および更新
-      updateTodoListFromEvent(todolist, events[i], remainingTime);
     }
   }
-
-  // todoを更新
-  await renderTodolist(todolist);
 
   return newmin;
 }
@@ -286,259 +276,6 @@ function changeTermOption(nowTerm) {
     $('#term_select_extension option').eq(0).prop('selected', true);
   } else {
     $('#term_select_extension option').eq(1).prop('selected', true);
-  }
-}
-
-async function reloadStorageTodo(events) {
-  // 関数名旧: filterAndSaveStorageTodo, updateにするかreloadにするか迷ったが、値を返すことでreloadとする。
-  // events: 直近イベント
-  // 古いtodoを新しくするというか、時間割内授業をfilterする？
-
-  // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
-  // const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
-  const oldTodolist = await promiseWrapper.storage.local
-    .get('todolist')
-    .then(data => {
-      return data.todolist;
-    })
-    .catch(reason => {
-      // console.log(reason);
-      console.log(
-        '[moodle assistant for NITech] INFO: cannot get todolist. (This loading might be the first time.): ',
-        reason,
-      );
-      return [];
-    });
-
-  console.log('reloadStorageTodo: ', oldTodolist);
-
-  // TODO: 後半の条件がわからない→わかったら上にも書く
-  // 古いやつ削除で新しく入れる
-  const newTodolist = oldTodolist.filter(todolistItem => {
-    return (
-      /-/.test(todolistItem.deadline) ||
-      events.some(event => $(event).children('a').text() == todolistItem.name)
-    );
-  });
-
-  await promiseWrapper.storage.local.set({ todolist: newTodolist });
-
-  return newTodolist;
-}
-
-async function renderTodolist(todolist) {
-  $('#today_todo_extension').empty();
-
-  // TODO: 同じ処理？(drawTable内)
-  for (let i = 0; i < todolist.length; i++) {
-    renderTodoItem(todolist[i], i);
-  }
-
-  renderTaskDoneTxt(todolist);
-
-  $('#today_todo_extension').click(function () {
-    if ($('#today_todo_extension').parent().parent().css('opacity') == '1') {
-      $('#today_todo_extension').parent().parent().animate({ opacity: '0.6' }, 100);
-      $('#today_todo_extension').text('未完了に戻す');
-      $('#today_todo_extension').parent().parent().children('.strike_todo_extension').wrap('<s>');
-      todolist[$('#today_todo_extension').attr('data-index_extension')].complete = true;
-
-      chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO:
-    } else {
-      $('#today_todo_extension').parent().parent().animate({ opacity: '1.0' }, 100);
-      $('#today_todo_extension').text('完了する');
-      $('#today_todo_extension')
-        .parent()
-        .parent()
-        .children('s')
-        .children('.strike_todo_extension')
-        .unwrap();
-      todolist[$('#today_todo_extension').attr('data-index_extension')].complete = false;
-
-      chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO:
-    }
-
-    $('#today_todo_extension tr').first().remove();
-    renderTaskDoneTxt(todolist);
-  });
-}
-
-function renderTaskDoneTxt(todolist) {
-  console.log('renderTaskDoneTxt: ', todolist);
-
-  $('#today_todo_extension').append(
-    todolist.some(todoItem => isTodolistCompleted(todoItem) == true)
-      ? '<tr><td id="task_done_extension">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>'
-      : '<tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>',
-  );
-}
-
-function renderTodoItem(todoItem, todoItemIndex) {
-  // todolistの中身を確認して、
-  if (/-/.test(todoItem.deadline)) {
-    // 時間割の授業(n-n')のとき (つまり、timeに-があるとき)
-    $('#today_todo_extension').append(
-      '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">授業<button data-index_extension="' +
-        todoItemIndex +
-        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-        todoItem.name +
-        '<br>時間 ： ' +
-        timetableToTime(todoItem.deadline) +
-        '</span><br><a href="' +
-        todoItem.url +
-        '">この授業のページに移動する</a></td></tr>',
-    );
-  } else {
-    // 直近イベントから取得した課題のとき (timeが上以外のとき)
-    $('#today_todo_extension').append(
-      '<tr><td><h1 style="font-size:18.75px; font-weight: medium;">課題<button data-index_extension="' +
-        todoItemIndex +
-        '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
-        todoItem.name +
-        '<br>残り時間 ： ' /* TODO: 残り時間でtimeを用いるべきなのか？ */ +
-        timetableToTime(todoItem.deadline) +
-        '</span><br><a href="' +
-        todoItem.url +
-        '">この課題の提出先に移動する</a></td></tr>',
-    );
-  }
-
-  if (todoItem.complete == true) {
-    $('#today_todo_extension tr')
-      .last()
-      .children('td')
-      .children('h1')
-      .children('.todo_button_extension')
-      .parent()
-      .parent()
-      .animate({ opacity: '0.6' }, 100);
-    $('#today_todo_extension tr')
-      .last()
-      .children('td')
-      .children('h1')
-      .children('.todo_button_extension')
-      .text('未完了に戻す');
-    $('#today_todo_extension tr')
-      .last()
-      .children('td')
-      .children('h1')
-      .children('.todo_button_extension')
-      .parent()
-      .parent()
-      .children('.strike_todo_extension')
-      .wrap('<s>');
-  }
-}
-
-function updateTodolistTable(todolist) {
-  if ($(this).parent().parent().css('opacity') == '1') {
-    $(this).parent().parent().animate({ opacity: '0.6' }, 100);
-    $(this).text('未完了に戻す');
-    $(this).parent().parent().children('.strike_todo_extension').wrap('<s>');
-    todolist[$(this).attr('data-index_extension')].complete = true;
-  } else {
-    $(this).parent().parent().animate({ opacity: '1.0' }, 100);
-    $(this).text('完了する');
-    $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
-    todolist[$(this).attr('data-index_extension')].complete = false;
-  }
-
-  // chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO: 必要なのかとpromiseであるべきなのか
-
-  if (isTodolistCompleted(todolist) == true) {
-    $('#today_todo_extension tr').first().remove();
-    $('#today_todo_extension').prepend(
-      '<tr><td id="task_done_extension">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>',
-    );
-  } else {
-    $('#today_todo_extension tr').first().remove();
-    $('#today_todo_extension').prepend(
-      '<tr><td id="task_done_extension">今日のやるべきことがまだ残っています！<br>今日もがんばりましょう...！</td></tr>',
-    );
-  }
-}
-
-async function updateTodolistFromCourses(
-  todolist,
-  courses,
-  selectedTerm,
-  selectedDayOfWeekNum,
-  selectedDayOfWeekTxt,
-) {
-  if (isUndefined(todolist)) {
-    console.log('updateTodolistFromCourses: todolist is undef. (This might be the first launcher)');
-    todolist = [];
-  }
-
-  // todolist: 時間割と、直近イベント(課題)
-  for (const course of courses) {
-    console.log('course: ', course);
-
-    // toddolistに加える
-    // TODO: なぜ？
-    if (
-      course.term == selectedTerm &&
-      course.dayOfWeeks.includes(selectedDayOfWeekTxt) &&
-      !isCourseExixstsInTodo(todolist, course)
-    ) {
-      /* 指定されたterm, 曜日であるとき */
-      // 指定の時間割であるとき(前後期、曜日)
-      // TODO: todoは当日のほうがいい？連動したいから？
-      todolist.push({
-        deadline: getCourseTimeFromDayOfWeek(
-          course.times,
-          course.dayOfWeeks,
-          selectedDayOfWeekTxt,
-        ) /* 時間割: 1-2とか */ /* TODO: 暫定, 「todolist.time」は期限→ deadlineにした, 残り時間は？ */,
-        name: course.name,
-        url: course.url,
-        complete: false,
-      });
-
-      console.log('todolist: ', todolist);
-    }
-  }
-
-  // TODO: 上と統合してはどうか
-  // todoリストにあるけど今日の授業にない昨日の授業を消去?
-  const newTodolist = todolist.filter(function (todoItem) {
-    return (
-      !/-/.test(todoItem.deadline) ||
-      courses.some(course => {
-        return (
-          course.term == selectedTerm &&
-          course.dayOfWeeks.includes(selectedDayOfWeekNum) &&
-          course.name == todoItem.name
-        );
-      })
-    );
-  });
-
-  // TODO: これでいいかな↓
-  // todo更新を保存
-  await promiseWrapper.storage.local.set({ todolist: newTodolist });
-}
-
-function updateTodoListFromEvent(todolist, event, remainingTime) {
-  // イベントをTodoリストに追加
-
-  // Todoリスト内を検索
-  const existingTodoItem = todolist.some(
-    todolistItem => todolistItem.name === $(event).children('a').text(), // 直近イベント
-  );
-
-  if (isUndefined(existingTodoItem)) {
-    // Todoリストに新規追加
-    todolist.push({
-      name: $(event).children('a').text(),
-      deadline: msToTime(remainingTime),
-      url: $(event).children('a').attr('href'),
-      complete: false,
-    });
-  } else {
-    // Todoリストのアイテムを更新
-    existingTodoItem.deadline = msToTime(remainingTime);
-    existingTodoItem.url = $(event).children('a').attr('href');
   }
 }
 
@@ -654,10 +391,6 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedD
     selectedDayOfWeekTxt,
   );
 
-  // TODO: 内部を分割し、drawSpecialCoursesとdrawCoursesとdrawTodolistを呼び出す形にしたい
-  // TODO: 時間割: Courses or TimeSchedule ならびに、drawかrenderか; courseの型
-  // TODO: 土日のときどうするか？
-
   resetTables();
 
   // 時間割の選択termの表示
@@ -699,19 +432,14 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedD
   console.log(classTableSet);
   fillBlankOfClassTables(classTableSet);
 
-  const newTodolist = undefined; // TODO: todolist移動したため暫定
   // reset and add event listener
   $('#day_select_extension').off('change');
   $('#day_select_extension').change(() =>
-    onSelectTableDay.call($('#day_select_extension'), courses, newTodolist),
+    onSelectTableDay.call($('#day_select_extension'), courses),
   );
   $('#term_select_extension').off('change');
   $('#term_select_extension').change(() =>
-    onSelectTableTerm.call($('#term_select_extension'), courses, newTodolist),
-  );
-  $('.todo_button_extension').off('click');
-  $('.todo_button_extension').click(() =>
-    updateTodolistTable.call($('.todo_button_extension'), newTodolist),
+    onSelectTableTerm.call($('#term_select_extension'), courses),
   );
 
   function resetTables() {
@@ -815,32 +543,7 @@ function renderClassTable(course, time, set) {
   }
 }
 
-// TODO:
-function isTodolistCompleted(todolist) {
-  let isCompleted = true;
-  for (const todoItem of todolist) {
-    if (todoItem.complete == false) {
-      // todoItemが未完了のとき
-      isCompleted = false;
-      break;
-    }
-  }
-  return isCompleted;
-}
-
-// TODO:
-function isCourseExixstsInTodo(todolist, course) {
-  let already_exixsts_todo = false;
-  for (const todoItem of todolist) {
-    if (todoItem.name == course.name) {
-      // TODO: todolistに授業がすでに存在するとき: これって書き込み段階でされるべき処理では？
-      already_exixsts_todo = true;
-    }
-  }
-  return already_exixsts_todo;
-}
-
-function onSelectTableDay(courses, todolist) {
+function onSelectTableDay(courses) {
   const selectedDayOfWeekNum = $(this).val();
   const selectedTerm = $('#term_select_extension').val();
 
@@ -854,7 +557,7 @@ function onSelectTableDay(courses, todolist) {
   );
 }
 
-function onSelectTableTerm(courses, todolist) {
+function onSelectTableTerm(courses) {
   const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $(this).val();
 
