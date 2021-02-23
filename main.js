@@ -123,10 +123,8 @@ async function reformTopPage(courseSize) {
 
   // naviを左に集める＆順番最適化
   // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
-  moveNaviToLeft();
-
   // TODO: ここなにをしているのか, 多分左に集めるやつ？, ハードコーディング？(関数内)
-  const calendarUpcomingEvent = renderUpcomingEvent();
+  const calendarUpcomingEvent = reformBlocks();
 
   // tables.html(時間割, Todoなど)をロードして表示
   const tablesFilePath = 'tables.html';
@@ -134,10 +132,7 @@ async function reformTopPage(courseSize) {
     await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: tablesFilePath }),
   );
 
-  // 直近イベントを見やすくする?
-
-  // events: moodleトップページにある「直近イベント」
-  //         moodleトップページの、eventクラスがついた部分のarray
+  // events: moodleトップページにある「直近イベント」のarray
   const events = Array.from(
     calendarUpcomingEvent
       .children('div')
@@ -158,8 +153,8 @@ async function reformTopPage(courseSize) {
   }
 
   const nowDate = new Date();
-  const selectedDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
-  const nowTerm = getCurrentTermLetter(nowDate); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
+  const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
+  const nowTerm = getTermLetter(nowDate); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
 
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
@@ -175,18 +170,12 @@ async function reformTopPage(courseSize) {
   console.log('reformTopPage todolist: ', todolist);
 
   // TODO: nowWorking
-  console.log('reformTopPage dayOfWeek dayOfWeekTxt: ', nowDate.getDay(), selectedDayOfWeekTxt);
+  console.log('reformTopPage dayOfWeek dayOfWeekTxt: ', nowDate.getDay(), nowDayOfWeekTxt);
 
   // 時間割内の授業を追加(描画)
   // TODO: 本当にawaitの必要があるか？
-  await drawTables(courses, nowTerm, nowDate.getDay(), selectedDayOfWeekTxt);
-  await updateTodolistFromCourses(
-    todolist,
-    courses,
-    nowTerm,
-    nowDate.getDay(),
-    selectedDayOfWeekTxt,
-  );
+  await drawTables(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
+  await updateTodolistFromCourses(todolist, courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
 
   // 時間割外の授業を追加
   drawSpecialCourses(courses);
@@ -203,33 +192,39 @@ async function reformTopPage(courseSize) {
   $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
 }
 
-function convertToDayOfWeekTxt(dayOfWeekNum) {
-  return ['日', '月', '火', '水', '木', '金', '土'][dayOfWeekNum];
-}
-
-function renderUpcomingEvent() {
+function reformBlocks() {
   // TODO: 未リファクタリング
-  const search_course = $('[data-block="html"]').last();
+
+  $('#page-header').after('<div id="side-nav-extension"></div>');
+
+  $('#side-nav-extension').append($('.columnleft').html());
+  $('.columnleft').remove();
+
+  $('#side-nav-extension').append($('.columnright').html());
+  $('.columnright').remove();
+
+  const searchCourseBlock = $('[data-block="html"]').last();
   // let jyouhou_security=$("[data-block=\"html\"]").first()
-  const navigator = $('[data-block="navigation"]');
-  const mysyllabus = $('[data-block="mysyllabus"]');
-  const private_files = $('[data-block="private_files"]');
-  const calendarUpcomingEvent = $('[data-block="calendar_upcoming"]');
-  const badges = $('[data-block="badges"]');
-  const calendar_month = $('[data-block="calendar_month"]');
+  const navigatorBlock = $('[data-block="navigation"]');
+  const mySyllabusBlock = $('[data-block="mysyllabus"]');
+  const privateFilesBlock = $('[data-block="private_files"]');
+  const calendarUpcomingEventBlock = $('[data-block="calendar_upcoming"]');
+  const badgesBlock = $('[data-block="badges"]');
+  const monthCalendarBlock = $('[data-block="calendar_month"]');
 
   $('#block-region-side-post').empty();
   $('#block-region-side-pre').remove();
   $('#block-region-side-post').append(
-    calendar_month,
-    calendarUpcomingEvent,
-    navigator,
-    search_course,
-    mysyllabus,
-    private_files,
-    badges,
+    monthCalendarBlock,
+    calendarUpcomingEventBlock,
+    navigatorBlock,
+    searchCourseBlock,
+    mySyllabusBlock,
+    privateFilesBlock,
+    badgesBlock,
   );
-  return calendarUpcomingEvent;
+
+  return calendarUpcomingEventBlock;
 }
 
 // TODO: async 必要？
@@ -404,7 +399,7 @@ function renderTodoItem(todoItem, todoItemIndex) {
         todoItemIndex +
         '" class="todo_button_extension" type="button">完了する</button></h1><span class="strike_todo_extension">' +
         todoItem.name +
-        '<br>残り時間 ： ' /* TODO: 残り時間でtimeを用いるな仕様の非統一！！ */ +
+        '<br>残り時間 ： ' /* TODO: 残り時間でtimeを用いるべきなのか？ */ +
         timetableToTime(todoItem.deadline) +
         '</span><br><a href="' +
         todoItem.url +
@@ -413,8 +408,6 @@ function renderTodoItem(todoItem, todoItemIndex) {
   }
 
   if (todoItem.complete == true) {
-    // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension"))
-    // console.log($("#today_todo_extension tr").last().children("td").children("h1").children(".todo_button_extension").parent())
     $('#today_todo_extension tr')
       .last()
       .children('td')
@@ -551,16 +544,6 @@ function updateTodoListFromEvent(todolist, event, remainingTime) {
     existingTodoItem.deadline = msToTime(remainingTime);
     existingTodoItem.url = $(event).children('a').attr('href');
   }
-}
-
-function moveNaviToLeft() {
-  $('#page-header').after('<div id="side-nav-extension"></div>');
-
-  $('#side-nav-extension').append($('.columnleft').html());
-  $('.columnleft').remove();
-
-  $('#side-nav-extension').append($('.columnright').html());
-  $('.columnright').remove();
 }
 
 /**
@@ -922,7 +905,7 @@ async function renderWeekClassTable(courses) {
  * @param {Date} day 日付
  * @return {String} 前期なら前, 後期なら後を返す
  */
-function getCurrentTermLetter(day) {
+function getTermLetter(day) {
   const month = day.getMonth();
   return 4 <= month && month <= 9 ? '前' : '後';
 }
@@ -1015,6 +998,10 @@ function msToTime(duration) {
     return hours + '時間 ' + minutes + '分';
   }
   return days + '日 ' + hours + '時間 ' + minutes + '分';
+}
+
+function convertToDayOfWeekTxt(dayOfWeekNum) {
+  return ['日', '月', '火', '水', '木', '金', '土'][dayOfWeekNum];
 }
 
 function isUndefined(value) {
