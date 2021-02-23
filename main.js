@@ -192,7 +192,6 @@ async function reformTopPage(courseSize) {
   drawSpecialCourses(courses);
 
   // 動的に残り時間を変更
-  // TODO:
   let oldmin = nowDate.getMinutes();
   setInterval(async () => {
     await updateTopPage(events, todolist, oldmin)
@@ -235,6 +234,23 @@ function renderUpcomingEvent() {
 
 // TODO: async 必要？
 async function updateTopPage(events, todolist, oldmin) {
+  console.log('updateTopPage');
+  const doUpdate = await promiseWrapper.storage.local
+    .get('doUpdate')
+    .then(data => {
+      console.log('doUpdate: ', data.doUpdate);
+      return data.doUpdate;
+    })
+    .catch(async reason => {
+      console.log(reason);
+      await promiseWrapper.storage.local.set({ doUpdate: true });
+      return true;
+    });
+
+  if (!doUpdate) {
+    return;
+  }
+
   const nowDate = new Date();
   const newmin = nowDate.getMinutes();
 
@@ -329,19 +345,24 @@ async function renderTodolist(todolist) {
 
   renderTaskDoneTxt(todolist);
 
-  $('.todo_button_extension').click(function () {
-    if ($(this).parent().parent().css('opacity') == '1') {
-      $(this).parent().parent().animate({ opacity: '0.6' }, 100);
-      $(this).text('未完了に戻す');
-      $(this).parent().parent().children('.strike_todo_extension').wrap('<s>');
-      todolist[$(this).attr('data-index_extension')].complete = true;
+  $('#today_todo_extension').click(function () {
+    if ($('#today_todo_extension').parent().parent().css('opacity') == '1') {
+      $('#today_todo_extension').parent().parent().animate({ opacity: '0.6' }, 100);
+      $('#today_todo_extension').text('未完了に戻す');
+      $('#today_todo_extension').parent().parent().children('.strike_todo_extension').wrap('<s>');
+      todolist[$('#today_todo_extension').attr('data-index_extension')].complete = true;
 
       chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO:
     } else {
-      $(this).parent().parent().animate({ opacity: '1.0' }, 100);
-      $(this).text('完了する');
-      $(this).parent().parent().children('s').children('.strike_todo_extension').unwrap();
-      todolist[$(this).attr('data-index_extension')].complete = false;
+      $('#today_todo_extension').parent().parent().animate({ opacity: '1.0' }, 100);
+      $('#today_todo_extension').text('完了する');
+      $('#today_todo_extension')
+        .parent()
+        .parent()
+        .children('s')
+        .children('.strike_todo_extension')
+        .unwrap();
+      todolist[$('#today_todo_extension').attr('data-index_extension')].complete = false;
 
       chrome.storage.local.set({ todolist: todolist }, function () {}); // TODO:
     }
@@ -352,6 +373,8 @@ async function renderTodolist(todolist) {
 }
 
 function renderTaskDoneTxt(todolist) {
+  console.log('renderTaskDoneTxt: ', todolist);
+
   $('#today_todo_extension').append(
     todolist.some(todoItem => isTodolistCompleted(todoItem) == true)
       ? '<tr><td id="task_done_extension">今日のやるべきことはすべて終了しました🎊<br>💮お疲れさまでした💮</td></tr>'
@@ -455,7 +478,7 @@ async function updateTodolistFromCourses(
 ) {
   if (isUndefined(todolist)) {
     console.log('updateTodolistFromCourses: todolist is undef. (This might be the first launcher)');
-    todolist = {};
+    todolist = [];
   }
 
   // todolist: 時間割と、直近イベント(課題)
@@ -473,7 +496,7 @@ async function updateTodolistFromCourses(
       // 指定の時間割であるとき(前後期、曜日)
       // TODO: todoは当日のほうがいい？連動したいから？
       todolist.push({
-        deadline: getCourseTimeFromSelectedDayOfWeek(
+        deadline: getCourseTimeFromDayOfWeek(
           course.times,
           course.dayOfWeeks,
           selectedDayOfWeekTxt,
@@ -686,7 +709,7 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedD
       // classを描画！
       renderClassTable(
         course,
-        getCourseTimeFromSelectedDayOfWeek(course.times, course.dayOfWeeks, selectedDayOfWeekTxt),
+        getCourseTimeFromDayOfWeek(course.times, course.dayOfWeeks, selectedDayOfWeekTxt),
         classTableSet,
       );
     }
@@ -760,7 +783,7 @@ async function drawTables(courses, selectedTerm, selectedDayOfWeekNum, selectedD
   }
 }
 
-function getCourseTimeFromSelectedDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
+function getCourseTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
   return times[dayOfWeeks.indexOf(selectedDayOfWeekTxt)];
 }
 
