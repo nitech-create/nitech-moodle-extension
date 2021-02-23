@@ -116,13 +116,8 @@ async function onOtherPage(loc) {
 async function reformTopPage(courseSize) {
   // 読み込み終わったらの処理
 
-  // TODO: navバー
-  // nav: ページ上部にあるトップページとかマイページへのリンクがある領域
-  // navバー操作
-  // $('nav').prepend('<p>Hello Moodle</p>');
-
-  // naviを左に集める＆順番最適化
-  // nagi: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
+  // blockを左に集める＆順番最適化
+  // block: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
   // TODO: ここなにをしているのか, 多分左に集めるやつ？, ハードコーディング？(関数内)
   const blocks = loadBlocks();
   reformBlocks(blocks);
@@ -144,15 +139,6 @@ async function reformTopPage(courseSize) {
       .children('div'),
   );
 
-  // TODO: 計算中って初期でこうやって管理するのやばいのでは…？
-  // eventを直近イベントに適応(描画).
-  for (const event of events) {
-    $(event).children('.date').append('');
-    $(event)
-      .children('.date')
-      .append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
-  }
-
   const nowDate = new Date();
   const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
   const nowTerm = getTermLetter(nowDate); // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)を指定
@@ -168,18 +154,18 @@ async function reformTopPage(courseSize) {
   // 次の処理と同じ: let todolist = isUndefined(data_todolist.todolist) ? [] : data_todolist.todolist;
   // const todolist = (await promiseWrapper.storage.local.get('todolist')).todolist || [];
   const todolist = await reloadStorageTodo(events); // TODO: この書き方でok?(元々はここでgetしてた)
-  console.log('reformTopPage todolist: ', todolist);
 
-  // TODO: nowWorking
-  console.log('reformTopPage dayOfWeek dayOfWeekTxt: ', nowDate.getDay(), nowDayOfWeekTxt);
-
-  // 時間割内の授業を追加(描画)
+  // 時間割内の授業を描画
   // TODO: 本当にawaitの必要があるか？
   await drawTables(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
+
   await updateTodolistFromCourses(todolist, courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
 
   // 時間割外の授業を追加
   drawSpecialCourses(courses);
+
+  // 直近イベントに残り時間を描画
+  renderEventDeadline(events);
 
   // 動的に残り時間を変更
   let oldmin = nowDate.getMinutes();
@@ -191,6 +177,17 @@ async function reformTopPage(courseSize) {
 
   // カレンダーへのリンクを追加
   $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
+}
+
+function renderEventDeadline(events) {
+  // TODO: 計算中って初期でこうやって管理するのやばいのでは？(ハードコーディングですので)
+
+  for (const event of events) {
+    $(event).children('.date').append('');
+    $(event)
+      .children('.date')
+      .append('<br>残り時間 ： <span class="date-left-extension">計算中</span>');
+  }
 }
 
 function loadBlocks() {
@@ -208,7 +205,9 @@ function loadBlocks() {
 }
 
 function reformBlocks(blocks) {
-  // TODO: 未リファクタリング
+  // nav: ページ上部にあるトップページとかマイページへのリンクがある領域(navigationの省略だと思われる)
+  // navバー(ヘッダー部分)操作
+  // $('nav').prepend('<p>Hello Moodle</p>');
 
   $('#page-header').after('<div id="side-nav-extension"></div>');
 
@@ -230,8 +229,6 @@ function reformBlocks(blocks) {
     blocks.badgesBlock,
     blocks.jyouhouSecurityBlock,
   );
-
-  return calendarUpcomingEventBlock;
 }
 
 // TODO: async 必要？
