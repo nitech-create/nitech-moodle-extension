@@ -1,6 +1,10 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
-/* global promiseWrapper */ // <- ./lib/promiseWrapper.js must be loaded
+
+import promiseWrapper from 'Lib/promiseWrapper.js';
+// import $ from 'jQuery';
+import restoreMiniCalender from 'General/miniCalender/miniCalender.js';
+import restoreNavigation from 'General/navigation/navigation.js';
 
 $(async function onLoad() {
   // pageのロードが終わった時
@@ -34,9 +38,10 @@ $(async function onLoad() {
     await onOtherPage(location.href);
   }
 
-  // 処理終了イベント発火
+  // ポストプロセス
   console.log('[Preprocess Finished]');
-  window.dispatchEvent(new Event('extensionPreprocessFinished'));
+  restoreMiniCalender();
+  restoreNavigation();
 });
 
 async function onTopPage() {

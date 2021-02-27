@@ -1,11 +1,11 @@
-/* global promiseWrapper */ // <- ./lib/promiseWrapper.js must be loaded
+import promiseWrapper from 'Lib/promiseWrapper.js';
 
-window.addEventListener('extensionPreprocessFinished', () => {
+export default function(){
   if($('.depth_1 ul')[0] !== undefined){
     reformNavi();
     restoreTree();
   }
-});
+}
 
 function restoreTree(){
   // ナビゲーションが動かないのを修正

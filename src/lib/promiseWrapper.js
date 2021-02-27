@@ -73,3 +73,5 @@ promiseWrapper.tabs.sendMessage = (tabId, data) => {
     });
   });
 };
+
+export default promiseWrapper;

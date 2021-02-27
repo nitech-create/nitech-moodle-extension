@@ -1,8 +1,8 @@
-window.addEventListener('extensionPreprocessFinished', () => {
+export default function(){
   if($('[data-block="calendar_month"]')[0] !== undefined){
     editCalender($('[data-block="calendar_month"]'));
   }
-});
+}
 
 function editCalender(calendarMonth){
   // カレンダーが動くように初期化
