@@ -26,5 +26,8 @@
     "lint": "eslint ..",
     "build": "webpack --mode production",
     "dev": "webpack --mode development"
+  },
+  "dependencies": {
+    "jquery": "^3.5.1"
   }
 }

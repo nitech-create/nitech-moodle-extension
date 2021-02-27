@@ -20,10 +20,7 @@
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"],
       "css": ["styles.css"],
-      "js": [
-        "jquery.min.js",
-        "top.js"
-      ]
+      "js": ["top.js"]
     },
     {
       "matches": [

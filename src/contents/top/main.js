@@ -2,7 +2,7 @@
 /* eslint-disable camelcase */
 
 import promiseWrapper from 'Lib/promiseWrapper.js';
-// import $ from 'jQuery';
+import $ from 'jQuery';
 import restoreMiniCalender from 'General/miniCalender/miniCalender.js';
 import restoreNavigation from 'General/navigation/navigation.js';
 
