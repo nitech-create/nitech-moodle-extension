@@ -25,7 +25,7 @@ module.exports = {
     })
   ],
   mode: 'development',
-  devtool: 'cheap-module-source-map',
+  devtool: 'inline-cheap-source-map',
   resolve: {
     alias: {
       // ライブラリファイルのエイリアス
