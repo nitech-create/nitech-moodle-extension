@@ -44,22 +44,45 @@ $(async function onLoad() {
   restoreNavigation();
 });
 
-async function onTopPage() {
+// async function onTopPage() {
+//   // topページでの処理
+//   const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
+//   if (isUndefined(courseValue[0])) {
+//     // 読み込み待ち
+//     console.log('wait interval for loading');
+//     await new Promise(() => {
+//       setTimeout(onTopPage, 200);
+//     });
+//     return;
+//   }
+//
+//   console.log('done');
+//   console.log('value: ', courseValue.length, courseValue);
+//
+//   await reformTopPage(courseValue.length);
+// }
+// async functionの記述ではデッドロックする
+function onTopPage(){
   // topページでの処理
-  const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
-  if (isUndefined(courseValue[0])) {
-    // 読み込み待ち
-    console.log('wait interval for loading');
-    await new Promise(() => {
-      setTimeout(onTopPage, 200);
-    });
-    return;
-  }
 
-  console.log('done');
-  console.log('value: ', courseValue.length, courseValue);
+  // 読み込み待ち
+  return new Promise(function (resolve, reject) {
+    const reload = () => {
+      const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
+      if (isUndefined(courseValue[0])) {
+        console.log('yet');
+        setTimeout(reload, 500);
+      } else {
+        console.log('done');
+        reformTopPage(courseValue.length);
+        // TODO:
+        console.log('value: ', courseValue.length, courseValue);
+        resolve();
+      }
+    };
 
-  await reformTopPage(courseValue.length);
+    reload();
+  });
 }
 
 async function onOtherPage(loc) {
