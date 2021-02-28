@@ -28,7 +28,6 @@
   "globals": {
     "alert": false,
     "document": false,
-    "$": false,
     "console": false,
     "chrome": false
   }

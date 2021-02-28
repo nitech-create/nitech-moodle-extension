@@ -1,4 +1,5 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
+import $ from 'jQuery';
 
 export default function(){
   if($('.depth_1 ul')[0] !== undefined){

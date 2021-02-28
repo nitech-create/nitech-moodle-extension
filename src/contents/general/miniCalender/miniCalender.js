@@ -1,3 +1,5 @@
+import $ from 'jQuery';
+
 export default function(){
   if($('[data-block="calendar_month"]')[0] !== undefined){
     editCalender($('[data-block="calendar_month"]'));
