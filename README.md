@@ -26,14 +26,12 @@ NITech 在校生。
 
 ### GitHub開発版
 
-1. GitHub コードページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
-2. Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
-3. (右上の)「デベロッパーモード」を有効にする。
-4. ~~先程入手したフォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)~~
-5. ~~NITech moodle サイトへログインし、拡張機能が動作しているか確認する。~~
-4. ルートディレクトリにて`npm install`
-5. 同ディレクトリにて`npm run build`(開発ビルド: `npm run dev`)
-6. 生成される`dist`フォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)
+1. 【Chromeの準備】<br>Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~, おすすめ: Chrome Beta)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
+2. (右上の)「デベロッパーモード」を有効にする。
+3. 【ソースコードの準備】<br>GitHubの「Code」ページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
+4. 先程入手したフォルダにて`npm install`
+5. 同ディレクトリにて`npm run build`(開発ビルド: `npm run dev`) (※これはWebpackによるbundleを行っています)
+6. 【拡張機能の読み込み】<br>生成される`dist`フォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)
 7. NITech moodle サイトへログインし、拡張機能が動作しているか確認する。
 
 ## 機能
@@ -63,8 +61,9 @@ NITech 在校生。
 ## 開発環境
 
 - jQuery v3.5.1
-- VSCode or Atom
+- VSCode or Atom: エディター
 - ESLint + Prettier: JavaScript 整形ソフト
+- Webpack: JavaScriptモジュールバンドラー
 
 ## ライセンス
 
