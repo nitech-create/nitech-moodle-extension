@@ -62,7 +62,7 @@ $(async function onLoad() {
 //   await reformTopPage(courseValue.length);
 // }
 // async functionの記述ではデッドロックする
-function onTopPage(){
+function onTopPage() {
   // topページでの処理
 
   // 読み込み待ち
@@ -87,48 +87,7 @@ function onTopPage(){
 
 async function onOtherPage(loc) {
   // topページ以外での処理
-
-  const courses = (await promiseWrapper.storage.local.get('courses'))
-    .then(data => {
-      return data.courses;
-    })
-    .catch(reason => {
-      console.log('test', reason);
-      return {};
-    });
-
-  // ナビゲーション文字入れ替え
-  const navigationSize = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li')
-    .length;
-
-  let navigationCount = 0;
-  $('.depth_1 ul')
-    .first()
-    .children('li')
-    .eq(2)
-    .children('ul')
-    .children('li')
-    .each(function () {
-      let okChangeCourseName = false;
-      navigationCount++;
-      for (const course of courses) {
-        if ($(this).children('p').children('a').text() == course.shortCourseNumberTxt) {
-          // course名の授業名への書き換え
-          $(this).children('p').children('a').text(course.name);
-          okChangeCourseName = true;
-        }
-      }
-      if (okChangeCourseName === false) {
-        if (navigationCount == navigationSize) {
-          // トップに戻るボタン
-          $(this).children('p').children('a').text('マイページに戻る');
-        } else {
-          $(this).remove();
-        }
-      }
-    });
-
-  return;
+  // TODO: generalで良いと思われる
 }
 
 async function reformTopPage(courseSize) {
@@ -570,8 +529,8 @@ function renderClassTable(course, time, set) {
   }
 }
 
-function onSelectTableDay(courses) {
-  const selectedDayOfWeekNum = $(this).val();
+function onSelectTableDay(element, courses) {
+  const selectedDayOfWeekNum = $(element).val();
   const selectedTerm = $('#term_select_extension').val();
 
   console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
@@ -584,9 +543,9 @@ function onSelectTableDay(courses) {
   );
 }
 
-function onSelectTableTerm(courses) {
+function onSelectTableTerm(element, courses) {
   const selectedDayOfWeekNum = $('#day_select_extension').val();
-  const selectedTerm = $(this).val();
+  const selectedTerm = $(element).val();
 
   console.log('onSelectTableTerm: ', selectedTerm);
 
