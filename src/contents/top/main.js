@@ -208,11 +208,10 @@ function reformBlocks(blocks) {
 
 // TODO: async 必要？
 async function updateTopPage(events, oldmin) {
-  console.log('updateTopPage');
   const doUpdate = await promiseWrapper.storage.local
     .get('doUpdate')
     .then(data => {
-      console.log('doUpdate: ', data.doUpdate);
+      console.log('updateTopPage, doUpdate: ', data.doUpdate);
       return data.doUpdate;
     })
     .catch(async reason => {
@@ -395,6 +394,9 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
     renderWeekClassTable(courses);
   }
 
+  // 空きコマ埋めの初期化
+  removeBlankOfClassTables();
+
   const classTableSet = [false, false, false, false, false];
   for (const course of courses) {
     if (
@@ -403,7 +405,7 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
       course.term == selectedTerm &&
       course.dayOfWeeks.includes(selectedDayOfWeekTxt)
     ) {
-      /* 指定されたterm, 曜日であるとき */
+      /* courseが指定されたterm, 曜日であるとき */
       console.log('drawTables: course: ', course);
       // classを描画！
       renderClassTable(
@@ -415,19 +417,14 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
   }
   // TODO: 空きコマ処理をif文で分岐するほうがきれい
   // 空きコマ埋め処理
-  removeBlankOfClassTables();
   console.log(classTableSet);
   fillBlankOfClassTables(classTableSet);
 
   // reset and add event listener
   $('#day_select_extension').off('change');
-  $('#day_select_extension').change(() =>
-    onSelectTableDay.call($('#day_select_extension'), courses),
-  );
+  $('#day_select_extension').change(() => onSelectTableDay('#day_select_extension'));
   $('#term_select_extension').off('change');
-  $('#term_select_extension').change(() =>
-    onSelectTableTerm.call($('#term_select_extension'), courses),
-  );
+  $('#term_select_extension').change(() => onSelectTableTerm('#term_select_extension'));
 
   function resetTables() {
     $('#onegen_extension').empty();
@@ -529,7 +526,16 @@ function renderClassTable(course, time, set) {
   }
 }
 
-function onSelectTableDay(element, courses) {
+async function onSelectTableDay(element) {
+  const courses = await promiseWrapper.storage.local
+    .get('courses')
+    .then(data => {
+      return data.courses;
+    })
+    .catch(reason => {
+      console.log('Cannot load.', reason);
+      return {};
+    });
   const selectedDayOfWeekNum = $(element).val();
   const selectedTerm = $('#term_select_extension').val();
 
@@ -543,7 +549,16 @@ function onSelectTableDay(element, courses) {
   );
 }
 
-function onSelectTableTerm(element, courses) {
+async function onSelectTableTerm(element) {
+  const courses = await promiseWrapper.storage.local
+    .get('courses')
+    .then(data => {
+      return data.courses;
+    })
+    .catch(reason => {
+      console.log('Cannot load.', reason);
+      return {};
+    });
   const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $(element).val();
 
