@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 
 import promiseWrapper from 'Lib/promiseWrapper.js';
+import utils from 'Lib/utils.js';
 import $ from 'jQuery';
 import restoreMiniCalender from 'General/miniCalender/miniCalender.js';
 import restoreNavigation from 'General/navigation/navigation.js';
@@ -69,7 +70,7 @@ function onTopPage() {
   return new Promise(function (resolve, reject) {
     const reload = () => {
       const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
-      if (isUndefined(courseValue[0])) {
+      if (utils.isUndefined(courseValue[0])) {
         console.log('yet');
         setTimeout(reload, 500);
       } else {
@@ -344,7 +345,7 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
 
 function renderSpecialCourses(courses) {
   $('#special_class_extension').empty();
-  const specialCourses = courses.filter(course => isUndefined(course.times));
+  const specialCourses = courses.filter(course => utils.isUndefined(course.times));
   if (specialCourses <= 0) {
     $('#special_class_extension').append('<tr><td>登録されていないようです。</td></tr>');
     return;
@@ -400,8 +401,8 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
   const classTableSet = [false, false, false, false, false];
   for (const course of courses) {
     if (
-      !isUndefined(course.term) &&
-      !isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
+      !utils.isUndefined(course.term) &&
+      !utils.isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
       course.term == selectedTerm &&
       course.dayOfWeeks.includes(selectedDayOfWeekTxt)
     ) {
@@ -583,7 +584,7 @@ async function renderWeekClassTable(courses) {
   const weekClassTableCssPath = 'weekClassTable.css';
 
   console.log('週間表示');
-  if (isUndefined($('#overlay_extension').val())) {
+  if (utils.isUndefined($('#overlay_extension').val())) {
     $('#page').append();
     $('body').append('<div id="overlay_extension"></div>');
     $('head').append(
@@ -702,8 +703,4 @@ function msToTime(duration) {
 
 function convertToDayOfWeekTxt(dayOfWeekNum) {
   return ['日', '月', '火', '水', '木', '金', '土'][dayOfWeekNum];
-}
-
-function isUndefined(value) {
-  return typeof value === 'undefined';
 }

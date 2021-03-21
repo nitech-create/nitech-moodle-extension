@@ -1,26 +1,27 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
+import isUndefined from 'Lib/utils.js';
 
-export default function(){
-  if($('.depth_1 ul')[0] !== undefined){
+export default function () {
+  if ($('.depth_1 ul')[0] !== undefined) {
     reformNavi();
     restoreTree();
   }
 }
 
-function restoreTree(){
+function restoreTree() {
   // ナビゲーションが動かないのを修正
   const code = `M.util.js_pending('block_navigation/navblock'); require(['block_navigation/navblock'], function(amd) {amd.init("20"); M.util.js_complete('block_navigation/navblock');});`;
   const script = $('<script>')[0];
   script.textContent = code;
-  (document.head||document.documentElement).appendChild(script);
+  (document.head || document.documentElement).appendChild(script);
   script.remove();
 }
 
 async function reformNavi() {
-  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
+  const courses = await promiseWrapper.storage.local.get('courses').courses;
 
-  console.log(courses);
+  console.log('courses: ', courses);
 
   // マイコース取得
   const list = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li');
@@ -44,14 +45,16 @@ async function reformNavi() {
   const type = parseInt(list.find('p').first().attr('data-node-type'));
 
   // 一度全て消去
-  list.children().remove()
+  list.children().remove();
 
   // 追加
   let num = firstNum;
   let key = firstKey;
   const ul = $('.depth_1 ul').first().children('li').eq(2).children('ul');
 
-  for(const course of courses){
+  if (isUndefined(courses)) return;
+
+  for (const course of courses) {
     const li = $('<li/>')
       .addClass('type_course depth_3 contains_branch')
       .attr('aria-labelledby', 'label_3_' + num)
@@ -73,12 +76,12 @@ async function reformNavi() {
       .attr('id', 'label_3_' + num)
       .attr('title', course.name)
       .attr('href', course.url)
-      .text(course.name)
+      .text(course.name);
 
     ul.append(li.append(p.append(a)));
 
     num += 1;
     key -= 1;
-    while($('[data-node-key=' + key + ']')[0] !== undefined) key -= 1;
+    while ($('[data-node-key=' + key + ']')[0] !== undefined) key -= 1;
   }
 }
