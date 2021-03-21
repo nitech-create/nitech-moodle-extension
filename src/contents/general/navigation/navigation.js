@@ -3,7 +3,7 @@ import utils from 'Lib/utils.js';
 import $ from 'jQuery';
 
 export default function () {
-  if ($('.depth_1 ul')[0] !== undefined) {
+  if (!utils.isUndefined($('.depth_1 ul')[0])) {
     reformNavi();
     restoreTree();
   }
@@ -19,11 +19,17 @@ function restoreTree() {
 }
 
 async function reformNavi() {
-  const courses = await promiseWrapper.storage.local.get('courses').then(value => {
-    return value.courses;
-  });
+  const courses = await promiseWrapper.storage.local
+    .get('courses')
+    .then(data => {
+      return data.courses;
+    })
+    .catch(error => {
+      console.log('Error:', error);
+      return undefined;
+    });
 
-  console.log('courses: ', courses);
+  console.log('navigation courses: ', courses);
 
   // マイコース取得
   const list = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li');
