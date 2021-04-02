@@ -1,6 +1,6 @@
 # nitech-moodle-chrome-extention
 
-名古屋工業大学のオンライン授業サポートシステムとして採用されている moodle を使いやすくする Chrome 拡張機能です。<br>
+名古屋工業大学のオンライン授業サポートシステムとして採用されている moodle を使いやすくする Chrome 拡張機能です。非公式であり、問題が起きても責任は取れません。<br>
 Chrome Extension for NITech moodle(38a).
 
 ## 対象
@@ -17,12 +17,13 @@ NITech 在校生。
 ### 開発の注意点
 
 - moodle サイトは落ちやすいため、リーロード処理、自分から情報を追加で呼び出すなどは控えること！
+- 名工大公式および情報基盤センターからの許諾は得ていません。
 
 ## 利用方法
 
 ### ChromeWebStore
 
-一般公開はChromeWebStoreにて行っております。
+一般公開は名工大 情報基盤センターの返答を待って、ChromeWebStoreにて行う予定です。
 
 ### GitHub開発版
 
@@ -67,7 +68,7 @@ NITech 在校生。
 
 ## ライセンス
 
-未定(Apache licence 2.0 or MIT or LGPLの予定だが未定)
+[Apache licence 2.0](LICENSE)([公式リンク](http://www.apache.org/licenses/LICENSE-2.0))
 
 ## 連絡先
 
@@ -81,4 +82,4 @@ GitHub の issue は使用しないでください。
 
 ### その他
 
-開発者: 未定
+主な開発者: KoNITech, Sora513, .bin
