@@ -68,7 +68,7 @@ NITech 在校生。
 
 ## ライセンス
 
-[Apache licence 2.0](LICENSE)([公式リンク](http://www.apache.org/licenses/LICENSE-2.0))
+[Apache License version 2.0](LICENSE)([公式リンク](http://www.apache.org/licenses/LICENSE-2.0))
 
 ## 連絡先
 
@@ -82,4 +82,4 @@ GitHub の issue は使用しないでください。
 
 ### その他
 
-主な開発者: KoNITech, Sora513, .bin
+主な開発者: nitech Create = [KoNITech, Sora513, .bin]
