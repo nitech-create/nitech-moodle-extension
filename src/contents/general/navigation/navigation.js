@@ -52,6 +52,11 @@ async function reformNavi() {
   // <p data-node-type="$$">の$$
   const type = parseInt(list.find('p').first().attr('data-node-type'));
 
+  // デッドロック回避
+  if(!(isFinite(firstNum) && isFinite(firstKey) && isFinite(type))){
+    return;
+  }
+
   // 一度全て消去
   list.children().remove();
 
