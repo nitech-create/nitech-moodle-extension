@@ -1,6 +1,6 @@
-# nitech-moodle-chrome
+# nitech-moodle-chrome-extention
 
-名古屋工業大学のオンライン授業サポートシステムとして採用されている moodle を使いやすくする Chrome 拡張機能です。<br>
+名古屋工業大学のオンライン授業サポートシステムとして採用されている moodle を使いやすくする Chrome 拡張機能です。非公式であり、問題が起きても責任は取れません。<br>
 Chrome Extension for NITech moodle(38a).
 
 ## 対象
@@ -17,14 +17,23 @@ NITech 在校生。
 ### 開発の注意点
 
 - moodle サイトは落ちやすいため、リーロード処理、自分から情報を追加で呼び出すなどは控えること！
+- 名工大公式および情報基盤センターからの許諾は得ていません。
 
-## 利用方法(開発版)
+## 利用方法
 
-1. GitHub コードページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。(※開発版のため)
-1. Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
-1. (右上の)「デベロッパーモード」を有効にする。
-1. 先程入手したフォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)
-1. NITech moodle サイトへログインし、拡張機能が動作しているか確認する。
+### ChromeWebStore
+
+一般公開は名工大 情報基盤センターの返答を待って、ChromeWebStoreにて行う予定です。
+
+### GitHub開発版
+
+1. 【Chromeの準備】<br>Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~, おすすめ: Chrome Beta)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
+2. (右上の)「デベロッパーモード」を有効にする。
+3. 【ソースコードの準備】<br>GitHubの「Code」ページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
+4. 先程入手したフォルダにて`npm install`
+5. 同ディレクトリにて`npm run build`(開発ビルド: `npm run dev`) (※これはWebpackによるbundleを行っています)
+6. 【拡張機能の読み込み】<br>生成される`dist`フォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)
+7. NITech moodle サイトへログインし、拡張機能が動作しているか確認する。
 
 ## 機能
 
@@ -45,26 +54,32 @@ NITech 在校生。
 - 動画の表示サイズを大きくする
 - 動画視聴時にナビゲーションを隠す
 
+### カレンダーページ
+
+- 課題の提出状況が確認できる ※予定
+- プルダウンメニューのコース名を授業名へ変更する
+
 ## 開発環境
 
 - jQuery v3.5.1
-- VSCode or Atom
+- VSCode or Atom: エディター
 - ESLint + Prettier: JavaScript 整形ソフト
+- Webpack: JavaScriptモジュールバンドラー
 
 ## ライセンス
 
-未定
+[Apache License version 2.0](LICENSE)([公式リンク](http://www.apache.org/licenses/LICENSE-2.0))
 
 ## 連絡先
 
 ### バグ報告
 
-GitHub の issue、または Discord の専用チャンネルへ。
+GitHub の issue、または [moodle assistant for NITech バグ報告](http://nitech-create.com/forms/moodle-assistant/bug/) へ。
 
 ### 質問
 
-未定(Twitter で開発者に聞く…？)
+GitHub の issue は使用しないでください。
 
 ### その他
 
-開発者: 未定
+主な開発者: nitech Create = [KoNITech, Sora513, .bin]

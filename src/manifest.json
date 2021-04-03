@@ -3,16 +3,16 @@
   "author": "nitech Create",
   "homepage_url": "https://github.com/nitech-create/nitech-moodle-chrome",
   "name": "moodle assistant for NITech",
-  "description": "名古屋工業大学のオンライン授業サポートシステムとして採用されているmoodleを使いやすくするChrome拡張機能です。nitech Create: http://nitech-create.com",
-  "version": "0.0.1.0",
+  "description": "名古屋工業大学のオンライン授業サポートシステムとして採用されているmoodleを使いやすくするChrome拡張機能です。非公式であり、問題が起きても責任は取れません。nitech Create: http://nitech-create.com",
+  "version": "0.0.3.0",
   "icons": {
-    "32": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "32": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
   },
   "options_page": "./options/options.html",
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": "icons/icon.png",
     "default_title": "",
     "default_popup": "./popup/popup.html"
   },
@@ -20,13 +20,7 @@
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"],
       "css": ["styles.css"],
-      "js": [
-        "jquery.min.js",
-        "main.js",
-        "lib/promiseWrapper.js",
-        "miniCalender/miniCalender.js",
-        "navigation/navigation.js"
-      ]
+      "js": ["main.js"]
     },
     {
       "matches": [
@@ -37,22 +31,22 @@
     },
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/calendar/view.php*"],
-      "js": ["calender.js"]
+      "js": ["calendar.js"]
     },
     {
       "matches": [
         "https://cms6.ict.nitech.ac.jp/moodle38a/pluginfile.php/*/mod_scorm/content/1/index.html*"
       ],
       "all_frames": true,
-      "css": ["videoArea/videoArea.css"]
+      "css": ["videoArea.css"]
     },
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php*"],
-      "js": ["videoArea/videoArea.js"]
+      "js": ["videoArea.js"]
     }
   ],
   "background": {
-    "scripts": ["backgroundEvent.js"],
+    "scripts": ["background.js"],
     "persistent": false
   },
   "permissions": ["https://cms6.ict.nitech.ac.jp/moodle38a/*", "activeTab", "background", "storage"]

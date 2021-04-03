@@ -82,7 +82,7 @@ section[data-block="myoverview"] {
   z-index: 9999;
   background-color: rgba(0,0,0,0.5);
   top: 10vh;
-  left: 80vw;,
+  left: 10vw;
   width: 80vw;
   height: 80vh;
   padding: 10px;
@@ -91,6 +91,11 @@ section[data-block="myoverview"] {
   color: black;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+#overlay_extension tr th {
+  padding: 10px 0px;
+  border: 2px solid orange;
+  background-color: white;
 }
 #overlay_extension tr td {
   padding: 10px 0px;

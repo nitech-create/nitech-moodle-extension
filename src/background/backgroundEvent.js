@@ -14,10 +14,7 @@ function onLoad() {
     chrome.storage.local.get(key, data => {
       console.log('data: ', data[key]);
 
-      if (
-        !data.hasOwnProperty(key) ||
-        !(data[key] === defaultOptions.optionsVersion)
-      ) {
+      if (!data.hasOwnProperty(key) || !(data[key] === defaultOptions.optionsVersion)) {
         // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
 
         console.log('None options. And save options.');
@@ -72,8 +69,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       sendResponse(defaultOptions);
       break;
     case 'loadJson':
-      loadJson(src, json => {
-        sendResponse(json);
+    case 'loadFile':
+      loadFile(src, file => {
+        sendResponse(file);
       });
       break;
     case 'loadOptions':
@@ -121,6 +119,23 @@ function loadJson(filePath, callback) {
   });
 }
 
+function loadFile(filePath, callback) {
+  chrome.runtime.getPackageDirectoryEntry(function (root) {
+    // get file
+    root.getFile(filePath, { create: false }, function (sample) {
+      // callback
+      sample.file(function (file) {
+        // read file
+        const reader = new FileReader();
+        reader.readAsText(file);
+        reader.addEventListener('load', function (e) {
+          callback(e.target.result, chrome.extension.getURL('data'));
+        });
+      });
+    });
+  });
+}
+
 const accessOptions = {
   // eslint-disable-next-line no-unused-vars
   loadOptionsWrapper: async callback => {
@@ -132,9 +147,7 @@ const accessOptions = {
   loadOptions: async (options, callback) => {
     // storageから現在の設定を取得
     try {
-      options.backgroundColor = await accessStorage.getStorage(
-        'backgroundColor',
-      );
+      options.backgroundColor = await accessStorage.getStorage('backgroundColor');
       options.hideNavOnVideo = await accessStorage.getStorage('hideNavOnVideo');
     } catch (e) {
       console.log(e);
