@@ -1,6 +1,3 @@
-/* eslint-disable require-jsdoc */
-/* eslint-disable camelcase */
-
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import utils from 'Lib/utils.js';
 import $ from 'jQuery';
@@ -666,7 +663,7 @@ function timeToTimeTxt(time) {
     '16：20',
     '17：05',
   ];
-  const timearray_end = [
+  const timearrayEnd = [
     '9：35',
     '10：20',
     '11：15',
@@ -678,7 +675,7 @@ function timeToTimeTxt(time) {
     '17：05',
     '17：50',
   ];
-  const timeTxt = timearrayStart[timetableStart - 1] + '～' + timearray_end[timetableEnd - 1];
+  const timeTxt = timearrayStart[timetableStart - 1] + '～' + timearrayEnd[timetableEnd - 1];
   return timeTxt;
 }
 
