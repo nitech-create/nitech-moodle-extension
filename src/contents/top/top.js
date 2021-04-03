@@ -72,6 +72,7 @@ async function reformTopPage(courseSize) {
   // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
   const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
   const nowTerm = getTermLetter(nowDate);
+  const shortYear = String(nowDate.getFullYear()).substring(2);
 
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
@@ -80,9 +81,18 @@ async function reformTopPage(courseSize) {
   // ストレージに保持(local->syncで他拡張機能と共有可能?)
   promiseWrapper.storage.local.set({ courses: courses });
 
+  // 時間割の選択年の追加
+  const years = new Set();
+  courses.forEach(course => {
+    years.add(course.shortYear);
+  });
+  years.forEach(yearItem => {
+    $('#year_select_extension').append($('<option>').html(yearItem).val(yearItem));
+  });
+
   // 時間割内の授業を描画
   // TODO: 本当にawaitの必要があるか？
-  await renderTimeTable(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt);
+  await renderTimeTable(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt, shortYear);
 
   // 時間割外の授業を追加
   renderSpecialCourses(courses);
@@ -245,7 +255,7 @@ function loadCourseList() {
  * @param {Array} courseList: 通常コース: (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_cls, 特殊コースはSpecialCourseはcourseShortNumberが無い。
  * @param {String} courseNumberTxtList: 授業番号表記(-あり)。 (-なしはshort付き)
  * @param {int} courseSize
- * @return {Object} courses = {term, courseNumberTxt, shortCourseNumberTxt, name, dayOfWeeks = {月, 日}, times = {1-2, 9-10}, url} (ただし特殊授業の場合: term, dayOfWeek = undefined)
+ * @return {Object} courses = {term, shortYear, courseNumberTxt, shortCourseNumberTxt, name, dayOfWeeks = {月, 日}, times = {1-2, 9-10}, url} (ただし特殊授業の場合: term, dayOfWeek = undefined)
  */
 function convertToCourses(courseList, courseNumberTxtList, courseSize) {
   const courses = new Array(courseSize); // result
@@ -257,9 +267,10 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
   const timesArray = new Array(courseSize);
   const urlArray = new Array(courseSize);
   for (let i = 0; i < courseSize; i++) {
-    const shortCourseNumberItem = String(20) + courseNumberTxtList[i].replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
+    const shortCourseNumber = String(20) + courseNumberTxtList[i].replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
+    const shortYear = courseNumberTxtList[i].split(new RegExp('-'))[0];
     const courseContainerArray = courseList[i]
-      .split(new RegExp(shortCourseNumberItem + '|期|曜|限|_cls'))
+      .split(new RegExp(shortCourseNumber + '|期|曜|限|_cls'))
       .filter(value => {
         return value != '';
       });
@@ -288,8 +299,9 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
 
     courses[i] = {
       term: termArray[i],
+      shortYear: shortYear,
       courseNumberTxt: courseNumberTxtList[i],
-      shortCourseNumberTxt: shortCourseNumberItem /* TODO: courseNumberで良いかもしれない */,
+      shortCourseNumberTxt: shortCourseNumber /* TODO: courseNumberで良いかもしれない */,
       name: nameArray[i],
       dayOfWeeks: dayOfWeeksArray[i],
       times: timesArray[i],
@@ -325,8 +337,15 @@ function renderSpecialCourses(courses) {
  * @param {String} selectedTerm
  * @param {Integer} selectedDayOfWeekNum
  * @param {String} selectedDayOfWeekTxt
+ * @param {Int} shortYear
  */
-async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, selectedDayOfWeekTxt) {
+async function renderTimeTable(
+  courses,
+  selectedTerm,
+  selectedDayOfWeekNum,
+  selectedDayOfWeekTxt,
+  shortYear,
+) {
   console.log(
     'drawTables: term, dayOfWeekNum, dayOfWeekTxt: ',
     selectedTerm,
@@ -336,11 +355,12 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
 
   resetTables();
 
+  // 時間割の選択年の表示
+  $('#year_select_extension option').eq(shortYear).prop('selected', true);
   // 時間割の選択termの表示
   changeTermOption(selectedTerm);
   // 時間割の選択曜日の表示
   $('#day_select_extension option').eq(selectedDayOfWeekNum).prop('selected', true);
-
   // 時間割タイトルにtermの表示
   $('#classtable_extension_term').text(selectedTerm);
   // 時間割タイトルに曜日の表示
@@ -360,7 +380,8 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
       !utils.isUndefined(course.term) &&
       !utils.isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
       course.term == selectedTerm &&
-      course.dayOfWeeks.includes(selectedDayOfWeekTxt)
+      course.dayOfWeeks.includes(selectedDayOfWeekTxt) &&
+      course.shortYear == shortYear
     ) {
       /* courseが指定されたterm, 曜日であるとき */
       console.log('drawTables: course: ', course);
@@ -382,6 +403,8 @@ async function renderTimeTable(courses, selectedTerm, selectedDayOfWeekNum, sele
   $('#day_select_extension').change(() => onSelectTableDay('#day_select_extension'));
   $('#term_select_extension').off('change');
   $('#term_select_extension').change(() => onSelectTableTerm('#term_select_extension'));
+  $('#year_select_extension').off('change');
+  $('#year_select_extension').change(() => onSelectTableYear('#year_select_extension'));
 
   function resetTables() {
     $('#onegen_extension').empty();
@@ -495,6 +518,7 @@ async function onSelectTableDay(element) {
     });
   const selectedDayOfWeekNum = $(element).val();
   const selectedTerm = $('#term_select_extension').val();
+  const selectedYear = $('#year_select_extension').val();
 
   console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
 
@@ -503,6 +527,33 @@ async function onSelectTableDay(element) {
     selectedTerm,
     selectedDayOfWeekNum,
     convertToDayOfWeekTxt(selectedDayOfWeekNum),
+    selectedYear,
+  );
+}
+
+// TODO: この3つ、同じでいいんじゃないか？
+async function onSelectTableYear(element) {
+  const courses = await promiseWrapper.storage.local
+    .get('courses')
+    .then(data => {
+      return data.courses;
+    })
+    .catch(reason => {
+      console.log('Cannot load.', reason);
+      return {};
+    });
+  const selectedDayOfWeekNum = $('#day_select_extension').val();
+  const selectedTerm = $('#term_select_extension').val();
+  const selectedYear = $(element).val();
+
+  console.log('onSelectTableYear: ', selectedTerm);
+
+  renderTimeTable(
+    courses,
+    selectedTerm,
+    selectedDayOfWeekNum,
+    convertToDayOfWeekTxt(selectedDayOfWeekNum),
+    selectedYear,
   );
 }
 
@@ -518,6 +569,7 @@ async function onSelectTableTerm(element) {
     });
   const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $(element).val();
+  const selectedYear = $('#year_select_extension').val();
 
   console.log('onSelectTableTerm: ', selectedTerm);
 
@@ -526,6 +578,7 @@ async function onSelectTableTerm(element) {
     selectedTerm,
     selectedDayOfWeekNum,
     convertToDayOfWeekTxt(selectedDayOfWeekNum),
+    selectedYear,
   );
 }
 
