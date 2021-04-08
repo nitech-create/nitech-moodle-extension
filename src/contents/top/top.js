@@ -52,6 +52,8 @@ async function reformTopPage(courseSize) {
   const events = convertToEvents(blocks.calendarUpcomingEventBlock);
   console.log('##EVENTS', events);
 
+  const extensionArea = createExtensionArea();
+
   return;
 
   // tables.html(時間割, Todoなど)をロードして描画
@@ -99,6 +101,20 @@ async function reformTopPage(courseSize) {
       .then(value => (oldmin = value))
       .catch(reason => console.error(reason));
   }, 1000);
+}
+
+function createExtensionArea(){
+  const outer = document.createElement('aside');
+  const outer2 = document.createElement('section');
+  outer2.className = 'block_myoverview block card mb-3';
+  const el = document.createElement('div');
+  el.id = 'extension-main-area';
+  el.className = 'card-body p-3';
+
+  $(outer).append($(outer2).append(el));
+  $('#maincontent').after(outer);
+
+  return el;
 }
 
 function convertToEvents(calendarUpcomingEventBlock) {
