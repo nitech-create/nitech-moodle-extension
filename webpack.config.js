@@ -1,8 +1,41 @@
 /* eslint-env node */
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            // CSSを別ファイルに出力
+            loader: MiniCssExtractPlugin.loader
+          },
+          {
+            // CSSを読み込み
+            loader: 'css-loader',
+            options: {
+              url: true,
+              sourceMap: true,
+            },
+          },
+          {
+            // Sassを読み込み
+            loader: 'sass-loader',
+            options: {
+              implementation: require('sass'),
+              sassOptions: {
+                fiber: require('fibers'),
+              },
+              sourceMap: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
   entry: {
     background: './src/background/backgroundEvent.js',
     calendar: './src/contents/calender/calender.js',
@@ -22,6 +55,9 @@ module.exports = {
         { from: './src/options', to: 'options' },
         { from: './src/contents/**/*.{html,css,svg}', to: '[name].[ext]' },
       ],
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'style.css'
     }),
   ],
   mode: 'development',
