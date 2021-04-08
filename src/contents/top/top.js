@@ -12,22 +12,30 @@ top.onTopPage = (url) => {
   // 読み込み待ち
   const awaitLoading = new Promise(function (resolve, reject) {
     const reload = () => {
-      const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
+      const courseValue = $('.coursename');
       if (utils.isUndefined(courseValue[0])) {
         console.log('yet');
         setTimeout(reload, 500);
       } else {
         console.log('done');
-        resolve(courseValue);
+        resolve();
       }
     };
 
     reload();
   });
 
-  return awaitLoading.then(async (courseValue) => {
+  return awaitLoading.then(async () => {
+    const courseValue = $('.coursename');
+
+    // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
+    const script = document.createElement('script');
+    script.textContent = `$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`;
+    (document.head||document.documentElement).appendChild(script);
+    script.remove();
+    await awaitLoading;
+
     await reformTopPage(courseValue.length);
-    // TODO:
     console.log('value: ', courseValue.length, courseValue);
   });
 };
@@ -39,7 +47,6 @@ async function reformTopPage(courseSize) {
   // block: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
   // TODO: ここなにをしているのか, 多分左に集めるやつ？, ハードコーディング？(関数内)
   const blocks = loadBlocks();
-  // reformBlocks(blocks);
 
   // events: moodleトップページにある「直近イベント」のarray
   const events = convertToEvents(blocks.calendarUpcomingEventBlock);
@@ -129,33 +136,6 @@ function loadBlocks() {
     monthCalendarBlock: $('[data-block="calendar_month"]'),
   };
   return blocks;
-}
-
-function reformBlocks(blocks) {
-  // nav: ページ上部にあるトップページとかマイページへのリンクがある領域(navigationの省略だと思われる)
-  // navバー(ヘッダー部分)操作
-  // $('nav').prepend('<p>Hello Moodle</p>');
-
-  $('#page-header').after('<div id="side-nav-extension"></div>');
-
-  $('#side-nav-extension').append($('.columnleft').html());
-  $('.columnleft').remove();
-
-  $('#side-nav-extension').append($('.columnright').html());
-  $('.columnright').remove();
-
-  $('#block-region-side-post').empty();
-  $('#block-region-side-pre').remove();
-  $('#block-region-side-post').append(
-    blocks.monthCalendarBlock,
-    blocks.calendarUpcomingEventBlock,
-    blocks.navigatorBlock,
-    blocks.searchCourseBlock,
-    blocks.mySyllabusBlock,
-    blocks.privateFilesBlock,
-    blocks.badgesBlock,
-    blocks.jyouhouSecurityBlock,
-  );
 }
 
 // TODO: async 必要？
