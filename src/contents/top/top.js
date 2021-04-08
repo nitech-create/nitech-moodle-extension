@@ -49,10 +49,17 @@ async function reformTopPage(courseSize) {
   const blocks = loadBlocks();
 
   // events: moodleトップページにある「直近イベント」のarray
+  const eventList = getEvenetList();
+  console.log(eventList);
+
+  const courseList = getCourseList();
+  console.log(courseList);
+
   const events = convertToEvents(blocks.calendarUpcomingEventBlock);
   console.log('##EVENTS', events);
 
   const extensionArea = createExtensionArea();
+  $(extensionArea).append($('<h5>').text('時間割表'));
 
   return;
 
@@ -103,6 +110,7 @@ async function reformTopPage(courseSize) {
   }, 1000);
 }
 
+// メインカラムに拡張機能用のエリアを追加
 function createExtensionArea(){
   const outer = document.createElement('aside');
   const outer2 = document.createElement('section');
@@ -115,6 +123,90 @@ function createExtensionArea(){
   $('#maincontent').after(outer);
 
   return el;
+}
+
+// 直近イベントを取得
+function getEvenetList(){
+  // 日付テキストをDateに変換
+  function convertDate(dateLabel, nowDate = new Date) {
+    const arr = dateLabel.replace(/[\s+,]/g, '').split(/[:年日月残]/);
+    // [YYYY, MM, DD, hh, mm (, 余り)] or
+    // [明日, hh, mm (, 余り)] or [本日, hh, mm (, 余り)]
+
+    let year = 0;
+    let month = 0;
+    let day = 0;
+    let hour = 0;
+    let minute = 0;
+
+    if (arr[0] == '本') {
+      // 本日, hh:mm
+      year = nowDate.getFullYear();
+      month = nowDate.getMonth();
+      day = nowDate.getDate();
+      hour = arr[1];
+      minute = arr[2];
+    } else if (arr[0] == '明') {
+      // 明日, hh:mm
+      year = nowDate.getFullYear();
+      month = nowDate.getMonth();
+      day = nowDate.getDate() + 1;
+      hour = arr[1];
+      minute = arr[2];
+    } else {
+      // YYYY年 MM月 DD日, hh:mm
+      year = arr[0];
+      month = arr[1] - 1;
+      day = arr[2];
+      hour = arr[3];
+      minute = arr[4];
+    }
+
+    return new Date(year, month, day, hour, minute);
+  }
+
+  // Entry
+  const eventList = [];
+
+  const rootJElement = $('.block_calendar_upcoming');
+  if(rootJElement.length <= 0) return [];
+
+  rootJElement.find('[data-template="core_calendar/upcoming_mini"]').each((index, itemElement) => {
+    const titleLabel = $(itemElement).find('a[data-type="event"]').text();
+    const dateLabel  = $(itemElement).find('div.date').text();
+    eventList.push({
+      name: titleLabel,
+      deadline: convertDate(dateLabel),
+      deadlineText: dateLabel,
+    })
+  });
+
+  return eventList;
+}
+
+function getCourseList(){
+  const courseList = [];
+
+  const rootJElement = $('#block-region-content div[data-region="courses-view"]');
+  if(rootJElement.length <= 0) return [];
+
+  rootJElement.find('li').each((index, itemElement) => {
+    try{
+      const categoryName = $(itemElement).find('.categoryname').text().trim();
+      const shortenedName = $(itemElement).find('.categoryname').siblings().last().text().trim();
+      const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim();
+
+      courseList.push({
+        categoryName,
+        shortenedName,
+        name: courseName,
+      });
+    }catch(e){
+      // do nothing
+    }
+  });
+
+  return courseList;
 }
 
 function convertToEvents(calendarUpcomingEventBlock) {
