@@ -41,6 +41,7 @@ module.exports = {
     calendar: './src/contents/calender/calender.js',
     videoArea: './src/contents/videoArea/videoArea.js',
     main: './src/contents/general/main.js',
+    reformTopPage: './src/contents/top/reformTopPage.scss',
   },
   output: {
     filename: '[name].js',
@@ -57,7 +58,7 @@ module.exports = {
       ],
     }),
     new MiniCssExtractPlugin({
-      filename: 'style.css'
+      filename: '[name].css'
     }),
   ],
   mode: 'development',
