@@ -10,7 +10,7 @@ top.onTopPage = (url) => {
   // topページでの処理
 
   // 読み込み待ち
-  return new Promise(function (resolve, reject) {
+  const awaitLoading = new Promise(function (resolve, reject) {
     const reload = () => {
       const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
       if (utils.isUndefined(courseValue[0])) {
@@ -18,14 +18,17 @@ top.onTopPage = (url) => {
         setTimeout(reload, 500);
       } else {
         console.log('done');
-        reformTopPage(courseValue.length);
-        // TODO:
-        console.log('value: ', courseValue.length, courseValue);
-        resolve();
+        resolve(courseValue);
       }
     };
 
     reload();
+  });
+
+  return awaitLoading.then((courseValue) => {
+    reformTopPage(courseValue.length);
+    // TODO:
+    console.log('value: ', courseValue.length, courseValue);
   });
 };
 
