@@ -7,16 +7,6 @@ export default function(){
 }
 
 function editCalender(calendarMonth){
-  // カレンダーが動くように初期化
-  const code =
-    `require(['jquery', 'core_calendar/calendar_mini'], function($, CalendarMini) {
-        CalendarMini.init($('[id^=calendar-month]')[0], !0);
-    });`;
-  const script = $('<script>')[0];
-  script.textContent = code;
-  (document.head||document.documentElement).appendChild(script);
-  script.remove();
-
   // カレンダーに移動するナビゲーションを追加
   calendarMonth
     .children('div')
@@ -25,13 +15,7 @@ function editCalender(calendarMonth){
     );
 
   // カレンダーが更新されたときに再適用する処理
-  const startObserve = () => {
-    observer.observe(calendarMonth[0], {
-      childList: true,
-      subtree: true
-    });
-  }
-  const observer = new MutationObserver(() => {
+  const refleshFunc = () => {
     // 無限ループ防止
     observer.disconnect();
 
@@ -64,6 +48,15 @@ function editCalender(calendarMonth){
 
     // 再開
     startObserve();
-  });
+  }
+
+  const startObserve = () => {
+    observer.observe(calendarMonth[0], {
+      childList: true,
+      subtree: true
+    });
+  }
+  const observer = new MutationObserver(refleshFunc);
+  refleshFunc();
   startObserve();
 }
