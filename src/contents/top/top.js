@@ -25,8 +25,8 @@ top.onTopPage = (url) => {
     reload();
   });
 
-  return awaitLoading.then((courseValue) => {
-    reformTopPage(courseValue.length);
+  return awaitLoading.then(async (courseValue) => {
+    await reformTopPage(courseValue.length);
     // TODO:
     console.log('value: ', courseValue.length, courseValue);
   });
@@ -39,10 +39,13 @@ async function reformTopPage(courseSize) {
   // block: もともとmoodleページの右側にあるコース検索・マイシラバスなどを集めた領域
   // TODO: ここなにをしているのか, 多分左に集めるやつ？, ハードコーディング？(関数内)
   const blocks = loadBlocks();
-  reformBlocks(blocks);
+  // reformBlocks(blocks);
 
   // events: moodleトップページにある「直近イベント」のarray
   const events = convertToEvents(blocks.calendarUpcomingEventBlock);
+  console.log('##EVENTS', events);
+
+  return;
 
   // tables.html(時間割, Todoなど)をロードして描画
   const tablesFilePath = 'tables.html';

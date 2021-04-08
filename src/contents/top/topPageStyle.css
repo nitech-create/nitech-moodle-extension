@@ -7,7 +7,7 @@ header > * {
 
 /* コース概要 */
 section[data-block="myoverview"] {
-  display: none;
+  /* display: none; */
 }
 
 /* 残り時間表示 */
