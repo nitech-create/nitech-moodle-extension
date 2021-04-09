@@ -1,3 +1,10 @@
+// コース概要
+section[data-block="myoverview"] {
+  // display: none;
+}
+
+// ページのカラム全体(左/中央/右)
+// gridで再配置
 #page-content.blocks-pre {
   display: grid;
   grid-template-columns: 25% 1fr;
