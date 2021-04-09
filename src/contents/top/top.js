@@ -82,6 +82,7 @@ async function reformTopPage(courseSize) {
   promiseWrapper.storage.local.set({ courses: courses });
 
   // 時間割の選択年の追加
+  // TODO: この変な場所でやるとキモい。
   const years = new Set();
   courses.forEach(course => {
     years.add(course.shortYear);
@@ -347,8 +348,9 @@ async function renderTimeTable(
   shortYear,
 ) {
   console.log(
-    'drawTables: term, dayOfWeekNum, dayOfWeekTxt: ',
+    'drawTables: term, shortYear, dayOfWeekNum, dayOfWeekTxt: ',
     selectedTerm,
+    shortYear,
     selectedDayOfWeekNum,
     selectedDayOfWeekTxt,
   );
@@ -356,7 +358,7 @@ async function renderTimeTable(
   resetTables();
 
   // 時間割の選択年の表示
-  $('#year_select_extension option').eq(shortYear).prop('selected', true);
+  $('#year_select_extension option').val(shortYear).prop('selected', true);
   // 時間割の選択termの表示
   changeTermOption(selectedTerm);
   // 時間割の選択曜日の表示
@@ -617,7 +619,7 @@ async function renderWeekClassTable(courses) {
  * @return {String} 前期なら前, 後期なら後を返す
  */
 function getTermLetter(day) {
-  const month = day.getMonth();
+  const month = day.getMonth() + 1; // Monthは0-index
   return 4 <= month && month <= 9 ? '前' : '後';
 }
 
