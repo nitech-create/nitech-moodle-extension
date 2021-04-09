@@ -6,29 +6,11 @@ const top = {
   onTopPage: null,
 };
 
-// async function onTopPage() {
-//   // topページでの処理
-//   const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
-//   if (isUndefined(courseValue[0])) {
-//     // 読み込み待ち
-//     console.log('wait interval for loading');
-//     await new Promise(() => {
-//       setTimeout(onTopPage, 200);
-//     });
-//     return;
-//   }
-//
-//   console.log('done');
-//   console.log('value: ', courseValue.length, courseValue);
-//
-//   await reformTopPage(courseValue.length);
-// }
-// async functionの記述ではデッドロックする
 top.onTopPage = url => {
   // topページでの処理
 
   // 読み込み待ち
-  return new Promise(function (resolve, reject) {
+  const awaitLoading = new Promise(function (resolve, reject) {
     const reload = () => {
       const courseValue = $('.coursename'); // TODO: courseValueという名前の妥当性とlengthしかreformTopPageに渡さなくて良いのか
       if (utils.isUndefined(courseValue[0])) {
@@ -36,17 +18,19 @@ top.onTopPage = url => {
         setTimeout(reload, 500);
       } else {
         console.log('done');
-        reformTopPage(courseValue.length);
-        // TODO:
-        console.log('value: ', courseValue.length, courseValue);
-        resolve();
+        resolve(courseValue);
       }
     };
 
     reload();
   });
-};
 
+  return awaitLoading.then(courseValue => {
+    reformTopPage(courseValue.length);
+    // TODO:
+    console.log('value: ', courseValue.length, courseValue);
+  });
+};
 async function reformTopPage(courseSize) {
   // 読み込み終わったらの処理
 
@@ -55,9 +39,6 @@ async function reformTopPage(courseSize) {
   // TODO: ここなにをしているのか, 多分左に集めるやつ？, ハードコーディング？(関数内)
   const blocks = loadBlocks();
   reformBlocks(blocks);
-
-  // monthCalenderBlockにカレンダーへのリンクを追加
-  $('#link-to-calendar').attr('href', $('.current').eq(1).children('a').attr('href'));
 
   // events: moodleトップページにある「直近イベント」のarray
   const events = convertToEvents(blocks.calendarUpcomingEventBlock);
