@@ -17,7 +17,7 @@ export function getCourseList(){
       if(/\(\d+\)\[\d\]\d+-\d+/.test(categoryName)){
         const nameSplit = courseName.split(' ');
         const name = nameSplit.slice(0, -3).join(' ');
-        const semester = (nameSplit.slice(-2, -2)[0] == '前期' ? 0 : 1);
+        const semester = (nameSplit[nameSplit.length - 2] == '前期' ? 0 : 1);
         const periodSplit = nameSplit[nameSplit.length - 1].replace(/^([月火水木金]曜)(\d+)-(\d+)限_(?:.+)$/, '$1 $2 $3').split(' ')
         const weekOfDay = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
         const startPeriod = parseInt(periodSplit[1]);
@@ -53,4 +53,20 @@ export function getCourseList(){
   });
 
   return courseList;
+}
+
+export function classifyCourseList(courseList){
+  const categorySet = new Set();
+
+  // 分類を列挙
+  // 各年前後期とその他
+  courseList.forEach((course) => {
+    if(course.specialCourse){
+      categorySet.add('others');
+    }else{
+      categorySet.add(`${course.shortenedYear}-${course.semester}`);
+    }
+  });
+
+  console.log(categorySet);
 }
