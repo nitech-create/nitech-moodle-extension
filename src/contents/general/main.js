@@ -2,7 +2,7 @@ import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
 import restoreMiniCalender from 'General/miniCalender/miniCalender.js';
 import restoreNavigation from 'General/navigation/navigation.js';
-import top from 'Contents/top/top.js';
+import * as top from 'Contents/top/top.js';
 
 $(async function onLoad() {
   // pageのロードが終わった時

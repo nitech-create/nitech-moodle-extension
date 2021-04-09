@@ -8,11 +8,7 @@ import awaitPageLoading from './awaitPageLoading.js'
 import * as deadlineUpdate from './deadlineUpdate.js';
 import { drawTimeTable } from './timeTable.js';
 
-const top = {
-  onTopPage: null,
-};
-
-top.onTopPage = (url) => {
+export function onTopPage(url) {
   // topページでの処理
 
   return awaitPageLoading.then(async () => {
@@ -30,7 +26,7 @@ top.onTopPage = (url) => {
     // await reformTopPage(courseValue.length);
     console.log('value: ', courseValue.length, courseValue);
   });
-};
+}
 
 function topPageMain(){
   // 直近イベントを取得
@@ -695,5 +691,3 @@ function msToTime(duration) {
 function convertToDayOfWeekTxt(dayOfWeekNum) {
   return ['日', '月', '火', '水', '木', '金', '土'][dayOfWeekNum];
 }
-
-export default top;
