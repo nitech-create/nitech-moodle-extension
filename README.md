@@ -1,4 +1,4 @@
-# nitech-moodle-extention
+# nitech-moodle-extension
 
 名古屋工業大学のオンライン授業サポートシステムとして採用されている moodle を使いやすくする Chrome 拡張機能です。非公式であり、問題が起きても責任は取れません。<br>
 Chrome Extension for NITech moodle(38a).

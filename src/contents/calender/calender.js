@@ -4,11 +4,11 @@ chrome.storage.local.get('courses', function (data) {
     console.log('courses is undefined');
     return;
   }
-  let courses = data.courses;
+  const courses = data.courses;
 
-  let options = document.getElementById('menucourse').options;
+  const options = document.getElementById('menucourse').options;
   Array.prototype.forEach.call(options, function (option) {
-    let course = courses.find(course => course.short == option.label);
+    const course = courses.find(course => course.short == option.label);
     if (course == undefined) {
       if (!(option.value == 1 && option.label == 'すべてのコース')) {
         console.log('Cannot find!: ' + option.label);
