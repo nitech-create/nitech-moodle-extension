@@ -56,17 +56,20 @@ export function getCourseList(){
 }
 
 export function classifyCourseList(courseList){
-  const categorySet = new Set();
+  // 各年前後期とその他に分ける
+  const getCategory = (course) => {
+    if(!course.specialCourse){
+      return `${course.shortenedYear}-${course.semester}`
+    }
+    return 'others'
+  }
 
   // 分類を列挙
-  // 各年前後期とその他
-  courseList.forEach((course) => {
-    if(course.specialCourse){
-      categorySet.add('others');
-    }else{
-      categorySet.add(`${course.shortenedYear}-${course.semester}`);
-    }
-  });
+  const categorySet = new Set(courseList.map((course) => getCategory(course)));
 
-  console.log(categorySet);
+  const classifiedList = [];
+  categorySet.forEach((category) => classifiedList[category] = []);
+  courseList.forEach((course) => classifiedList[getCategory(course)].push(course));
+
+  return classifiedList;
 }
