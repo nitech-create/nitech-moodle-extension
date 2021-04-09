@@ -1,3 +1,5 @@
+@import "reformTopPage.scss";
+
 header {
   height: 50px !important;
 }
@@ -11,11 +13,15 @@ section[data-block="myoverview"] {
 }
 
 /* 残り時間表示 */
-.date-left-extension {
-  color: black;
+.extension-remaining-view {
+  color: #373a3c;
 }
-.date-left-extension.deadline {
+.extension-remaining-view .deadline {
   color: red;
+}
+
+#block-region-side-post {
+  marign-bottom: -3rem;
 }
 
 /* 時間割表 */

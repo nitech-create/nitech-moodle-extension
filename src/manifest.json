@@ -27,7 +27,7 @@
         "https://cms6.ict.nitech.ac.jp/moodle38a/my/",
         "https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php"
       ],
-      "css": ["topPageStyle.css", "reformTopPage.css"]
+      "css": ["topPageStyle.css"]
     },
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/calendar/view.php*"],

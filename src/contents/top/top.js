@@ -1,6 +1,11 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import utils from 'Lib/utils.js';
 import $ from 'jQuery';
+import createExtensionArea from './extensionArea.js';
+import { getEvenetList } from './eventList.js';
+import { getCourseList } from './courseList.js';
+import awaitPageLoading from './awaitPageLoading.js'
+import * as deadlineUpdate from './deadlineUpdate.js';
 
 const top = {
   onTopPage: null,
@@ -9,23 +14,7 @@ const top = {
 top.onTopPage = (url) => {
   // topページでの処理
 
-  // 読み込み待ち
-  const awaitLoading = new Promise(function (resolve, reject) {
-    const reload = () => {
-      const courseValue = $('.coursename');
-      if (utils.isUndefined(courseValue[0])) {
-        console.log('yet');
-        setTimeout(reload, 500);
-      } else {
-        console.log('done');
-        resolve();
-      }
-    };
-
-    reload();
-  });
-
-  return awaitLoading.then(async () => {
+  return awaitPageLoading.then(async () => {
     const courseValue = $('.coursename');
 
     // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
@@ -33,12 +22,38 @@ top.onTopPage = (url) => {
     script.textContent = `$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`;
     (document.head||document.documentElement).appendChild(script);
     script.remove();
-    await awaitLoading;
+    await awaitPageLoading;
 
-    await reformTopPage(courseValue.length);
+    topPageMain();
+    // await reformTopPage(courseValue.length);
     console.log('value: ', courseValue.length, courseValue);
   });
 };
+
+function topPageMain(){
+  // 直近イベントを取得
+  const eventList = getEvenetList();
+  console.log(eventList);
+
+  // 受講コースを取得
+  const courseList = getCourseList();
+  console.log(courseList);
+
+  // 拡張機能用の場所を追加
+  const extensionArea = createExtensionArea();
+  $(extensionArea).append($('<h5>').text('時間割表'));
+
+  // 残り時間の動的アップデート
+  deadlineUpdate.register(eventList);
+
+  return;
+}
+
+
+
+
+
+
 
 async function reformTopPage(courseSize) {
   // 読み込み終わったらの処理
@@ -49,19 +64,8 @@ async function reformTopPage(courseSize) {
   const blocks = loadBlocks();
 
   // events: moodleトップページにある「直近イベント」のarray
-  const eventList = getEvenetList();
-  console.log(eventList);
-
-  const courseList = getCourseList();
-  console.log(courseList);
-
   const events = convertToEvents(blocks.calendarUpcomingEventBlock);
   console.log('##EVENTS', events);
-
-  const extensionArea = createExtensionArea();
-  $(extensionArea).append($('<h5>').text('時間割表'));
-
-  return;
 
   // tables.html(時間割, Todoなど)をロードして描画
   const tablesFilePath = 'tables.html';
@@ -108,105 +112,6 @@ async function reformTopPage(courseSize) {
       .then(value => (oldmin = value))
       .catch(reason => console.error(reason));
   }, 1000);
-}
-
-// メインカラムに拡張機能用のエリアを追加
-function createExtensionArea(){
-  const outer = document.createElement('aside');
-  const outer2 = document.createElement('section');
-  outer2.className = 'block_myoverview block card mb-3';
-  const el = document.createElement('div');
-  el.id = 'extension-main-area';
-  el.className = 'card-body p-3';
-
-  $(outer).append($(outer2).append(el));
-  $('#maincontent').after(outer);
-
-  return el;
-}
-
-// 直近イベントを取得
-function getEvenetList(){
-  // 日付テキストをDateに変換
-  function convertDate(dateLabel, nowDate = new Date) {
-    const arr = dateLabel.replace(/[\s+,]/g, '').split(/[:年日月残]/);
-    // [YYYY, MM, DD, hh, mm (, 余り)] or
-    // [明日, hh, mm (, 余り)] or [本日, hh, mm (, 余り)]
-
-    let year = 0;
-    let month = 0;
-    let day = 0;
-    let hour = 0;
-    let minute = 0;
-
-    if (arr[0] == '本') {
-      // 本日, hh:mm
-      year = nowDate.getFullYear();
-      month = nowDate.getMonth();
-      day = nowDate.getDate();
-      hour = arr[1];
-      minute = arr[2];
-    } else if (arr[0] == '明') {
-      // 明日, hh:mm
-      year = nowDate.getFullYear();
-      month = nowDate.getMonth();
-      day = nowDate.getDate() + 1;
-      hour = arr[1];
-      minute = arr[2];
-    } else {
-      // YYYY年 MM月 DD日, hh:mm
-      year = arr[0];
-      month = arr[1] - 1;
-      day = arr[2];
-      hour = arr[3];
-      minute = arr[4];
-    }
-
-    return new Date(year, month, day, hour, minute);
-  }
-
-  // Entry
-  const eventList = [];
-
-  const rootJElement = $('.block_calendar_upcoming');
-  if(rootJElement.length <= 0) return [];
-
-  rootJElement.find('[data-template="core_calendar/upcoming_mini"]').each((index, itemElement) => {
-    const titleLabel = $(itemElement).find('a[data-type="event"]').text();
-    const dateLabel  = $(itemElement).find('div.date').text();
-    eventList.push({
-      name: titleLabel,
-      deadline: convertDate(dateLabel),
-      deadlineText: dateLabel,
-    })
-  });
-
-  return eventList;
-}
-
-function getCourseList(){
-  const courseList = [];
-
-  const rootJElement = $('#block-region-content div[data-region="courses-view"]');
-  if(rootJElement.length <= 0) return [];
-
-  rootJElement.find('li').each((index, itemElement) => {
-    try{
-      const categoryName = $(itemElement).find('.categoryname').text().trim();
-      const shortenedName = $(itemElement).find('.categoryname').siblings().last().text().trim();
-      const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim();
-
-      courseList.push({
-        categoryName,
-        shortenedName,
-        name: courseName,
-      });
-    }catch(e){
-      // do nothing
-    }
-  });
-
-  return courseList;
 }
 
 function convertToEvents(calendarUpcomingEventBlock) {
