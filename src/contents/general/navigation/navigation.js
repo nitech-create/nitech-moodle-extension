@@ -1,9 +1,9 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
-import utils from 'Lib/utils.js';
+import { isUndefined } from 'Lib/utils.js';
 import $ from 'jQuery';
 
 export default function () {
-  if (!utils.isUndefined($('.depth_1 ul')[0])) {
+  if (!isUndefined($('.depth_1 ul')[0])) {
     reformNavi();
     restoreTree();
   }
@@ -65,7 +65,7 @@ async function reformNavi() {
   let key = firstKey;
   const ul = $('.depth_1 ul').first().children('li').eq(2).children('ul');
 
-  if (utils.isUndefined(courses)) return;
+  if (isUndefined(courses)) return;
 
   for (const course of courses) {
     const li = $('<li/>')

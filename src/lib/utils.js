@@ -1,9 +1,10 @@
-const utils = {
-  isUndefined: null,
-};
-
-utils.isUndefined = value => {
+export function isUndefined(value){
   return typeof value === 'undefined';
-};
+}
 
-export default utils;
+export function injectScript(code){
+  const script = document.createElement('script');
+  script.textContent = code;
+  (document.head||document.documentElement).appendChild(script);
+  script.remove();
+}

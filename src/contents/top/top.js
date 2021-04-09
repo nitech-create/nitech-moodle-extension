@@ -1,11 +1,12 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
-import utils from 'Lib/utils.js';
+import { isUndefined, injectScript } from 'Lib/utils.js';
 import $ from 'jQuery';
 import createExtensionArea from './extensionArea.js';
 import { getEvenetList } from './eventList.js';
 import { getCourseList } from './courseList.js';
 import awaitPageLoading from './awaitPageLoading.js'
 import * as deadlineUpdate from './deadlineUpdate.js';
+import { drawTimeTable } from './timeTable.js';
 
 const top = {
   onTopPage: null,
@@ -18,10 +19,11 @@ top.onTopPage = (url) => {
     const courseValue = $('.coursename');
 
     // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
-    const script = document.createElement('script');
-    script.textContent = `$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`;
-    (document.head||document.documentElement).appendChild(script);
-    script.remove();
+    injectScript(`$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`);
+    await awaitPageLoading;
+
+    // コースの表示数を「すべて」にする
+    injectScript(`$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').click();`);
     await awaitPageLoading;
 
     topPageMain();
@@ -41,7 +43,9 @@ function topPageMain(){
 
   // 拡張機能用の場所を追加
   const extensionArea = createExtensionArea();
-  $(extensionArea).append($('<h5>').text('時間割表'));
+
+  // 時間割の描画
+  drawTimeTable(extensionArea, courseList);
 
   // 残り時間の動的アップデート
   deadlineUpdate.register(eventList);
@@ -291,7 +295,7 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
 
 function renderSpecialCourses(courses) {
   $('#special_class_extension').empty();
-  const specialCourses = courses.filter(course => utils.isUndefined(course.times));
+  const specialCourses = courses.filter(course => isUndefined(course.times));
   if (specialCourses <= 0) {
     $('#special_class_extension').append('<tr><td>登録されていないようです。</td></tr>');
     return;
@@ -355,8 +359,8 @@ async function renderTimeTable(
   const classTableSet = [false, false, false, false, false];
   for (const course of courses) {
     if (
-      !utils.isUndefined(course.term) &&
-      !utils.isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
+      !isUndefined(course.term) &&
+      !isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
       course.term == selectedTerm &&
       course.dayOfWeeks.includes(selectedDayOfWeekTxt) &&
       course.shortYear == shortYear
@@ -571,7 +575,7 @@ async function renderWeekClassTable(courses) {
   const weekClassTableCssPath = 'weekClassTable.css';
 
   console.log('週間表示');
-  if (utils.isUndefined($('#overlay_extension').val())) {
+  if (isUndefined($('#overlay_extension').val())) {
     $('#page').append();
     $('body').append('<div id="overlay_extension"></div>');
     $('head').append(
