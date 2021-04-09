@@ -6,6 +6,17 @@ export function drawTimeTable(rootElement, courseList){
   $(rootElement).append($('<h5>').text('時間割表'));
 
   const classifiedCourseList = classifyCourseList(courseList);
+
+  const tableWrapperJElement = createTimeTable(classifiedCourseList);
+  $(rootElement).append(tableWrapperJElement);
+
+  $(rootElement).prepend(createUniqueDropDown(rootElement, classifiedCourseList, (id) => {
+    tableWrapperJElement.find('ul').addClass('hidden');
+    tableWrapperJElement.find(`ul.category-${id}`).removeClass('hidden');
+  }));
+}
+
+function createUniqueDropDown(rootElement, classifiedCourseList, callback){
   const categories = Object.keys(classifiedCourseList).sort().map((categoryName) => {
     let name = categoryName;
 
@@ -29,12 +40,34 @@ export function drawTimeTable(rootElement, courseList){
     active = categories[0].id;
   }
 
-  $(rootElement).append(createDropDown('fa-filter', categories, active, (id) => {
-    console.log(id);
-  }));
+  return createDropDown('fa-filter', categories, active, callback);
 }
 
 function nowCategory(){
   const now = new Date();
   return `${now.getFullYear()}-${[3, 4, 5, 6, 7, 8].includes(now.getMonth()) ? 0 : 1}`;
+}
+
+function createTimeTable(classifiedCourseList){
+  const wrapper = $('<div>');
+
+  Object.keys(classifiedCourseList).sort().forEach((categoryName) => {
+    const category = [...classifiedCourseList[categoryName]].sort((a, b) => {
+      a.dayOfWeek * 100 + a.startPeriod - b.dayOfWeek * 100 + b.startPeriod;
+    });
+
+    const table = $('<ul>');
+    table.addClass('category-' + categoryName);
+
+    category.forEach((course) => {
+      const item = $('<li>');
+      item.text(course.name);
+
+      table.append(item);
+    });
+
+    wrapper.append(table);
+  });
+
+  return wrapper;
 }

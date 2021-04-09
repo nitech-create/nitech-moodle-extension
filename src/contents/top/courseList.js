@@ -19,7 +19,7 @@ export function getCourseList(){
         const name = nameSplit.slice(0, -3).join(' ');
         const semester = (nameSplit[nameSplit.length - 2] == '前期' ? 0 : 1);
         const periodSplit = nameSplit[nameSplit.length - 1].replace(/^([月火水木金]曜)(\d+)-(\d+)限_(?:.+)$/, '$1 $2 $3').split(' ')
-        const weekOfDay = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
+        const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
         const startPeriod = parseInt(periodSplit[1]);
         const endPeriod = parseInt(periodSplit[2]);
 
@@ -32,7 +32,7 @@ export function getCourseList(){
           url,
           name,
           semester,
-          weekOfDay,
+          dayOfWeek,
           startPeriod,
           endPeriod
         });
