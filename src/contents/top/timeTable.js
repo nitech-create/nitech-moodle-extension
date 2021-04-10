@@ -5,12 +5,15 @@ import { createDropDown } from './extensionArea.js'
 export function drawTimeTable(rootElement, courseList){
   $(rootElement).append($('<h5>').text('時間割表'));
 
+  const content = $('<div>');
+  $(rootElement).append(content);
+
   const classifiedCourseList = classifyCourseList(courseList);
 
   const tableWrapperJElement = createTimeTable(classifiedCourseList);
-  $(rootElement).append(tableWrapperJElement);
+  $(content).append(tableWrapperJElement);
 
-  $(rootElement).prepend(createUniqueDropDown(rootElement, classifiedCourseList, (id) => {
+  $(content).prepend(createUniqueDropDown(rootElement, classifiedCourseList, (id) => {
     tableWrapperJElement.find('ul').addClass('hidden');
     tableWrapperJElement.find(`ul.category-${id}`).removeClass('hidden');
   }));
@@ -35,17 +38,19 @@ function createUniqueDropDown(rootElement, classifiedCourseList, callback){
     }
   });
 
-  let active = nowCategory;
+  let active = nowCategory();
   if(!categories.some((c) => c.id === active)){
     active = categories[0].id;
   }
 
-  return createDropDown('fa-filter', categories, active, callback);
+  const el = createDropDown('fa-filter', categories, active, callback);
+  callback(active);
+  return el;
 }
 
 function nowCategory(){
   const now = new Date();
-  return `${now.getFullYear()}-${[3, 4, 5, 6, 7, 8].includes(now.getMonth()) ? 0 : 1}`;
+  return `${now.getFullYear()}-${[3, 4, 5, 6, 7, 8].includes(now.getMonth()) ? 0 : 1}`.slice(2);
 }
 
 function createTimeTable(classifiedCourseList){
@@ -53,7 +58,7 @@ function createTimeTable(classifiedCourseList){
 
   Object.keys(classifiedCourseList).sort().forEach((categoryName) => {
     const category = [...classifiedCourseList[categoryName]].sort((a, b) => {
-      a.dayOfWeek * 100 + a.startPeriod - b.dayOfWeek * 100 + b.startPeriod;
+      return a.dayOfWeek * 100 + a.startPeriod - b.dayOfWeek * 100 + b.startPeriod;
     });
 
     const table = $('<ul>');
@@ -61,7 +66,11 @@ function createTimeTable(classifiedCourseList){
 
     category.forEach((course) => {
       const item = $('<li>');
-      item.text(course.name);
+      if(course.specialCourse){
+        item.text(course.name);
+      }else{
+        item.text(`${(['月曜', '火曜', '水曜', '木曜', '金曜'])[course.dayOfWeek]} ${course.name}`);
+      }
 
       table.append(item);
     });
