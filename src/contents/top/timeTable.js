@@ -58,19 +58,27 @@ function createTimeTable(classifiedCourseList){
 
   Object.keys(classifiedCourseList).sort().forEach((categoryName) => {
     const category = [...classifiedCourseList[categoryName]].sort((a, b) => {
-      return a.dayOfWeek * 100 + a.startPeriod - b.dayOfWeek * 100 + b.startPeriod;
+      return (a.dayOfWeek * 100 + a.startPeriod) - (b.dayOfWeek * 100 + b.startPeriod);
     });
 
     const table = $('<ul>');
+    table.addClass('list-group');
     table.addClass('category-' + categoryName);
 
     category.forEach((course) => {
       const item = $('<li>');
+      item.addClass('list-group-item');
       if(course.specialCourse){
         item.text(course.name);
       }else{
-        item.text(`${(['月曜', '火曜', '水曜', '木曜', '金曜'])[course.dayOfWeek]} ${course.name}`);
+        item.text(`${(['月曜', '火曜', '水曜', '木曜', '金曜'])[course.dayOfWeek]} ${course.startPeriod}-${course.endPeriod} ${course.name}`);
       }
+
+      item.on('click', () => {
+        const a = $('<a>');
+        a.attr('href', course.url);
+        a[0].click();
+      });
 
       table.append(item);
     });
