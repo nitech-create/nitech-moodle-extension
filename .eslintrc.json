@@ -12,18 +12,8 @@
     "no-extra-semi": "warn",
     "no-undef": "warn",
     "linebreak-style": ["error", "windows"],
-    "require-jsdoc": [
-      "error",
-      {
-        "require": {
-          "FunctionDeclaration": false,
-          "MethodDefinition": false,
-          "ClassDeclaration": false,
-          "ArrowFunctionExpression": false,
-          "FunctionExpression": false
-        }
-      }
-    ]
+    "no-unused-vars": "warn",
+    "require-jsdoc": "off"
   },
   "globals": {
     "alert": false,

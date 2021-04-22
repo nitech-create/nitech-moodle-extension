@@ -2,7 +2,7 @@ import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
 import restoreMiniCalender from 'General/miniCalender/miniCalender.js';
 import restoreNavigation from 'General/navigation/navigation.js';
-import * as top from 'Contents/top/top.js';
+import { onTopPage } from 'Contents/top/top.js';
 
 $(async function onLoad() {
   // pageのロードが終わった時
@@ -28,7 +28,7 @@ $(async function onLoad() {
   const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
   if (topPageUrl.test(location.href)) {
     // topページでの処理
-    await top.onTopPage(location.href);
+    await onTopPage(location.href);
   } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
     // loginページでの処理 -> 以降を処理しない
     console.log('login page.');

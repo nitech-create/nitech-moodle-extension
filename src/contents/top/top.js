@@ -8,27 +8,25 @@ import awaitPageLoading from './awaitPageLoading.js'
 import * as deadlineUpdate from './deadlineUpdate.js';
 import { drawTimeTable } from './timeTable.js';
 
-export function onTopPage(url) {
+export async function onTopPage(url) {
   // topページでの処理
+  await awaitPageLoading;
 
-  return awaitPageLoading.then(async () => {
-    const courseValue = $('.coursename');
+  const courseValue = $('.coursename');
 
-    // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
-    injectScript(`$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`);
-    await awaitPageLoading;
+  // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
+  injectScript(`$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`);
+  await awaitPageLoading;
 
-    // コースの表示数を「すべて」にする
-    injectScript(`$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').click();`);
-    await awaitPageLoading;
+  // コースの表示数を「すべて」にする
+  injectScript(`$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').click();`);
+  await awaitPageLoading;
 
-    topPageMain();
-    // await reformTopPage(courseValue.length);
-    console.log('value: ', courseValue.length, courseValue);
-  });
+  await topPageMain();
+  console.log('value: ', courseValue.length, courseValue);
 }
 
-function topPageMain(){
+async function topPageMain(){
   // 直近イベントを取得
   const eventList = getEvenetList();
   console.log(eventList);
@@ -36,6 +34,9 @@ function topPageMain(){
   // 受講コースを取得
   const courseList = getCourseList();
   console.log(courseList);
+  await promiseWrapper.storage.local.set({courseList: courseList}).then(() => {
+    console.log('saved');
+  });
 
   // 拡張機能用の場所を追加
   const extensionArea = createExtensionArea();
