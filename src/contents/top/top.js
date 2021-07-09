@@ -1,12 +1,6 @@
-import promiseWrapper from 'Lib/promiseWrapper.js';
-import { isUndefined, injectScript } from 'Lib/utils.js';
+import { injectScript } from 'Lib/utils.js';
 import $ from 'jQuery';
-import createExtensionArea from './extensionArea.js';
-import { getEvenetList } from './eventList.js';
-import { getCourseList } from './courseList.js';
 import awaitPageLoading from './awaitPageLoading.js'
-import * as deadlineUpdate from './deadlineUpdate.js';
-import { drawTimeTable } from './timeTable.js';
 
 export async function onTopPage(url) {
   // topページでの処理
@@ -22,30 +16,5 @@ export async function onTopPage(url) {
   injectScript(`$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').click();`);
   await awaitPageLoading;
 
-  await topPageMain();
   console.log('value: ', courseValue.length, courseValue);
-}
-
-async function topPageMain(){
-  // 直近イベントを取得
-  const eventList = getEvenetList();
-  console.log(eventList);
-
-  // 受講コースを取得
-  const courseList = getCourseList();
-  console.log(courseList);
-  await promiseWrapper.storage.local.set({courseList: courseList}).then(() => {
-    console.log('saved');
-  });
-
-  // 拡張機能用の場所を追加
-  const extensionArea = createExtensionArea();
-
-  // 時間割の描画
-  drawTimeTable(extensionArea, courseList);
-
-  // 残り時間の動的アップデート
-  deadlineUpdate.register(eventList);
-
-  return;
 }

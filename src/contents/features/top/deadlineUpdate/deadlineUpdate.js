@@ -1,17 +1,17 @@
 import $ from 'jQuery';
 
+import { getEvenetList } from './eventList.js';
+
 let intervalId = null;
-export function register(eventList){
+function register(){
+  const eventList = getEvenetList();
+
   eventList.forEach((event) => {
     $(event.domElement).find('hr').before(createTimeArea);
   });
 
   clearInterval(intervalId);
   intervalId = setInterval(update, 500, eventList);
-}
-
-export function deregister(){
-  clearInterval(intervalId);
 }
 
 function createTimeArea(){
@@ -64,4 +64,11 @@ function remainingTimeDisplay(duration){
     return hours + '時間 ' + minutes + '分';
   }
   return days + '日 ' + hours + '時間 ' + minutes + '分';
+}
+
+
+import config from './deadlineUpdate.json5';
+export default {
+  config,
+  func: register
 }

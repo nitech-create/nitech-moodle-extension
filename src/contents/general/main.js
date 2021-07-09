@@ -1,8 +1,13 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
-import restoreMiniCalender from 'General/miniCalender/miniCalender.js';
-import restoreNavigation from 'General/navigation/navigation.js';
 import { onTopPage } from 'Contents/top/top.js';
+
+import extensionArea from 'Features/top/extensionArea/extensionArea.js';
+import timeTable from 'Features/top/timeTable/timeTable.js';
+import restoreNavigation from 'Features/general/restoreNavigation/restoreNavigation.js';
+import restoreMiniCalendar from 'Features/general/restoreMiniCalendar/restoreMiniCalendar';
+import deadlineUpdate from 'Features/top/deadlineUpdate/deadlineUpdate';
+const features = [extensionArea, timeTable, restoreNavigation, restoreMiniCalendar, deadlineUpdate];
 
 $(async function onLoad() {
   // pageのロードが終わった時
@@ -26,22 +31,31 @@ $(async function onLoad() {
   }
 
   const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
+  let environment = '';
   if (topPageUrl.test(location.href)) {
     // topページでの処理
+    environment = 'top';
     await onTopPage(location.href);
   } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
     // loginページでの処理 -> 以降を処理しない
+    environment = 'login';
     console.log('login page.');
     // return;
   } else {
     // topページ以外での処理
+    environment = 'other';
     await onOtherPage(location.href);
   }
 
   // ポストプロセス
   console.log('[Preprocess Finished]');
-  restoreMiniCalender();
-  restoreNavigation();
+
+  features.forEach(feature => {
+    console.log(feature);
+    if(feature.config.target == environment || feature.config.target == 'any') {
+      feature.func();
+    }
+  });
 });
 
 async function onOtherPage(loc) {

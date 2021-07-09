@@ -1,8 +1,11 @@
 import $ from 'jQuery';
-import { classifyCourseList } from './courseList.js';
-import { createDropDown } from './extensionArea.js'
+import { classifyCourseList, getCourseList } from './courseList.js';
+import { createDropDown } from './../extensionArea/extensionArea.js'
 
-export function drawTimeTable(rootElement, courseList){
+function drawTimeTable(){
+  const rootElement = $('#extension-main-area');
+  const courseList = getCourseList();
+
   $(rootElement).append($('<h5>').text('時間割表'));
 
   const content = $('<div>');
@@ -17,6 +20,8 @@ export function drawTimeTable(rootElement, courseList){
     tableWrapperJElement.find('ul').addClass('hidden');
     tableWrapperJElement.find(`ul.category-${id}`).removeClass('hidden');
   }));
+
+  console.log('drawTimeTable compleated');
 }
 
 function createUniqueDropDown(rootElement, classifiedCourseList, callback){
@@ -87,4 +92,11 @@ function createTimeTable(classifiedCourseList){
   });
 
   return wrapper;
+}
+
+
+import config from './timeTable.json5';
+export default {
+  config,
+  func: drawTimeTable
 }

@@ -2,6 +2,7 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const JSON5 = require('json5');
 
 module.exports = {
   module: {
@@ -33,6 +34,13 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /\.json5$/,
+        type: "json",
+				parser: {
+					parse: JSON5.parse
+				}
       },
     ],
   },
@@ -68,7 +76,7 @@ module.exports = {
       // ライブラリファイルのエイリアス
       Lib: path.join(__dirname, 'src/lib'),
       Contents: path.join(__dirname, 'src/contents'),
-      General: path.join(__dirname, 'src/contents/general'),
+      Features: path.join(__dirname, 'src/contents/features'),
     },
   },
   stats: {

@@ -1,0 +1,5 @@
+{
+  name: 'extension-area',
+  target: 'top',
+  dependencies: []
+}

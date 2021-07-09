@@ -1,0 +1,7 @@
+{
+  name: 'time-table',
+  target: 'top',
+  dependencies: [
+    'extension-area'
+  ]
+}

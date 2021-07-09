@@ -1,12 +1,12 @@
 import $ from 'jQuery';
 
-export default function(){
+function restoreMiniCalender(){
   if($('[data-block="calendar_month"]')[0] !== undefined){
-    editCalender($('[data-block="calendar_month"]'));
+    editCalendar($('[data-block="calendar_month"]'));
   }
 }
 
-function editCalender(calendarMonth){
+function editCalendar(calendarMonth){
   // カレンダーに移動するナビゲーションを追加
   calendarMonth
     .children('div')
@@ -39,12 +39,12 @@ function editCalender(calendarMonth){
     `);
 
     // wrap
-    calendarMonth.find('caption').children().wrapAll('<div class="mini-calender-caption"></div>');
+    calendarMonth.find('caption').children().wrapAll('<div class="mini-Calendar-caption"></div>');
 
     // 今日をハイライト
     const now = new Date();
     const dayTop = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    calendarMonth.find('td[data-day-timestamp="' + dayTop.getTime()/1000 + '"]').addClass('mini-calender-today');
+    calendarMonth.find('td[data-day-timestamp="' + dayTop.getTime()/1000 + '"]').addClass('mini-Calendar-today');
 
     // 再開
     startObserve();
@@ -60,3 +60,10 @@ function editCalender(calendarMonth){
   refleshFunc();
   startObserve();
 }
+
+
+import config from './restoreMiniCalendar.json5';
+export default {
+  config,
+  func: restoreMiniCalender
+};

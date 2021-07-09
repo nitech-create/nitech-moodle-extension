@@ -1,7 +1,7 @@
 import $ from 'jQuery';
 
 // メインカラムに拡張機能用のエリアを追加
-export default function createExtensionArea(){
+function createExtensionArea(){
   const outer = $('<aside>');
   const outer2 = $('<section>');
   const el = $('<div>');
@@ -11,8 +11,6 @@ export default function createExtensionArea(){
 
   $(outer).append($(outer2).append(el));
   $('#maincontent').after(outer);
-
-  return el;
 }
 
 export function createDropDown(iconClass, dropdownList, _active, callback){
@@ -89,3 +87,10 @@ export function createDropDown(iconClass, dropdownList, _active, callback){
 
   return wrapper.append(button).append(dropdown);
 }
+
+
+import config from './extensionArea.json5';
+export default {
+  config,
+  func: createExtensionArea
+};

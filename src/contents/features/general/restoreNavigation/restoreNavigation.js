@@ -2,7 +2,7 @@ import promiseWrapper from 'Lib/promiseWrapper.js';
 import { isUndefined } from 'Lib/utils.js';
 import $ from 'jQuery';
 
-export default function () {
+function restoreNavigation() {
   if (!isUndefined($('.depth_1 ul')[0])) {
     reformNavi();
     restoreTree();
@@ -93,4 +93,11 @@ async function reformNavi() {
     key -= 1;
     while ($('[data-node-key=' + key + ']')[0] !== undefined) key -= 1;
   }
+}
+
+
+import config from './restoreNavigation.json5';
+export default {
+  config,
+  func: restoreNavigation
 }
