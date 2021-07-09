@@ -1,6 +1,5 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
-import { onTopPage } from 'Contents/top/top.js';
 
 import extensionArea from 'Features/top/extensionArea/extensionArea.js';
 import timeTable from 'Features/top/timeTable/timeTable.js';
@@ -8,7 +7,8 @@ import restoreNavigation from 'Features/general/restoreNavigation/restoreNavigat
 import restoreMiniCalendar from 'Features/general/restoreMiniCalendar/restoreMiniCalendar';
 import deadlineUpdate from 'Features/top/deadlineUpdate/deadlineUpdate';
 import calendar from 'Features/calendar/calendar.js'
-const features = [extensionArea, timeTable, restoreNavigation, restoreMiniCalendar, deadlineUpdate, calendar];
+import topMain from 'Features/top/top/top.js';
+const features = [topMain, extensionArea, timeTable, restoreNavigation, restoreMiniCalendar, deadlineUpdate, calendar];
 
 $(async function onLoad() {
   // pageのロードが終わった時
@@ -36,7 +36,6 @@ $(async function onLoad() {
   if (topPageUrl.test(location.href)) {
     // topページでの処理
     environment = 'top';
-    await onTopPage(location.href);
   } else if (location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php') {
     // loginページでの処理 -> 以降を処理しない
     environment = 'login';
@@ -52,19 +51,17 @@ $(async function onLoad() {
   console.log('[Preprocess Finished]');
 
   // featuerを読み込み
-  features.forEach(feature => {
+  let p = Promise.resolve();
+  for(const feature of features) {
     console.log(feature);
     if(feature.config.target == 'any' || feature.config.target == environment || new RegExp(feature.config.target).test(location.href)) {
-      if(typeof f === 'function') {
-        // 関数なら実行
-        feature.func();
-      } else {
-        // そうでないならPromiseとして解決
-        // Promiseでない場合は即時に終了する
-        Promise.resolve(feature.func);
-      }
+      // Promiseとして解決
+      // Promiseでない場合:
+      //   関数なら実行される
+      //   そうでないなら評価されて終了
+      p = p.then(feature.func);
     }
-  });
+  }
 });
 
 async function onOtherPage(loc) {

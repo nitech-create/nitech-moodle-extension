@@ -2,6 +2,7 @@
   name: 'time-table',
   target: 'top',
   dependencies: [
-    'extension-area'
+    'top-main',
+    'extension-area',
   ]
 }
