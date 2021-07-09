@@ -51,10 +51,18 @@ $(async function onLoad() {
   // ポストプロセス
   console.log('[Preprocess Finished]');
 
+  // featuerを読み込み
   features.forEach(feature => {
     console.log(feature);
     if(feature.config.target == 'any' || feature.config.target == environment || new RegExp(feature.config.target).test(location.href)) {
-      feature.func();
+      if(typeof f === 'function') {
+        // 関数なら実行
+        feature.func();
+      } else {
+        // そうでないならPromiseとして解決
+        // Promiseでない場合は即時に終了する
+        Promise.resolve(feature.func);
+      }
     }
   });
 });
