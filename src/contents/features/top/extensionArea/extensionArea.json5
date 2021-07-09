@@ -1,7 +1,7 @@
 {
   name: 'extension-area',
   target: 'top',
-  dependencies: [
+  preload: [
     'top-main',
   ]
 }

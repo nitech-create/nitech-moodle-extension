@@ -1,7 +1,7 @@
 {
   name: 'time-table',
   target: 'top',
-  dependencies: [
+  preload: [
     'top-main',
     'extension-area',
   ]

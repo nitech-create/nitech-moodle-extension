@@ -1,5 +1,5 @@
 {
   name: 'top-main',
   target: 'top',
-  dependencies: []
+  preload: []
 }
