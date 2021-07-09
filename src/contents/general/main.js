@@ -7,7 +7,8 @@ import timeTable from 'Features/top/timeTable/timeTable.js';
 import restoreNavigation from 'Features/general/restoreNavigation/restoreNavigation.js';
 import restoreMiniCalendar from 'Features/general/restoreMiniCalendar/restoreMiniCalendar';
 import deadlineUpdate from 'Features/top/deadlineUpdate/deadlineUpdate';
-const features = [extensionArea, timeTable, restoreNavigation, restoreMiniCalendar, deadlineUpdate];
+import calendar from 'Features/calendar/calendar.js'
+const features = [extensionArea, timeTable, restoreNavigation, restoreMiniCalendar, deadlineUpdate, calendar];
 
 $(async function onLoad() {
   // pageのロードが終わった時
@@ -52,7 +53,7 @@ $(async function onLoad() {
 
   features.forEach(feature => {
     console.log(feature);
-    if(feature.config.target == environment || feature.config.target == 'any') {
+    if(feature.config.target == 'any' || feature.config.target == environment || new RegExp(feature.config.target).test(location.href)) {
       feature.func();
     }
   });

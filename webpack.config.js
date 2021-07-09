@@ -46,8 +46,8 @@ module.exports = {
   },
   entry: {
     background: './src/background/backgroundEvent.js',
-    calendar: './src/contents/calender/calender.js',
-    videoArea: './src/contents/videoArea/videoArea.js',
+    // calendar: './src/contents/calender/calender.js',
+    // videoArea: './src/contents/videoArea/videoArea.js',
     main: './src/contents/general/main.js',
     topPageStyle: './src/contents/top/topPageStyle.scss',
   },
