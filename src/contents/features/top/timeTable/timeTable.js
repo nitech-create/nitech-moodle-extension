@@ -1,6 +1,6 @@
 import $ from 'jQuery';
 import { classifyCourseList, getCourseList } from './courseList.js';
-import { createDropDown } from './../extensionArea/extensionArea.js'
+import { createDropDown } from './createDropDown.js'
 
 function drawTimeTable(){
   const rootElement = $('#extension-main-area');
