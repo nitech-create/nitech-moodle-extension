@@ -27,7 +27,7 @@ NITech 在校生。
 
 ### GitHub開発版
 
-1. 【Chromeの準備】<br>Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~, おすすめ: Chrome Beta)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
+1. 【Chromeの準備】<br>Chromium 系ブラウザ(Chrome, ~~Edge~~, ~~Vivaldi~~, おすすめ: Chrome Beta)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
 2. (右上の)「デベロッパーモード」を有効にする。
 3. 【ソースコードの準備】<br>GitHubの「Code」ページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
 4. 先程入手したフォルダにて`npm install`
