@@ -36,6 +36,7 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
-    "jquery": "^3.5.1"
+    "jquery": "^3.5.1",
+    "npm": "^7.21.1"
   }
 }
