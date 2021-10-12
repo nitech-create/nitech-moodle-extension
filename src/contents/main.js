@@ -1,5 +1,6 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
+import loadFeature from './featureLoader.js';
 
 import extensionArea from 'Features/top/extensionArea/extensionArea.js';
 import timeTable from 'Features/top/timeTable/timeTable.js';
@@ -51,17 +52,7 @@ $(async function onLoad() {
   console.log('[Preprocess Finished]');
 
   // featuerを読み込み
-  let p = Promise.resolve();
-  for(const feature of features) {
-    console.log(feature);
-    if(feature.config.target == 'any' || feature.config.target == environment || new RegExp(feature.config.target).test(location.href)) {
-      // Promiseとして解決
-      // Promiseでない場合:
-      //   関数なら実行される
-      //   そうでないなら評価されて終了
-      p = p.then(feature.func);
-    }
-  }
+  loadFeature(features, environment);
 });
 
 async function onOtherPage(loc) {
