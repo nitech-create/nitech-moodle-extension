@@ -19,7 +19,8 @@ export default function loadFeature(features, environment, url) {
 
         // Promiseとして解決
         loaded.push(feature.config.name);
-        Promise.resolve(feature.func)
+        Promise.resolve()
+          .then(feature.func)
           .then(() => {
             load();
           });
