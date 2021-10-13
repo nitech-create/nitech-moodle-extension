@@ -11,6 +11,7 @@ export default function loadFeature(features, environment, url) {
 
   const loaded = [];
   const loadStarted = [];
+
   const load = function() {
     for(const feature of loadOrder) {
       if(!loadStarted.includes(feature.config.name) && feature.config.preload.every((feature) => loaded.includes(feature))) {
@@ -18,14 +19,16 @@ export default function loadFeature(features, environment, url) {
         loadStarted.push(feature.config.name);
 
         // Promiseとして解決
-        loaded.push(feature.config.name);
         Promise.resolve()
-          .then(feature.func)
-          .then(() => {
+        .then(feature.func)
+        .then(() => {
+            console.log('Feature excution completed: ', feature);
+            loaded.push(feature.config.name);
             load();
           });
       }
     }
   }
+
   load();
 }

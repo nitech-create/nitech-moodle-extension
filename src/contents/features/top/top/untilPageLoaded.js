@@ -3,11 +3,13 @@ import $ from 'jQuery';
 const TIMEOUT = 10;
 
 // 読み込み待ち
-export default new Promise(function (resolve, reject) {
+
+export default () => new Promise((resolve, reject) => {
   let totalTime = 0;
 
   const reload = () => {
     const courseValue = $('.coursename');
+
     if (!(courseValue.length > 0)) {
       console.log('yet');
       totalTime += 1;
