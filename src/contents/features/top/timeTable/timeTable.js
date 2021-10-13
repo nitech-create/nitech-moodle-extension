@@ -11,15 +11,17 @@ function drawTimeTable(){
   const content = $('<div>');
   $(rootElement).append(content);
 
-  const classifiedCourseList = classifyCourseList(courseList);
+  if(courseList.length > 0) {
+    const classifiedCourseList = classifyCourseList(courseList);
 
-  const tableWrapperJElement = createTimeTable(classifiedCourseList);
-  $(content).append(tableWrapperJElement);
+    const tableWrapperJElement = createTimeTable(classifiedCourseList);
+    $(content).append(tableWrapperJElement);
 
-  $(content).prepend(createUniqueDropDown(rootElement, classifiedCourseList, (id) => {
-    tableWrapperJElement.find('ul').addClass('hidden');
-    tableWrapperJElement.find(`ul.category-${id}`).removeClass('hidden');
-  }));
+    $(content).prepend(createUniqueDropDown(rootElement, classifiedCourseList, (id) => {
+      tableWrapperJElement.find('ul').addClass('hidden');
+      tableWrapperJElement.find(`ul.category-${id}`).removeClass('hidden');
+    }));
+  }
 
   console.log('drawTimeTable compleated');
 }

@@ -1,15 +1,24 @@
-import { isUndefined } from 'Lib/utils.js';
 import $ from 'jQuery';
+
+const TIMEOUT = 10;
 
 // 読み込み待ち
 export default new Promise(function (resolve, reject) {
+  let totalTime = 0;
+
   const reload = () => {
     const courseValue = $('.coursename');
-    if (isUndefined(courseValue[0])) {
+    if (!(courseValue.length > 0)) {
       console.log('yet');
-      setTimeout(reload, 500);
+      totalTime += 1;
+
+      if(totalTime < TIMEOUT) {
+        setTimeout(reload, 500);
+      } else {
+        reject(new Error('Page load timeouted.'));
+      }
     } else {
-      console.log('done');
+      console.log('done', courseValue);
       resolve();
     }
   };
