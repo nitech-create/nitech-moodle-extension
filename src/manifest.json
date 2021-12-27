@@ -4,7 +4,7 @@
   "homepage_url": "https://github.com/nitech-create/nitech-moodle-chrome",
   "name": "nitech-moodle-extension",
   "description": "名古屋工業大学のオンライン授業サポートシステムとして採用されているmoodleを使いやすくするChrome拡張機能です。情報基盤センターとは無関係で非公式なものであり、また問題が起きても責任は取れません。nitech Create: http://nitech-create.com",
-  "version": "1.0.0",
+  "version": "1.0.1-beta",
   "icons": {
     "32": "icons/icon.png",
     "48": "icons/icon.png",

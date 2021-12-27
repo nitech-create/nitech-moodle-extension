@@ -1,7 +1,7 @@
 /* eslint-env node */
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const JSON5 = require('json5');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         use: [
           {
             // CSSを別ファイルに出力
-            loader: MiniCssExtractPlugin.loader
+            loader: MiniCssExtractPlugin.loader,
           },
           {
             // CSSを読み込み
@@ -38,10 +38,10 @@ module.exports = {
       },
       {
         test: /\.json5$/,
-        type: "json",
-				parser: {
-					parse: JSON5.parse
-				}
+        type: 'json',
+        parser: {
+          parse: JSON5.parse,
+        },
       },
     ],
   },
@@ -65,7 +65,7 @@ module.exports = {
       ],
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].css'
+      filename: '[name].css',
     }),
   ],
   mode: 'development',
@@ -76,6 +76,7 @@ module.exports = {
       Lib: path.join(__dirname, 'src/lib'),
       Contents: path.join(__dirname, 'src/contents'),
       Features: path.join(__dirname, 'src/contents/features'),
+      Options: path.join(__dirname, 'src/options'),
     },
   },
   stats: {
@@ -86,6 +87,6 @@ module.exports = {
   },
   watchOptions: {
     ignored: /node_modules/,
-    poll: true
+    poll: true,
   },
 };
