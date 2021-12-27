@@ -1,0 +1,5 @@
+{
+  name: 'options',
+  target: 'any',
+  preload: [],
+}

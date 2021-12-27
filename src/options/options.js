@@ -1,10 +1,12 @@
-'use strict';
+// 'use strict';
+import $ from 'jQuery';
 
 // 設定値をデフォルト設定から複製
 let defaultOptions;
 
 // entry
-window.onload = () => {
+// ロード時にoptionsを読み込む
+function loadOptionFromDefault() {
   chrome.runtime.sendMessage({ item: 'defaultOptions' }, function (response) {
     defaultOptions = response.defaultOptions; // defaultOptionsへ設定ファイルからのものを代入。(関数のブロック構造に注意?)
 
@@ -26,6 +28,7 @@ window.onload = () => {
       saveOptions(options);
       applyOptions(options);
     });
+
     // loadCurrentボタン
     $('#btnLoadCurrent').on('click', function () {
       setOptionsFromStorage();
@@ -39,7 +42,7 @@ window.onload = () => {
       applyOptions(options);
     })();
   });
-};
+}
 
 function getStorage(key) {
   // chrome.storage.local.getのPromiseラッパー
@@ -86,3 +89,9 @@ function saveOptions(options) {
   // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
   // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
 }
+
+import config from './options.json5';
+export default {
+  config,
+  func: loadOptionFromDefault,
+};
