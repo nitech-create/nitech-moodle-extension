@@ -1,83 +1,115 @@
 // 'use strict';
 import $ from 'jQuery';
+import promiseWrapper from 'Lib/promiseWrapper';
 
-// 設定値をデフォルト設定から複製
-let defaultOptions;
+const defaultOptions = {
+  optionsVersion: '0.0.0.1',
+  extentionEnable: true,
+  topPageEnable: true,
+  backgroundColor: 'NavajoWhite',
+  hideNavOnVideo: true,
+};
 
-// entry
-// ロード時にoptionsを読み込む
-function loadOptionFromDefault() {
-  chrome.runtime.sendMessage({ item: 'defaultOptions' }, function (response) {
-    defaultOptions = response.defaultOptions; // defaultOptionsへ設定ファイルからのものを代入。(関数のブロック構造に注意?)
+// TODO: defaultOptionsと完全に同一かどうか不安になる。
+const options = {
+  optionsVersion: '0.0.0.1',
+  extentionEnable: true,
+  topPageEnable: true,
+  backgroundColor: 'NavajoWhite',
+  hideNavOnVideo: true,
+};
 
-    console.log('response: ', response);
-    console.log('default: ', defaultOptions);
-    const options = {};
+export function onLoad() {
+  // console.log('default: ', defaultOptions);
+  Object.assign(options, defaultOptions); // 不安なので、コピーをする
+  loadOptions(options);
+  console.log('loadOptions: ', options);
+
+  generatePage(options);
+
+  // storageの設定を読み込んで反映
+  applyOptionsToPages(options);
+}
+
+function generatePage(options) {
+  // saveボタン
+  $('#btnSave').on('click', () => {
+    options.backgroundColor = $('#backgroundColor').val();
+    options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
+
+    saveOptions(options);
+  });
+  // loadDefaultボタン
+  $('#btnLoadDefault').on('click', () => {
     Object.assign(options, defaultOptions);
+    saveOptions(options);
+    applyOptionsToPages(options);
+  });
 
-    // saveボタン
-    $('#btnSave').on('click', function () {
-      options.backgroundColor = $('#backgroundColor').val();
-      options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
-
-      saveOptions(options);
-    });
-    // loadDefaultボタン
-    $('#btnLoadDefault').on('click', function () {
-      Object.assign(options, defaultOptions);
-      saveOptions(options);
-      applyOptions(options);
-    });
-
-    // loadCurrentボタン
-    $('#btnLoadCurrent').on('click', function () {
-      setOptionsFromStorage();
-      saveToStorage(setOptions(defaultOptions));
-    });
-
-    // storageの設定を読み込んで反映
-    (async () => {
-      await loadOptions(options);
-      console.log('loadOptions: ', options);
-      applyOptions(options);
-    })();
+  // loadCurrentボタン
+  $('#btnLoadCurrent').on('click', () => {
+    // setOptionsFromStorage();
+    // saveToStorage(setOptions(defaultOptions));
   });
 }
 
-function getStorage(key) {
-  // chrome.storage.local.getのPromiseラッパー
+// first
+// ロード時にoptionsを読み込む
+// function loadOptionFromDefault() {
+//   chrome.runtime.sendMessage({ item: 'defaultOptions' }, function (response) {
+//     defaultOptions = response.defaultOptions; // defaultOptionsへ設定ファイルからのものを代入。(関数のブロック構造に注意?)
 
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(key, function (data) {
-      if (!data.hasOwnProperty(key)) {
-        // ストレージにキーが存在しない
-        if (defaultOptions.hasOwnProperty(key)) {
-          console.log('loading default option of ' + key);
-          resolve(defaultOptions[key]);
-        } else {
-          reject(new Error('undefined key: ' + key));
-        }
-      } else {
-        resolve(data[key]);
-      }
-    });
-  });
-}
+//     console.log('response: ', response);
+//     console.log('default: ', defaultOptions);
+//     const options = {};
+//     Object.assign(options, defaultOptions);
+
+//     // saveボタン
+//     $('#btnSave').on('click', function () {
+//       options.backgroundColor = $('#backgroundColor').val();
+//       options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
+
+//       saveOptions(options);
+//     });
+//     // loadDefaultボタン
+//     $('#btnLoadDefault').on('click', function () {
+//       Object.assign(options, defaultOptions);
+//       saveOptions(options);
+//       applyOptionsToPages(options);
+//     });
+
+//     // loadCurrentボタン
+//     $('#btnLoadCurrent').on('click', function () {
+//       setOptionsFromStorage();
+//       saveToStorage(setOptions(defaultOptions));
+//     });
+
+//     // storageの設定を読み込んで反映
+//     (async () => {
+//       await loadOptions(options);
+//       console.log('loadOptions: ', options);
+//       applyOptionsToPages(options);
+//     })();
+//   });
+// }
 
 async function loadOptions(options) {
   // storageから現在の設定を取得
 
+  const loadedOptions = await promiseWrapper.local.get('options');
+  options.backgroundColor = loadedOptions.backgroundColor;
+  options.hideNavOnVideo = loadedOptions.hideNavOnVideo;
+
   try {
-    options.backgroundColor = await getStorage('backgroundColor');
-    options.hideNavOnVideo = await getStorage('hideNavOnVideo');
+    // options.backgroundColor = await promiseWrapper.local.get('backgroundColor');
+    // options.hideNavOnVideo = await getStorage('hideNavOnVideo');
   } catch (e) {
     console.log(e);
   }
 }
 
-function applyOptions(options) {
+function applyOptionsToPages(options) {
   // ページに設定を反映
-
   $('#backgroundColor').val(options.backgroundColor);
   $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
 }
@@ -85,13 +117,8 @@ function applyOptions(options) {
 function saveOptions(options) {
   // storageにデータを保存
   console.log('save: ', options);
-  chrome.storage.local.set(options); // TODO
+  promiseWrapper.local.set({ options: options });
+  // chrome.storage.local.set({}); // TODO
   // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
   // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
 }
-
-import config from './options.json5';
-export default {
-  config,
-  func: loadOptionFromDefault,
-};
