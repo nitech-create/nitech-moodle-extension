@@ -95,46 +95,52 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   return true;
 });
 
-function loadJson(filePath, callback) {
-  chrome.runtime.getPackageDirectoryEntry(function (root) {
-    // get file
-    root.getFile(filePath, { create: false }, function (sample) {
-      // callback
-      sample.file(function (file) {
-        // read file
-        const reader = new FileReader();
-        reader.readAsText(file);
-        reader.addEventListener('load', function (e) {
-          // parse and return json
-          // const response = {
-          //   url: chrome.extension.getURL('data'),
-          //   settings: JSON.parse(e.target.result),
-          // };
+// function loadJson(filePath, callback) {
+//   // chrome.runtime.getPackageDirectoryEntry(function (root) {
+//   //   // get file
+//   //   root.getFile(filePath, { create: false }, function (sample) {
+//   //     // callback
+//   //     sample.file(function (file) {
+//   //       // read file
+//   //       const reader = new FileReader();
+//   //       reader.readAsText(file);
+//   //       reader.addEventListener('load', function (e) {
+//   //         // parse and return json
+//   //         // const response = {
+//   //         //   url: chrome.extension.getURL('data'),
+//   //         //   settings: JSON.parse(e.target.result),
+//   //         // };
 
-          const json = JSON.parse(e.target.result);
-          callback(json, chrome.extension.getURL('data'));
-        });
-      });
-    });
-  });
-}
+//   //         const json = JSON.parse(e.target.result);
+//   //         callback(json, chrome.extension.getURL('data'));
+//   //       });
+//   //     });
+//   //   });
+//   // });
 
-function loadFile(filePath, callback) {
-  chrome.runtime.getPackageDirectoryEntry(function (root) {
-    // get file
-    root.getFile(filePath, { create: false }, function (sample) {
-      // callback
-      sample.file(function (file) {
-        // read file
-        const reader = new FileReader();
-        reader.readAsText(file);
-        reader.addEventListener('load', function (e) {
-          callback(e.target.result, chrome.extension.getURL('data'));
-        });
-      });
-    });
-  });
-}
+//   // 未検証
+//   loadFile(filePath, (result, url) => {
+//     const json = JSON.parse(result);
+//     callback(json, url);
+//   });
+// }
+
+// function loadFile(filePath, callback) {
+//   chrome.runtime.getPackageDirectoryEntry(function (root) {
+//     // get file
+//     root.getFile(filePath, { create: false }, function (sample) {
+//       // callback
+//       sample.file(function (file) {
+//         // read file
+//         const reader = new FileReader();
+//         reader.readAsText(file);
+//         reader.addEventListener('load', function (e) {
+//           callback(e.target.result, chrome.extension.getURL('data'));
+//         });
+//       });
+//     });
+//   });
+// }
 
 const accessOptions = {
   // eslint-disable-next-line no-unused-vars
