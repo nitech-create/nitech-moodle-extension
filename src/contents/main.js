@@ -1,7 +1,7 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
 import loadFeature from './featureLoader.js';
-import options from 'Options/options.js';
+import optionsUtils from 'Options/optionsUtils.js';
 
 import extensionArea from 'Features/top/extensionArea/extensionArea.js';
 import timeTable from 'Features/top/timeTable/timeTable.js';
@@ -30,11 +30,11 @@ $(async function onLoad() {
   console.log('[moodle assistant for NITech] page: ' + location.href);
 
   // オプションを読み込んで対応する処理を行う
-  const loadedOptions = await options.getOptions();
-  console.log('response options: ', loadedOptions);
+  const options = await optionsUtils.getOptions();
+  console.log('response options: ', options);
 
   // 背景色変更
-  $('body').css('background-color', loadedOptions.backgroundColor);
+  $('body').css('background-color', options.backgroundColor);
 
   const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
   const loginPageUrl = 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php';

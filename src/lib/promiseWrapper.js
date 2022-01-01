@@ -8,7 +8,7 @@ const promiseWrapper = {
        * @return {Promise}
        */
       get: key => {
-        return async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           chrome.storage.local.get(key, data => {
             if (!data.hasOwnProperty(key)) {
               // ストレージにキーが存在しない
@@ -17,7 +17,7 @@ const promiseWrapper = {
               resolve(data);
             }
           });
-        };
+        });
       },
       /**
        * Wrapper of chrome.storage.local.get.

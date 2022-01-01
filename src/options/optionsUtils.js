@@ -1,8 +1,7 @@
 // 'use strict';
+import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
-import promiseWrapper from 'Lib/promiseWrapper';
 
-const optionsUtils = {};
 const defaultOptions = {
   optionsVersion: '0.0.0.1',
   extentionEnable: true,
@@ -20,59 +19,63 @@ const options = {
   hideNavOnVideo: true,
 };
 
-export function onLoad() {
-  Object.assign(options, getOptions());
-  console.log('options: ', options);
+const optionsUtils = {
+  onLoad: () => {
+    Object.assign(options, optionsUtils.getOptions());
+    console.log('options: ', options);
 
-  generatePage(options);
-}
+    optionsUtils.generatePage(options);
+  },
 
-function generatePage(options) {
-  // saveボタン
-  $('#btnSave').on('click', () => {
-    options.backgroundColor = $('#backgroundColor').val();
-    options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
+  generatePage: options => {
+    // saveボタン
+    $('#btnSave').on('click', () => {
+      options.backgroundColor = $('#backgroundColor').val();
+      options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
 
-    saveOptions(options);
-  });
-
-  // loadDefaultボタン
-  $('#btnLoadDefault').on('click', () => {
-    Object.assign(options, defaultOptions);
-    saveOptions(options);
-    applyOptionsToPages(options);
-  });
-
-  // loadCurrentボタン
-  $('#btnLoadCurrent').on('click', () => {
-    // saveToStorage(setOptions(defaultOptions));
-  });
-
-  applyOptionsToPages(options);
-}
-
-async function getOptions() {
-  return await promiseWrapper.local
-    .get('options')
-    .then(data => {
-      return data.options;
-    })
-    .catch(error => {
-      // console.error(error);
-      return defaultOptions;
+      optionsUtils.saveOptions(options);
     });
-}
 
-function applyOptionsToPages(options) {
-  // ページに設定を反映
-  $('#backgroundColor').val(options.backgroundColor);
-  $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
-}
+    // loadDefaultボタン
+    $('#btnLoadDefault').on('click', () => {
+      Object.assign(options, defaultOptions);
+      optionsUtils.saveOptions(options);
+      optionsUtils.applyOptionsToPages(options);
+    });
 
-function saveOptions(options) {
-  // storageにデータを保存
-  console.log('save options: ', options);
-  promiseWrapper.local.set({ options: options });
-}
+    // loadCurrentボタン
+    $('#btnLoadCurrent').on('click', () => {
+      // saveToStorage(setOptions(defaultOptions));
+    });
+
+    optionsUtils.applyOptionsToPages(options);
+  },
+
+  getOptions: async () => {
+    return await promiseWrapper.storage.local
+      .get('options')
+      .then(data => {
+        return data.options;
+      })
+      .catch(error => {
+        console.error(error);
+        return defaultOptions;
+      });
+  },
+
+  applyOptionsToPages: options => {
+    // ページに設定を反映
+    $('#backgroundColor').val(options.backgroundColor);
+    $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
+  },
+
+  saveOptions: options => {
+    // storageにデータを保存
+    console.log('save options: ', options);
+    promiseWrapper.local.set({ options: options });
+  },
+};
+
+optionsUtils.onLoad();
 
 export default optionsUtils;
