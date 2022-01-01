@@ -46,7 +46,7 @@ module.exports = {
     ],
   },
   entry: {
-    background: './src/background/backgroundEvent.js',
+    // background: './src/background/backgroundEvent.js',
     main: './src/contents/main.js',
     optionsUtils: './src/options/optionsUtils.js',
     topPageStyle: './src/contents/styles/top/topPageStyle.scss',
@@ -75,9 +75,9 @@ module.exports = {
     alias: {
       // ライブラリファイルのエイリアス
       Lib: path.join(__dirname, 'src/lib'),
+      Options: path.join(__dirname, 'src/options'),
       Contents: path.join(__dirname, 'src/contents'),
       Features: path.join(__dirname, 'src/contents/features'),
-      Options: path.join(__dirname, 'src/options'),
     },
   },
   stats: {

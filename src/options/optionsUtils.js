@@ -76,6 +76,4 @@ const optionsUtils = {
   },
 };
 
-optionsUtils.onLoad();
-
 export default optionsUtils;
