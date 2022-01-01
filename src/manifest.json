@@ -37,5 +37,5 @@
       "css": ["videoArea.css"]
     }
   ],
-  "permissions": ["https://cms6.ict.nitech.ac.jp/moodle38a/*", "activeTab", "background", "storage"]
+  "permissions": ["https://cms6.ict.nitech.ac.jp/moodle38a/*", "background", "storage"]
 }
