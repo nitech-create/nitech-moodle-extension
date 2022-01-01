@@ -6,24 +6,24 @@ function onLoad() {
   console.log('onLoad');
 
   // load defaultOptions
-  loadJson('./options/defaultOptions.json', loadedDefaultOptions => {
-    defaultOptions = loadedDefaultOptions; // backgroundEvent.jsが値を保持。
+  // loadJson('./options/defaultOptions.json', loadedDefaultOptions => {
+  //   defaultOptions = loadedDefaultOptions; // backgroundEvent.jsが値を保持。
 
-    // storageにoptionsが無い時、defaultを読み込んで保存する
-    const key = 'optionsVersion';
-    chrome.storage.local.get(key, data => {
-      console.log('data: ', data[key]);
+  //   // storageにoptionsが無い時、defaultを読み込んで保存する
+  //   const key = 'optionsVersion';
+  //   chrome.storage.local.get(key, data => {
+  //     console.log('data: ', data[key]);
 
-      if (!data.hasOwnProperty(key) || !(data[key] === defaultOptions.optionsVersion)) {
-        // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
+  //     if (!data.hasOwnProperty(key) || !(data[key] === defaultOptions.optionsVersion)) {
+  //       // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
 
-        console.log('None options. And save options.');
+  //       console.log('None options. And save options.');
 
-        chrome.storage.local.set(defaultOptions);
-        console.log('saved default options.');
-      }
-    });
-  });
+  //       chrome.storage.local.set(defaultOptions);
+  //       console.log('saved default options.');
+  //     }
+  //   });
+  // });
 }
 
 // request Listener処理
@@ -65,15 +65,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log('sender: ', sender);
   const src = request.src;
   switch (request.item) {
-    case 'defaultOptions':
-      sendResponse(defaultOptions);
-      break;
-    case 'loadJson':
-    case 'loadFile':
-      loadFile(src, file => {
-        sendResponse(file);
-      });
-      break;
+    // case 'defaultOptions':
+    //   sendResponse(defaultOptions);
+    //   break;
+    // case 'loadJson':
+    // case 'loadFile':
+    //   loadFile(src, file => {
+    //     sendResponse(file);
+    //   });
+    //   break;
     case 'loadOptions':
       accessOptions.loadOptionsWrapper(loadedOptions => {
         sendResponse(loadedOptions);

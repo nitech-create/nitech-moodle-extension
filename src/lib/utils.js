@@ -32,7 +32,7 @@ export function loadJson(filePath, callback) {
   //   });
   // });
 
-  // 未検証
+  // 上記コードに対して下を実装。未検証
   loadFile(filePath, (result, url) => {
     const json = JSON.parse(result);
     callback(json, url);

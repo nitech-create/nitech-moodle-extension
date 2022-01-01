@@ -1,6 +1,7 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
 import loadFeature from './featureLoader.js';
+import options from 'Options/options.js';
 
 import extensionArea from 'Features/top/extensionArea/extensionArea.js';
 import timeTable from 'Features/top/timeTable/timeTable.js';
@@ -10,7 +11,6 @@ import deadlineUpdate from 'Features/top/deadlineUpdate/deadlineUpdate';
 import calendar from 'Features/calendar/calendar.js';
 import topMain from 'Features/top/top/top.js';
 import videoArea from 'Features/general/videoArea/videoArea.js';
-import options from 'Options/options.js';
 
 const features = [
   topMain,
@@ -21,7 +21,6 @@ const features = [
   deadlineUpdate,
   calendar,
   videoArea,
-  options,
 ];
 
 $(async function onLoad() {
@@ -31,13 +30,11 @@ $(async function onLoad() {
   console.log('[moodle assistant for NITech] page: ' + location.href);
 
   // オプションを読み込んで対応する処理を行う
-  const options = await promiseWrapper.runtime.sendMessage({
-    item: 'loadOptions',
-  });
-  console.log('response options: ', options);
+  const loadedOptions = await options.getOptions();
+  console.log('response options: ', loadedOptions);
 
   // 背景色変更
-  $('body').css('background-color', options.backgroundColor);
+  $('body').css('background-color', loadedOptions.backgroundColor);
 
   const topPageUrl = /^https:\/\/cms6.ict.nitech.ac.jp\/moodle38a\/my\/(#|(index.php))?/;
   const loginPageUrl = 'https://cms6.ict.nitech.ac.jp/moodle38a/login/index.php';
