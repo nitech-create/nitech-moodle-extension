@@ -31,6 +31,7 @@ top.onTopPage = url => {
     console.log('value: ', courseValue.length, courseValue);
   });
 };
+
 async function reformTopPage(courseSize) {
   // 読み込み終わったらの処理
 
@@ -50,10 +51,10 @@ async function reformTopPage(courseSize) {
   );
 
   const nowDate = new Date();
-  // 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
+  // デフォルト日付設定, 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
   const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
   const nowTerm = getTermLetter(nowDate);
-  const shortYear = String(nowDate.getFullYear()).substring(2);
+  const shortYear = String(getFiscalYear(nowDate)).substring(2);
 
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
@@ -89,6 +90,14 @@ async function reformTopPage(courseSize) {
       .then(value => (oldmin = value))
       .catch(reason => console.error(reason));
   }, 1000);
+}
+
+function getFiscalYear(nowDate) {
+  // 年度で指定できるようにするところ。
+  if (1 <= nowDate.getMonth() + 1 <= 3) {
+    return Number(nowDate.getFullYear()) - 1;
+  }
+  return Number(nowDate.getFullYear());
 }
 
 function convertToEvents(calendarUpcomingEventBlock) {
