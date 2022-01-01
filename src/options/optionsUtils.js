@@ -2,7 +2,7 @@
 import $ from 'jQuery';
 import promiseWrapper from 'Lib/promiseWrapper';
 
-const options = {};
+const optionsUtils = {};
 const defaultOptions = {
   optionsVersion: '0.0.0.1',
   extentionEnable: true,
@@ -75,4 +75,4 @@ function saveOptions(options) {
   promiseWrapper.local.set({ options: options });
 }
 
-export default options;
+export default optionsUtils;
