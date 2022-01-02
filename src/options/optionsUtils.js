@@ -1,6 +1,6 @@
 // 'use strict';
 import promiseWrapper from 'Lib/promiseWrapper.js';
-import $ from 'jQuery';
+// import $ from 'jQuery';
 
 const defaultOptions = {
   optionsVersion: '0.0.0.1',
@@ -27,30 +27,6 @@ const optionsUtils = {
     optionsUtils.generatePage(options);
   },
 
-  generatePage: options => {
-    // saveボタン
-    $('#btnSave').on('click', () => {
-      options.backgroundColor = $('#backgroundColor').val();
-      options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
-
-      optionsUtils.saveOptions(options);
-    });
-
-    // loadDefaultボタン
-    $('#btnLoadDefault').on('click', () => {
-      Object.assign(options, defaultOptions);
-      optionsUtils.saveOptions(options);
-      optionsUtils.applyOptionsToPages(options);
-    });
-
-    // loadCurrentボタン
-    $('#btnLoadCurrent').on('click', () => {
-      // saveToStorage(setOptions(defaultOptions));
-    });
-
-    optionsUtils.applyOptionsToPages(options);
-  },
-
   getOptions: async () => {
     return await promiseWrapper.storage.local
       .get('options')
@@ -63,16 +39,16 @@ const optionsUtils = {
       });
   },
 
-  applyOptionsToPages: options => {
-    // ページに設定を反映
-    $('#backgroundColor').val(options.backgroundColor);
-    $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
+  getDefaultOptions: () => {
+    const copiedDefaultOptions = {};
+    Object.assign(defaultOptions, copiedDefaultOptions);
+    return copiedDefaultOptions; // TODO: defaultOptionsの中身が操作される…？
   },
 
   saveOptions: options => {
     // storageにデータを保存
     console.log('save options: ', options);
-    promiseWrapper.local.set({ options: options });
+    promiseWrapper.storage.local.set({ options: options });
   },
 };
 

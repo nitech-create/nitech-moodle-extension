@@ -16,6 +16,10 @@
     "default_title": "",
     "default_popup": "./popup/popup.html"
   },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "content_scripts": [
     {
       "matches": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"],

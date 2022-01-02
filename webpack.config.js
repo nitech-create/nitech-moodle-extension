@@ -46,9 +46,9 @@ module.exports = {
     ],
   },
   entry: {
-    // background: './src/background/backgroundEvent.js',
+    background: './src/background/backgroundEvent.js',
     main: './src/contents/main.js',
-    optionsUtils: './src/options/optionsUtils.js',
+    options: './src/options/optionsUtils.js',
     topPageStyle: './src/contents/styles/top/topPageStyle.scss',
   },
   output: {
@@ -61,7 +61,7 @@ module.exports = {
         { from: './src/manifest.json' },
         { from: './src/icons', to: 'icons' },
         { from: './src/popup', to: 'popup' },
-        { from: './src/options', to: 'options' },
+        // { from: './src/options', to: 'options' },
         { from: './src/contents/**/*.{html,css,svg}', to: '[name].[ext]' },
       ],
     }),
