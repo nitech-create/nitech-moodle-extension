@@ -1,29 +1,19 @@
+// import promiseWrapper from 'Lib/promiseWrapper.js';
+// import $ from 'jQuery';
+import optionsUtils from 'Options/optionsUtils.js';
+
+/**
+ * インストール時の動作と、runtime messageの送受信を行うjsファイル
+ */
+
 // onInstalled: 拡張機能がインストールされたときの処理
-chrome.runtime.onInstalled.addListener(onLoad);
+chrome.runtime.onInstalled.addListener(onInstalled);
 
-let defaultOptions;
-function onLoad() {
-  console.log('onLoad');
-
-  // load defaultOptions
-  // loadJson('./options/defaultOptions.json', loadedDefaultOptions => {
-  //   defaultOptions = loadedDefaultOptions; // backgroundEvent.jsが値を保持。
-
-  //   // storageにoptionsが無い時、defaultを読み込んで保存する
-  //   const key = 'optionsVersion';
-  //   chrome.storage.local.get(key, data => {
-  //     console.log('data: ', data[key]);
-
-  //     if (!data.hasOwnProperty(key) || !(data[key] === defaultOptions.optionsVersion)) {
-  //       // TODO: versionが違うとdefaultに戻っちゃう！？→上書きしない設定にするべき
-
-  //       console.log('None options. And save options.');
-
-  //       chrome.storage.local.set(defaultOptions);
-  //       console.log('saved default options.');
-  //     }
-  //   });
-  // });
+async function onInstalled() {
+  console.log('[BackgroundE] onInstalled');
+  await optionsUtils.saveOptions(optionsUtils.getDefaultOptions());
+  // TODO:
+  console.log('[BackgroundE] set default options: ', optionsUtils.getOptions());
 }
 
 // request Listener処理
@@ -62,35 +52,45 @@ chrome.runtime.onConnect.addListener(function (port) {
 });*/
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('sender: ', sender);
-  const src = request.src;
+  console.log('[BackgroundE] sender: ', sender);
+  const src = request.src; // copyとかのsrcのイメージ
   switch (request.item) {
-    // case 'defaultOptions':
-    //   sendResponse(defaultOptions);
-    //   break;
     // case 'loadJson':
     // case 'loadFile':
     //   loadFile(src, file => {
     //     sendResponse(file);
     //   });
     //   break;
+
+    case 'defaultOptions':
+      optionsUtils
+        .getDefaultOptions()
+        .then(defaultOptions => sendResponse(sendResponse(defaultOptions)));
+      break;
+
     case 'loadOptions':
-      accessOptions.loadOptionsWrapper(loadedOptions => {
-        sendResponse(loadedOptions);
-      });
+      // accessOptions.loadOptionsWrapper(loadedOptions => {
+      //   sendResponse(loadedOptions);
+      // });
+      // promiseWrapper.storage.local.get('options').then(options => sendResponse(options));
+      optionsUtils.getOptions().then(options => sendResponse(options));
       break;
+
     case 'saveOptions':
-      sendResponse(accessOptions.saveOptions(src));
+      // sendResponse(accessOptions.saveOptions(src));
+      // promiseWrapper.storage.local.set({ options: src });
+      optionsUtils.saveOptions(src);
       break;
-    case 'clearStorage':
-      sendResponse(accessStorage.clearStorage());
-      break;
-    case 'getStorage':
-      accessStorage.getStorageWrapper(src, item => {
-        // console.log('getStorage item: ', item);
-        sendResponse(item);
-      });
-      break;
+
+    // case 'clearStorage':
+    // sendResponse(accessStorage.clearStorage());
+    // break;
+    // case 'getStorage':
+    // accessStorage.getStorageWrapper(src, item => {
+    //   // console.log('getStorage item: ', item);
+    //   sendResponse(item);
+    // });
+    // break;
   }
   return true;
 });
@@ -142,71 +142,71 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 //   });
 // }
 
-const accessOptions = {
-  // eslint-disable-next-line no-unused-vars
-  loadOptionsWrapper: async callback => {
-    const options = {};
-    Object.assign(options, defaultOptions);
-    accessOptions.loadOptions(options, callback);
-  },
+// const accessOptions = {
+//   // eslint-disable-next-line no-unused-vars
+//   loadOptionsWrapper: async callback => {
+//     const options = {};
+//     Object.assign(options, defaultOptions);
+//     accessOptions.loadOptions(options, callback);
+//   },
 
-  loadOptions: async (options, callback) => {
-    // storageから現在の設定を取得
-    try {
-      options.backgroundColor = await accessStorage.getStorage('backgroundColor');
-      options.hideNavOnVideo = await accessStorage.getStorage('hideNavOnVideo');
-    } catch (e) {
-      console.log(e);
-    }
-    callback(options);
-  },
+//   loadOptions: async (options, callback) => {
+//     // storageから現在の設定を取得
+//     try {
+//       options.backgroundColor = await accessStorage.getStorage('backgroundColor');
+//       options.hideNavOnVideo = await accessStorage.getStorage('hideNavOnVideo');
+//     } catch (e) {
+//       console.log(e);
+//     }
+//     callback(options);
+//   },
 
-  saveOptions: options => {
-    // storageにデータを保存
-    chrome.storage.local.set(options);
-    console.log('saved: ', options);
-    // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
-    // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
-  },
-};
+//   saveOptions: options => {
+//     // storageにデータを保存
+//     chrome.storage.local.set(options);
+//     console.log('saved: ', options);
+//     // chrome.storage.local.set({"backgroundColor": options.backgroundColor});
+//     // chrome.storage.local.set({"backgroundColor": backgroundColor.value});
+//   },
+// };
 
 // eslint-disable-next-line no-unused-vars
-const accessStorage = {
-  getStorageWrapper: async (key, callback) => {
-    const item = await accessStorage.getStorage(key);
-    callback(item);
-    return item;
-  },
+// const accessStorage = {
+//   getStorageWrapper: async (key, callback) => {
+//     const item = await accessStorage.getStorage(key);
+//     callback(item);
+//     return item;
+//   },
 
-  // eslint-disable-next-line no-unused-vars
-  getStorage: key => {
-    // chrome.storage.local.getのPromiseラッパー
+//   // eslint-disable-next-line no-unused-vars
+//   getStorage: key => {
+//     // chrome.storage.local.getのPromiseラッパー
 
-    return new Promise((resolve, reject) => {
-      chrome.storage.local.get(key, function (data) {
-        if (!data.hasOwnProperty(key)) {
-          // ストレージにキーが存在しない
-          if (defaultOptions.hasOwnProperty(key)) {
-            console.log('loading default option of ' + key);
-            resolve(defaultOptions[key]);
-          } else {
-            reject(new Error('undefined key: ' + key));
-          }
-        } else {
-          resolve(data[key]);
-        }
-      });
-    });
-  },
+//     return new Promise((resolve, reject) => {
+//       chrome.storage.local.get(key, function (data) {
+//         if (!data.hasOwnProperty(key)) {
+//           // ストレージにキーが存在しない
+//           if (defaultOptions.hasOwnProperty(key)) {
+//             console.log('loading default option of ' + key);
+//             resolve(defaultOptions[key]);
+//           } else {
+//             reject(new Error('undefined key: ' + key));
+//           }
+//         } else {
+//           resolve(data[key]);
+//         }
+//       });
+//     });
+//   },
 
-  // eslint-disable-next-line no-unused-vars
-  clearStorage: () => {
-    chrome.storage.local.clear(function () {
-      const error = chrome.runtime.lastError;
-      if (error) {
-        console.error(error);
-      }
-    });
-    onLoad();
-  },
-};
+//   // eslint-disable-next-line no-unused-vars
+//   clearStorage: () => {
+//     chrome.storage.local.clear(function () {
+//       const error = chrome.runtime.lastError;
+//       if (error) {
+//         console.error(error);
+//       }
+//     });
+//     onLoad();
+//   },
+// };
