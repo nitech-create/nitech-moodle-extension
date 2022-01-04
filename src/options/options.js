@@ -4,15 +4,9 @@ import $ from 'jQuery';
 (async function onPageLoad() {
   console.log('onPageLoad');
 
-  chrome.runtime.sendMessage({ item: 'getOptions' }, options => {
-    console.log('response: ', options);
-    generatePage(options);
-    console.log('generated');
-  });
-
-  // const options = await optionsUtils.getOptions();
-  // console.log(options);
-  // generatePage(options);
+  const options = await optionsUtils.getOptions();
+  console.log(options);
+  generatePage(options);
 })(); // PageLoad時に実行する。
 
 function generatePage(options) {

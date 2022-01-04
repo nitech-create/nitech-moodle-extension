@@ -56,64 +56,64 @@ chrome.runtime.onConnect.addListener(function (port) {
   });
 });*/
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('[BackgroundE] request: ', request);
-  console.log('[BackgroundE] sender: ', sender);
-  const src = request.src; // copyとかのsrcのイメージ
-  switch (request.item) {
-    // case 'loadJson':
-    // case 'loadFile':
-    //   loadFile(src, file => {
-    //     sendResponse(file);
-    //   });
-    //   break;
+// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+//   console.log('[BackgroundE] request: ', request);
+//   console.log('[BackgroundE] sender: ', sender);
+//   const src = request.src; // copyとかのsrcのイメージ
+//   switch (request.item) {
+//     // case 'loadJson':
+//     // case 'loadFile':
+//     //   loadFile(src, file => {
+//     //     sendResponse(file);
+//     //   });
+//     //   break;
 
-    case 'getDefaultOptions':
-      optionsUtils.getDefaultOptions().then(defaultOptions => {
-        sendResponse(defaultOptions);
-      });
-      break;
+//     case 'getDefaultOptions':
+//       optionsUtils.getDefaultOptions().then(defaultOptions => {
+//         sendResponse(defaultOptions);
+//       });
+//       break;
 
-    case 'getOptions':
-      // case 'loadOptions':
-      getOptions(sendResponse);
-      break;
+//     case 'getOptions':
+//       // case 'loadOptions':
+//       getOptions(sendResponse);
+//       break;
 
-    case 'saveOptions':
-      // sendResponse(accessOptions.saveOptions(src));
-      // promiseWrapper.storage.local.set({ options: src });
-      optionsUtils.saveOptions(src);
-      break;
+//     case 'saveOptions':
+//       // sendResponse(accessOptions.saveOptions(src));
+//       // promiseWrapper.storage.local.set({ options: src });
+//       optionsUtils.saveOptions(src);
+//       break;
 
-    // case 'clearStorage':
-    // sendResponse(accessStorage.clearStorage());
-    // break;
-    // case 'getStorage':
-    // accessStorage.getStorageWrapper(src, item => {
-    //   // console.log('getStorage item: ', item);
-    //   sendResponse(item);
-    // });
-    // break;
-  }
-  return true;
-});
+//     // case 'clearStorage':
+//     // sendResponse(accessStorage.clearStorage());
+//     // break;
+//     // case 'getStorage':
+//     // accessStorage.getStorageWrapper(src, item => {
+//     //   // console.log('getStorage item: ', item);
+//     //   sendResponse(item);
+//     // });
+//     // break;
+//   }
+//   return true;
+// });
 
 /**
  * how to use:
  *   chrome.runtime.sendMessage({ item: 'getOptions' }, options => { write your process });
  * @param {function} sendResponse responseを送信するための関数
  */
-function getOptions(sendResponse) {
-  // accessOptions.loadOptionsWrapper(loadedOptions => {
-  //   sendResponse(loadedOptions);
-  // });
-  // promiseWrapper.storage.local.get('options').then(options => sendResponse(options));
+// function getOptions(sendResponse) {
+//   // accessOptions.loadOptionsWrapper(loadedOptions => {
+//   //   sendResponse(loadedOptions);
+//   // });
+//   // promiseWrapper.storage.local.get('options').then(options => sendResponse(options));
 
-  optionsUtils.getOptions().then(options => {
-    // console.log('send get/loadOptions: ', options);
-    sendResponse(options);
-  });
-}
+//   optionsUtils.getOptions().then(options => {
+//     // console.log('send get/loadOptions: ', options);
+//     sendResponse(options);
+//   });
+// }
 
 // function loadJson(filePath, callback) {
 //   // chrome.runtime.getPackageDirectoryEntry(function (root) {
