@@ -1,9 +1,8 @@
 import optionsUtils from 'Options/optionsUtils.js';
 import $ from 'jQuery';
 
-async function onPageLoad() {
+(async function onPageLoad() {
   console.log('onPageLoad');
-  $('#test').val('TEST');
 
   chrome.runtime.sendMessage({ item: 'getOptions' }, options => {
     console.log('response: ', options);
@@ -14,7 +13,7 @@ async function onPageLoad() {
   // const options = await optionsUtils.getOptions();
   // console.log(options);
   // generatePage(options);
-}
+})(); // PageLoad時に実行する。
 
 function generatePage(options) {
   applyOptionsToPages(options);
@@ -51,5 +50,3 @@ function applyOptionsToPages(options) {
   $('#backgroundColor').val(options.backgroundColor);
   $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
 }
-
-onPageLoad(); // PageLoad時に実行する。
