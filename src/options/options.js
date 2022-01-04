@@ -17,25 +17,18 @@ function generatePage(options) {
   $('#btnSave').on('click', () => {
     applyOptionsFromPage(options);
     optionsUtils.saveOptions(options);
-    // chrome.runtime.sendMessage({ item: 'saveOptions', src: options_ });
   });
 
   // loadDefaultボタン
   $('#btnLoadDefault').on('click', async () => {
     const defaultOptions = await optionsUtils.getDefaultOptions();
     applyPageFromOptions(defaultOptions);
-    // chrome.runtime.sendMessage({ item: 'getDefaultOptions' }, options => {
-    //   applyOptionsToPages(options); // response == options?
-    // });
   });
 
   // loadCurrentボタン
   $('#btnLoadCurrent').on('click', async () => {
     const options = await optionsUtils.getOptions();
     applyPageFromOptions(options);
-    // chrome.runtime.sendMessage({ item: 'getOptions' }, options => {
-    //   applyOptionsToPages(options);
-    // });
   });
 }
 
