@@ -68,21 +68,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     //   });
     //   break;
 
-    case 'defaultOptions':
+    case 'getDefaultOptions':
       optionsUtils.getDefaultOptions().then(defaultOptions => {
         sendResponse(defaultOptions);
       });
       break;
 
     case 'getOptions':
-    case 'loadOptions':
-      // accessOptions.loadOptionsWrapper(loadedOptions => {
-      //   sendResponse(loadedOptions);
-      // });
-      // promiseWrapper.storage.local.get('options').then(options => sendResponse(options));
-      optionsUtils.getOptions().then(options => {
-        sendResponse(options);
-      });
+      // case 'loadOptions':
+      getOptions(sendResponse);
       break;
 
     case 'saveOptions':
@@ -103,6 +97,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
   return true;
 });
+
+/**
+ * how to use:
+ *   chrome.runtime.sendMessage({ item: 'getOptions' }, options => { write your process });
+ * @param {function} sendResponse responseを送信するための関数
+ */
+function getOptions(sendResponse) {
+  // accessOptions.loadOptionsWrapper(loadedOptions => {
+  //   sendResponse(loadedOptions);
+  // });
+  // promiseWrapper.storage.local.get('options').then(options => sendResponse(options));
+
+  optionsUtils.getOptions().then(options => {
+    // console.log('send get/loadOptions: ', options);
+    sendResponse(options);
+  });
+}
 
 // function loadJson(filePath, callback) {
 //   // chrome.runtime.getPackageDirectoryEntry(function (root) {

@@ -3,8 +3,11 @@ import $ from 'jQuery';
 
 async function onPageLoad() {
   console.log('onPageLoad');
-  chrome.runtime.sendMessage({ item: 'getOptions' }, response => {
-    generatePage(response.options);
+  $('#test').val('TEST');
+
+  chrome.runtime.sendMessage({ item: 'getOptions' }, options => {
+    console.log('response: ', options);
+    generatePage(options);
     console.log('generated');
   });
 
@@ -43,6 +46,7 @@ function generatePage(options) {
 }
 
 function applyOptionsToPages(options) {
+  console.log('applyOptionsToPages: ', options);
   // ページに設定を反映
   $('#backgroundColor').val(options.backgroundColor);
   $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);

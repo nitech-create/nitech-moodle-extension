@@ -27,7 +27,7 @@ const optionsUtils = {
   },
 
   getOptions: async () => {
-    return await promiseWrapper.storage.local
+    return promiseWrapper.storage.local
       .get('options')
       .then(data => {
         console.log('[options/getOptions] options?:', data.options);
@@ -41,7 +41,7 @@ const optionsUtils = {
 
   getDefaultOptions: () => {
     const copiedDefaultOptions = {};
-    Object.assign(defaultOptions, copiedDefaultOptions);
+    Object.assign(copiedDefaultOptions, defaultOptions);
     return copiedDefaultOptions; // TODO: defaultOptionsの中身が操作される…？
   },
 
