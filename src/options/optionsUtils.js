@@ -21,16 +21,16 @@ const options = {
 
 const optionsUtils = {
   onLoad: () => {
-    Object.assign(options, optionsUtils.getOptions());
-    console.log('options: ', options);
-
-    optionsUtils.generatePage(options);
+    // Object.assign(options, optionsUtils.getOptions()); // TODO: おかしい
+    // console.log('options: ', options);
+    // optionsUtils.generatePage(options);
   },
 
   getOptions: async () => {
     return await promiseWrapper.storage.local
       .get('options')
       .then(data => {
+        console.log('[options/getOptions] options?:', data.options);
         return data.options;
       })
       .catch(error => {

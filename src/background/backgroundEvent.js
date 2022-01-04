@@ -11,9 +11,14 @@ chrome.runtime.onInstalled.addListener(onInstalled);
 
 async function onInstalled() {
   console.log('[BackgroundE] onInstalled');
-  await optionsUtils.saveOptions(optionsUtils.getDefaultOptions());
+
+  // optionsにdefaultOptionsを適用する
+  const defaultOptions = await optionsUtils.getDefaultOptions();
+  console.log('[BackgroundE] set default options: ', defaultOptions);
+  await optionsUtils.saveOptions(defaultOptions);
   // TODO:
-  console.log('[BackgroundE] set default options: ', optionsUtils.getOptions());
+  const options = await optionsUtils.getOptions();
+  console.log('[BackgroundE] get current options: ', options);
 }
 
 // request Listener処理
@@ -52,6 +57,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 });*/
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  console.log('[BackgroundE] request: ', request);
   console.log('[BackgroundE] sender: ', sender);
   const src = request.src; // copyとかのsrcのイメージ
   switch (request.item) {
@@ -63,17 +69,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     //   break;
 
     case 'defaultOptions':
-      optionsUtils
-        .getDefaultOptions()
-        .then(defaultOptions => sendResponse(sendResponse(defaultOptions)));
+      optionsUtils.getDefaultOptions().then(defaultOptions => {
+        sendResponse(defaultOptions);
+      });
       break;
 
+    case 'getOptions':
     case 'loadOptions':
       // accessOptions.loadOptionsWrapper(loadedOptions => {
       //   sendResponse(loadedOptions);
       // });
       // promiseWrapper.storage.local.get('options').then(options => sendResponse(options));
-      optionsUtils.getOptions().then(options => sendResponse(options));
+      optionsUtils.getOptions().then(options => {
+        sendResponse(options);
+      });
       break;
 
     case 'saveOptions':

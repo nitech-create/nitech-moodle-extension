@@ -10,7 +10,7 @@
     "48": "icons/icon.png",
     "128": "icons/icon.png"
   },
-  "options_page": "./options/options.html",
+  "options_page": "./options.html",
   "browser_action": {
     "default_icon": "icons/icon.png",
     "default_title": "",
