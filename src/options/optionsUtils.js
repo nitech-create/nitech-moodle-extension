@@ -30,7 +30,7 @@ const optionsUtils = {
     return promiseWrapper.storage.local
       .get('options')
       .then(data => {
-        console.log('[options/getOptions] options?:', data.options);
+        console.log('[options/getOptions] options:', data.options);
         return data.options;
       })
       .catch(error => {
