@@ -28,7 +28,7 @@ restoreNavigation.js/reformNavi
 
 実際に受けて動作を行うのは、`src/background/backgroundEvent.js`
 
-### 例: optionsを読み込むとき
+### 例: optionsを読み込むとき(旧のやり方)
 
 設定ファイル(options)を読み込むとき？
 

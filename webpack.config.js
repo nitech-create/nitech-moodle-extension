@@ -49,6 +49,9 @@ module.exports = {
     background: './src/background/backgroundEvent.js',
     main: './src/contents/main.js',
     topPageStyle: './src/contents/styles/top/topPageStyle.scss',
+    'popup/popup': './src/popup/popup.js',
+    'options/options': './src/options/options.js',
+    'options/optionsUtils': './src/options/optionsUtils.js',
   },
   output: {
     filename: '[name].js',
@@ -59,8 +62,8 @@ module.exports = {
       patterns: [
         { from: './src/manifest.json' },
         { from: './src/icons', to: 'icons' },
-        { from: './src/popup', to: 'popup' },
-        { from: './src/options', to: 'options' },
+        { from: './src/popup/*.{html,css,svg}', to: './popup/[name].[ext]' },
+        { from: './src/options/*.{html,css,svg}', to: './options/[name].[ext]' },
         { from: './src/contents/**/*.{html,css,svg}', to: '[name].[ext]' },
       ],
     }),
@@ -74,9 +77,9 @@ module.exports = {
     alias: {
       // ライブラリファイルのエイリアス
       Lib: path.join(__dirname, 'src/lib'),
+      Options: path.join(__dirname, 'src/options'),
       Contents: path.join(__dirname, 'src/contents'),
       Features: path.join(__dirname, 'src/contents/features'),
-      Options: path.join(__dirname, 'src/options'),
     },
   },
   stats: {
