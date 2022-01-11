@@ -1,13 +1,42 @@
-import promiseWrapper from 'Lib/promiseWrapper.js';
-import utils from 'Lib/utils.js';
 import $ from 'jQuery';
+import promiseWrapper from 'Lib/promiseWrapper.js';
+import { isUndefined } from 'Lib/utils.js';
+import { getCourses } from './courses.js';
 
-async function drawTimeTable() {
+export async function drawTimeTableGraphical() {
+  console.log('graphical drawTimeTableGraphical');
+
+  const nowDate = new Date();
+  // デフォルト日付設定, 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
+  const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
+  const nowTerm = getTermLetter(nowDate);
+  const shortYear = String(getFiscalYear(nowDate)).substring(2);
+
+  const courses = getCourses();
+
   // 時間割内の授業を描画
   // TODO: 本当にawaitの必要があるか？
   renderTimeTable(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt, shortYear);
 
-  renderSpecialCourses(cou);
+  renderSpecialCourses(courses);
+}
+
+/**
+ * 与えられた日付が前期か後期か判定したものを返します。
+ * @param {Date} day 日付
+ * @return {String} 前期なら前, 後期なら後を返す
+ */
+function getTermLetter(day) {
+  const month = day.getMonth() + 1; // Monthは0-index
+  return 4 <= month && month <= 9 ? '前' : '後';
+}
+
+function getFiscalYear(nowDate) {
+  // 年度で指定できるようにするところ。
+  if (1 <= nowDate.getMonth() + 1 <= 3) {
+    return Number(nowDate.getFullYear()) - 1;
+  }
+  return Number(nowDate.getFullYear());
 }
 
 function changeTermOption(nowTerm) {
@@ -20,7 +49,7 @@ function changeTermOption(nowTerm) {
 
 function renderSpecialCourses(courses) {
   $('#special_class_extension').empty();
-  const specialCourses = courses.filter(course => utils.isUndefined(course.times));
+  const specialCourses = courses.filter(course => isUndefined(course.times));
   if (specialCourses <= 0) {
     $('#special_class_extension').append('<tr><td>登録されていないようです。</td></tr>');
     return;
@@ -85,8 +114,8 @@ async function renderTimeTable(
   const classTableSet = [false, false, false, false, false];
   for (const course of courses) {
     if (
-      !utils.isUndefined(course.term) &&
-      !utils.isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
+      !isUndefined(course.term) &&
+      !isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */ &&
       course.term == selectedTerm &&
       course.dayOfWeeks.includes(selectedDayOfWeekTxt) &&
       course.shortYear == shortYear
@@ -301,7 +330,7 @@ async function renderWeekClassTable(courses) {
   const weekClassTableCssPath = 'weekClassTable.css';
 
   console.log('週間表示');
-  if (utils.isUndefined($('#overlay_extension').val())) {
+  if (isUndefined($('#overlay_extension').val())) {
     $('#page').append();
     $('body').append('<div id="overlay_extension"></div>');
     $('head').append(
@@ -317,6 +346,39 @@ async function renderWeekClassTable(courses) {
   } else {
     $('#overlay_extension').removeClass('hide');
   }
+}
+
+// 時間割(n-n')から時間(hh:mm～hh:mm)にするやつ
+function timeToTimeTxt(time) {
+  const timetableSplited = time.split(/-/);
+  const timetableStart = timetableSplited[0];
+  const timetableEnd = timetableSplited[1];
+  const timearrayStart = [
+    '8：50',
+    '9：35',
+    '10：30',
+    '11：15',
+    '13：00',
+    '13：45',
+    '14：40',
+    '15：25',
+    '16：20',
+    '17：05',
+  ];
+  const timearrayEnd = [
+    '9：35',
+    '10：20',
+    '11：15',
+    '12：00',
+    '13：45',
+    '14：30',
+    '15：25',
+    '16：10',
+    '17：05',
+    '17：50',
+  ];
+  const timeTxt = timearrayStart[timetableStart - 1] + '～' + timearrayEnd[timetableEnd - 1];
+  return timeTxt;
 }
 
 function convertToDayOfWeekTxt(dayOfWeekNum) {

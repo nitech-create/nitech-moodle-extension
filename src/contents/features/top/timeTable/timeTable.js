@@ -1,12 +1,18 @@
 import { drawTimeTableList } from './timeTableList/timeTable.js';
+import { drawTimeTableGraphical } from './timeTableGraphical/timeTable.js';
 import optionsUtils from 'Options/optionsUtils.js';
 
-function drawTimeTable() {
-  switch (optionsUtils.getOptions().timeTableMode) {
+async function drawTimeTable() {
+  const options = await optionsUtils.getOptions();
+  console.log('timeTableMode: ' + options.timeTableMode);
+
+  switch (options.timeTableMode) {
     case 'list':
       drawTimeTableList();
       break;
     case 'graphical':
+      drawTimeTableGraphical();
+      break;
   }
 }
 
