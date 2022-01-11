@@ -1,8 +1,5 @@
 {
   name: 'time-table',
   target: 'top',
-  preload: [
-    'top-main',
-    'extension-area',
-  ]
+  preload: ['top-main', 'extension-area'],
 }
