@@ -1,10 +1,24 @@
 import $ from 'jQuery';
+import { isUndefined } from 'Lib/utils.js';
 
 export function getCourses() {
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
+  if (isUndefined(courseNumberTxtList)) {
+    console.error('[courses/getCourses] cannot load courseNumberTxtList');
+    return undefined;
+  }
+  console.log('courseNumberTxtList: ', courseNumberTxtList);
+
   const courseSize = $('.coursename').length;
-  return convertToCourses(loadCourseList(), courseNumberTxtList, courseSize);
+  const courseList = loadCourseList();
+  if (isUndefined(courseList)) {
+    console.error('[courses/getCourses] cannot load courseList');
+    return undefined;
+  }
+  console.log('courseList: ', courseList);
+
+  return convertToCourses(courseList, courseNumberTxtList, courseSize);
 }
 
 /**
@@ -42,6 +56,15 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
   const timesArray = new Array(courseSize);
   const urlArray = new Array(courseSize);
   for (let i = 0; i < courseSize; i++) {
+    if (isUndefined(courseNumberTxtList[i])) {
+      console.log('[courses/convertToCourses] courseNumberTxtList[i] is undefined.');
+      continue;
+    }
+    if (isUndefined(courseList[i])) {
+      console.log('[courses/convertToCourses] courseList[i] is undefined.');
+      continue;
+    }
+
     const shortCourseNumber = String(20) + courseNumberTxtList[i].replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
     const shortYear = courseNumberTxtList[i].split(new RegExp('-'))[0];
     const courseContainerArray = courseList[i]

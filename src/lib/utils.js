@@ -40,16 +40,18 @@ export function loadJson(filePath, callback) {
 }
 
 export function loadFile(filePath, callback) {
-  chrome.runtime.getPackageDirectoryEntry(function (root) {
+  // 動かない？
+
+  chrome.runtime.getPackageDirectoryEntry(root => {
     // get file
-    root.getFile(filePath, { create: false }, function (sample) {
+    root.getFile(filePath, { create: false }, fileEntry => {
       // callback
-      sample.file(function (file) {
+      fileEntry.file(file => {
         // read file
         const reader = new FileReader();
         reader.readAsText(file);
-        reader.addEventListener('load', function (e) {
-          callback(e.target.result, chrome.extension.getURL('data'));
+        reader.addEventListener('load', e => {
+          callback(e.target.result);
         });
       });
     });

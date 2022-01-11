@@ -1,6 +1,6 @@
 import $ from 'jQuery';
 import promiseWrapper from 'Lib/promiseWrapper.js';
-import { isUndefined } from 'Lib/utils.js';
+import { isUndefined, loadFile } from 'Lib/utils.js';
 import { getCourses } from './courses.js';
 
 export async function drawTimeTableGraphical() {
@@ -13,6 +13,18 @@ export async function drawTimeTableGraphical() {
   const shortYear = String(getFiscalYear(nowDate)).substring(2);
 
   const courses = getCourses();
+  console.log('courses: ', courses);
+
+  // tables.html(時間割, Todoなど)をロードして枠を描画
+  const tablesFilePath = 'tables.html';
+  // const tablesFile = loadFile(tablesFilePath);
+  // console.log('tablesFile: ', tablesFile);
+  // $('#page').append(tablesFile);
+
+  loadFile(tablesFilePath, (tablesFile, url) => {
+    $('#page').append(tablesFile);
+    console.log('tablesFile: ', tablesFile);
+  });
 
   // 時間割内の授業を描画
   // TODO: 本当にawaitの必要があるか？
