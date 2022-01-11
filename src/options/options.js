@@ -13,6 +13,7 @@ function generatePage(options) {
   applyPageFromOptions(options);
 
   console.log('generatePage: options: ', options);
+
   // saveボタン
   $('#btnSave').on('click', () => {
     applyOptionsFromPage(options);
@@ -42,6 +43,7 @@ function applyOptionsFromPage(options) {
   console.log('applyOptionsFromPage: ', options);
   options.backgroundColor = $('#backgroundColor').val();
   options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
+  options.timeTableMode = $('#timeTableMode').val();
   return options;
 }
 
@@ -55,4 +57,5 @@ function applyPageFromOptions(options) {
   // ページに設定を反映
   $('#backgroundColor').val(options.backgroundColor);
   $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
+  $('#timeTableMode').val(options.timeTableMode);
 }

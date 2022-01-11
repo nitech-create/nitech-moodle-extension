@@ -11,12 +11,10 @@
       <input type="checkbox" id="extentionEnable" />
       <label for="extentionEnable">拡張機能を有効にする</label>
     </p>
-    <br />
     <p>
       <input type="checkbox" id="topPageEnable" />
       <label for="topPageEnable">トップページの処理を有効にする</label>
     </p>
-    <br />
     <p>
       <input type="checkbox" id="hideNav" />
       <label for="hideNav">
@@ -34,6 +32,13 @@
         <a href="https://www.w3schools.com/colors/colors_names.asp">color-name</a>による指定、
         またはカラーコードによる指定が可能です。
       </label>
+    </p>
+    <p>
+      <label for="timeTableMode">時間割の表示方法: </label>
+      <select name="mode" id="timeTableMode">
+        <option value="list">リストモード(ListMode)</option>
+        <option value="graphical">グラフィカルモード(GraphicalMode)</option>
+      </select>
     </p>
     <p>
       <button id="btnLoadDefault">load default(none save)</button>

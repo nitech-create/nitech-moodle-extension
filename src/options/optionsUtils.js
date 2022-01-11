@@ -6,6 +6,7 @@ const defaultOptions = {
   optionsVersion: '0.0.0.1',
   extentionEnable: true,
   topPageEnable: true,
+  timeTableMode: 'list', // 'list' or 'graphical'
   backgroundColor: 'NavajoWhite',
   hideNavOnVideo: true,
 };
@@ -15,6 +16,7 @@ const options = {
   optionsVersion: '0.0.0.1',
   extentionEnable: true,
   topPageEnable: true,
+  timeTableMode: 'list', // 'list' or 'graphical'
   backgroundColor: 'NavajoWhite',
   hideNavOnVideo: true,
 };

@@ -1,9 +1,13 @@
 import { drawTimeTableList } from './timeTableList/timeTable.js';
+import optionsUtils from 'Options/optionsUtils.js';
 
 function drawTimeTable() {
-  drawTimeTableList();
-
-
+  switch (optionsUtils.getOptions().timeTableMode) {
+    case 'list':
+      drawTimeTableList();
+      break;
+    case 'graphical':
+  }
 }
 
 import config from './timeTable.json5';
