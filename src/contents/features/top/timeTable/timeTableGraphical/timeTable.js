@@ -1,20 +1,22 @@
 import $ from 'jQuery';
 import promiseWrapper from 'Lib/promiseWrapper.js';
-import { isUndefined } from 'Lib/utils.js';
+import { isUndefined, isNullOrUndefined } from 'Lib/utils.js';
 import { getCourses } from './courses.js';
 
 export async function drawTimeTableGraphical() {
   console.log('graphical drawTimeTableGraphical');
 
-  const nowDate = new Date();
-  // デフォルト日付設定, 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
-  const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
-  const nowTerm = getTermLetter(nowDate);
-  const shortYear = String(getFiscalYear(nowDate)).substring(2);
+  // const nowDate = new Date();
+  // const nowDayOfWeekTxt = convertToDayOfWeekTxt(nowDate.getDay());
+  // const nowTerm = getTermLetter(nowDate);
+  // const shortYear = String(getFiscalYear(nowDate)).substring(2);
+
+  const defaultOfTimeTableDate = getDefaultsOfTimeTableDate();
 
   const courses = getCourses();
   console.log('courses: ', courses);
 
+  // ボタンによる呼び出しなどで用いるため、保存する
   await promiseWrapper.storage.local.set({ courses: courses });
 
   // tables.html(時間割, Todoなど)をロードして枠を描画
@@ -26,8 +28,7 @@ export async function drawTimeTableGraphical() {
   // $('#page').append(tablesHtml);
 
   // 時間割内の授業を描画
-  // TODO: 本当にawaitの必要があるか？
-  renderTimeTable(courses, nowTerm, nowDate.getDay(), nowDayOfWeekTxt, shortYear);
+  renderTimeTable(courses, ...defaultOfTimeTableDate);
 
   renderSpecialCourses(courses);
 }
@@ -78,6 +79,21 @@ function renderSpecialCourses(courses) {
 }
 
 /**
+ *  デフォルト日付設定, 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
+ * @return {Array} 現在の日付に基づく初期値
+ */
+function getDefaultsOfTimeTableDate() {
+  const nowDate = new Date();
+  // デフォルト日付設定, 時間割表の「前期」「後期」のセレクトボックスの初期値(リロードした時の表示される値)としてget
+  const selectedDayOfWeekNum = nowDate.getDay();
+  const nowDayOfWeekTxt = convertToDayOfWeekTxt(selectedDayOfWeekNum);
+  const nowTerm = getTermLetter(nowDate);
+  const shortYear = String(getFiscalYear(nowDate)).substring(2);
+
+  return [nowTerm, selectedDayOfWeekNum, nowDayOfWeekTxt, shortYear];
+}
+
+/**
  * Tablesを描画します。
  *
  * @param {Object} courses
@@ -94,14 +110,37 @@ async function renderTimeTable(
   shortYear,
 ) {
   console.log(
-    'drawTables: term, shortYear, dayOfWeekNum, dayOfWeekTxt: ',
+    'renderTimeTable?: term, shortYear, dayOfWeekNum, dayOfWeekTxt: ',
     selectedTerm,
     shortYear,
     selectedDayOfWeekNum,
     selectedDayOfWeekTxt,
   );
 
-  resetTables();
+  // null or undefinedのときに、defaultを使用する
+  const defaultOfTimeTableDate = getDefaultsOfTimeTableDate();
+  if (isNullOrUndefined(selectedTerm)) {
+    selectedTerm = defaultOfTimeTableDate[0];
+  }
+  if (isNullOrUndefined(selectedDayOfWeekNum)) {
+    selectedDayOfWeekNum = defaultOfTimeTableDate[1];
+  }
+  if (isNullOrUndefined(selectedDayOfWeekTxt)) {
+    selectedDayOfWeekTxt = defaultOfTimeTableDate[2];
+  }
+  if (isNullOrUndefined(shortYear)) {
+    shortYear = defaultOfTimeTableDate[3];
+  }
+
+  console.log(
+    'renderTimeTable: term, shortYear, dayOfWeekNum, dayOfWeekTxt: ',
+    selectedTerm,
+    shortYear,
+    selectedDayOfWeekNum,
+    selectedDayOfWeekTxt,
+  );
+
+  resetTables(); // 一度表示を消さないと、上書きするだけになって残る
 
   // 時間割の選択年の表示
   $('#year_select_extension option').val(shortYear).prop('selected', true);
@@ -141,6 +180,7 @@ async function renderTimeTable(
       );
     }
   }
+
   // TODO: 空きコマ処理をif文で分岐するほうがきれい
   // 空きコマ埋め処理
   console.log(classTableSet);
@@ -148,11 +188,11 @@ async function renderTimeTable(
 
   // reset and add event listener
   $('#day_select_extension').off('change');
-  $('#day_select_extension').change(() => onSelectTableDay('#day_select_extension'));
+  $('#day_select_extension').on('change', () => onSelectTableDay('#day_select_extension'));
   $('#term_select_extension').off('change');
-  $('#term_select_extension').change(() => onSelectTableTerm('#term_select_extension'));
+  $('#term_select_extension').on('change', () => onSelectTableTerm('#term_select_extension'));
   $('#year_select_extension').off('change');
-  $('#year_select_extension').change(() => onSelectTableYear('#year_select_extension'));
+  $('#year_select_extension').on('change', () => onSelectTableYear('#year_select_extension'));
 
   function resetTables() {
     $('#onegen_extension').empty();
@@ -255,20 +295,16 @@ function renderClassTable(course, time, set) {
 }
 
 async function onSelectTableDay(element) {
-  const courses = await promiseWrapper.storage.local
-    .get('courses')
-    .then(data => {
-      return data.courses;
-    })
-    .catch(reason => {
-      console.log('Cannot load.', reason);
-      return {};
-    });
+  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
+
+  //TODO:
+  // console.log('onSelectTableDay: courses: ', courses);
+
   const selectedDayOfWeekNum = $(element).val();
   const selectedTerm = $('#term_select_extension').val();
   const selectedYear = $('#year_select_extension').val();
 
-  console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
+  // console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
 
   renderTimeTable(
     courses,
@@ -281,15 +317,7 @@ async function onSelectTableDay(element) {
 
 // TODO: この3つ、同じでいいんじゃないか？
 async function onSelectTableYear(element) {
-  const courses = await promiseWrapper.storage.local
-    .get('courses')
-    .then(data => {
-      return data.courses;
-    })
-    .catch(reason => {
-      console.log('Cannot load.', reason);
-      return {};
-    });
+  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
   const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $('#term_select_extension').val();
   const selectedYear = $(element).val();
@@ -306,15 +334,7 @@ async function onSelectTableYear(element) {
 }
 
 async function onSelectTableTerm(element) {
-  const courses = await promiseWrapper.storage.local
-    .get('courses')
-    .then(data => {
-      return data.courses;
-    })
-    .catch(reason => {
-      console.log('Cannot load.', reason);
-      return {};
-    });
+  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
   const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $(element).val();
   const selectedYear = $('#year_select_extension').val();
