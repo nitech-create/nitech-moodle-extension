@@ -2,6 +2,10 @@ export function isUndefined(value) {
   return typeof value === 'undefined';
 }
 
+export function isNullOrUndefined(o) {
+  return typeof o === 'undefined' || o === null;
+}
+
 export function injectScript(code) {
   const script = document.createElement('script');
   script.textContent = code;
