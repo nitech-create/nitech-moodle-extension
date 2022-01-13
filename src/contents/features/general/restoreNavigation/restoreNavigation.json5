@@ -1,5 +1,5 @@
 {
   name: 'restore-navigation',
   target: 'any',
-  preload: []
+  preload: ['timeTable'],
 }

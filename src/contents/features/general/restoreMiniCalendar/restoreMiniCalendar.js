@@ -38,14 +38,14 @@ function editCalendar(calendarMonth) {
     `);
 
     // wrap
-    calendarMonth.find('caption').children().wrapAll('<div class="mini-Calendar-caption"></div>');
+    calendarMonth.find('caption').children().wrapAll('<div class="mini-calendar-caption"></div>');
 
     // 今日をハイライト
     const now = new Date();
     const dayTop = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     calendarMonth
       .find('td[data-day-timestamp="' + dayTop.getTime() / 1000 + '"]')
-      .addClass('mini-Calendar-today');
+      .addClass('mini-calendar-today');
 
     // 再開
     startObserve();
