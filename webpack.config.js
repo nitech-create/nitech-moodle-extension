@@ -80,6 +80,7 @@ module.exports = {
       Options: path.join(__dirname, 'src/options'),
       Contents: path.join(__dirname, 'src/contents'),
       Features: path.join(__dirname, 'src/contents/features'),
+      jQuery: `jquery`,
     },
   },
   stats: {
