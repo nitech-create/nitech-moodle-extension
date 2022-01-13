@@ -1,18 +1,17 @@
 import $ from 'jQuery';
+import { isNullOrUndefined } from 'Lib/utils.js';
 
-function restoreMiniCalender(){
-  if($('[data-block="calendar_month"]')[0] !== undefined){
+function restoreMiniCalender() {
+  if (!isNullOrUndefined($('[data-block="calendar_month"]')[0])) {
     editCalendar($('[data-block="calendar_month"]'));
   }
 }
 
-function editCalendar(calendarMonth){
+function editCalendar(calendarMonth) {
   // カレンダーに移動するナビゲーションを追加
   calendarMonth
     .children('div')
-    .append(
-      '<br><a id="link-to-calendar" href="">カレンダーに移動する</a>',
-    );
+    .append('<br><a id="link-to-calendar" href="">カレンダーに移動する</a>');
 
   // カレンダーが更新されたときに再適用する処理
   const refleshFunc = () => {
@@ -44,26 +43,27 @@ function editCalendar(calendarMonth){
     // 今日をハイライト
     const now = new Date();
     const dayTop = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    calendarMonth.find('td[data-day-timestamp="' + dayTop.getTime()/1000 + '"]').addClass('mini-Calendar-today');
+    calendarMonth
+      .find('td[data-day-timestamp="' + dayTop.getTime() / 1000 + '"]')
+      .addClass('mini-Calendar-today');
 
     // 再開
     startObserve();
-  }
+  };
 
   const startObserve = () => {
     observer.observe(calendarMonth[0], {
       childList: true,
-      subtree: true
+      subtree: true,
     });
-  }
+  };
   const observer = new MutationObserver(refleshFunc);
   refleshFunc();
   startObserve();
 }
 
-
 import config from './restoreMiniCalendar.json5';
 export default {
   config,
-  func: restoreMiniCalender
+  func: restoreMiniCalender,
 };

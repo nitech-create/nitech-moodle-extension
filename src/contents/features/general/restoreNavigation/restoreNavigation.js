@@ -19,14 +19,6 @@ function restoreTree() {
 }
 
 async function reformNavi() {
-  const courses = await promiseWrapper.storage.local
-    .get('courseList')
-    .then(data => data.courseList)
-    .catch(error => {
-      console.error(error);
-      return undefined;
-    });
-
   // マイコース取得
   const list = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li');
 
@@ -49,7 +41,7 @@ async function reformNavi() {
   const type = parseInt(list.find('p').first().attr('data-node-type'));
 
   // デッドロック回避
-  if(!(isFinite(firstNum) && isFinite(firstKey) && isFinite(type))){
+  if (!(isFinite(firstNum) && isFinite(firstKey) && isFinite(type))) {
     return;
   }
 
@@ -61,7 +53,15 @@ async function reformNavi() {
   let key = firstKey;
   const ul = $('.depth_1 ul').first().children('li').eq(2).children('ul');
 
-  if (isUndefined(courses)) return;
+  let courses = await promiseWrapper.storage.local
+    .get('courseList')
+    .then(data => data.courseList)
+    .catch(async error => {
+      return (await promiseWrapper.storage.local.get('courses')).courses;
+    });
+  if (isUndefined(courses)) {
+    return;
+  }
 
   for (const course of courses) {
     const li = $('<li/>')
@@ -95,9 +95,8 @@ async function reformNavi() {
   }
 }
 
-
 import config from './restoreNavigation.json5';
 export default {
   config,
-  func: restoreNavigation
-}
+  func: restoreNavigation,
+};
