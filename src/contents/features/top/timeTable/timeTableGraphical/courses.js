@@ -8,7 +8,7 @@ export function getCourses() {
     console.error('[courses/getCourses] cannot load courseNumberTxtList');
     return undefined;
   }
-  console.log('courseNumberTxtList: ', courseNumberTxtList);
+  // console.log('courseNumberTxtList: ', courseNumberTxtList);
 
   const courseSize = $('.coursename').length;
   const courseList = loadCourseList();
@@ -16,7 +16,7 @@ export function getCourses() {
     console.error('[courses/getCourses] cannot load courseList');
     return undefined;
   }
-  console.log('courseList: ', courseList);
+  // console.log('courseList: ', courseList);
 
   return convertToCourses(courseList, courseNumberTxtList, courseSize);
 }
