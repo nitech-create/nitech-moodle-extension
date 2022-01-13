@@ -188,11 +188,11 @@ async function renderTimeTable(
 
   // reset and add event listener
   $('#day_select_extension').off('change');
-  $('#day_select_extension').on('change', () => onSelectTableDay('#day_select_extension'));
+  $('#day_select_extension').on('change', () => onSelectTableDate());
   $('#term_select_extension').off('change');
-  $('#term_select_extension').on('change', () => onSelectTableTerm('#term_select_extension'));
+  $('#term_select_extension').on('change', () => onSelectTableDate());
   $('#year_select_extension').off('change');
-  $('#year_select_extension').on('change', () => onSelectTableYear('#year_select_extension'));
+  $('#year_select_extension').on('change', () => onSelectTableDate());
 
   function resetTables() {
     $('#onegen_extension').empty();
@@ -300,62 +300,6 @@ async function onSelectTableDate() {
   const selectedDayOfWeekNum = $('#day_select_extension').val();
   const selectedTerm = $('#term_select_extension').val();
   const selectedYear = $('#year_select_extension').val();
-
-  renderTimeTable(
-    courses,
-    selectedTerm,
-    selectedDayOfWeekNum,
-    convertToDayOfWeekTxt(selectedDayOfWeekNum),
-    selectedYear,
-  );
-}
-
-async function onSelectTableDay(element) {
-  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
-
-  //TODO:
-  // console.log('onSelectTableDay: courses: ', courses);
-
-  const selectedDayOfWeekNum = $(element).val();
-  const selectedTerm = $('#term_select_extension').val();
-  const selectedYear = $('#year_select_extension').val();
-
-  console.log('onSelectTableDay: ', selectedDayOfWeekNum); // 曜日
-
-  renderTimeTable(
-    courses,
-    selectedTerm,
-    selectedDayOfWeekNum,
-    convertToDayOfWeekTxt(selectedDayOfWeekNum),
-    selectedYear,
-  );
-}
-
-// TODO: この3つ、同じでいいんじゃないか？
-async function onSelectTableYear(element) {
-  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
-  const selectedDayOfWeekNum = $('#day_select_extension').val();
-  const selectedTerm = $('#term_select_extension').val();
-  const selectedYear = $(element).val();
-
-  console.log('onSelectTableYear: ', selectedYear);
-
-  renderTimeTable(
-    courses,
-    selectedTerm,
-    selectedDayOfWeekNum,
-    convertToDayOfWeekTxt(selectedDayOfWeekNum),
-    selectedYear,
-  );
-}
-
-async function onSelectTableTerm(element) {
-  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
-  const selectedDayOfWeekNum = $('#day_select_extension').val();
-  const selectedTerm = $(element).val();
-  const selectedYear = $('#year_select_extension').val();
-
-  console.log('onSelectTableTerm: ', selectedTerm);
 
   renderTimeTable(
     courses,
