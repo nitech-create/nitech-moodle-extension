@@ -1,5 +1,5 @@
-import optionsUtils from 'Options/optionsUtils.js';
 import $ from 'jQuery';
+import optionsUtils from 'Options/optionsUtils.js';
 
 (async function onPageLoad() {
   console.log('onPageLoad');
@@ -44,6 +44,8 @@ function applyOptionsFromPage(options) {
   options.backgroundColor = $('#backgroundColor').val();
   options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
   options.timeTableMode = $('#timeTableMode').val();
+  options.extentionEnable = $('#extentionEnable').prop('checked');
+  options.topPageEnable = $('#topPageEnable').prop('checked');
   return options;
 }
 
@@ -58,4 +60,6 @@ function applyPageFromOptions(options) {
   $('#backgroundColor').val(options.backgroundColor);
   $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
   $('#timeTableMode').val(options.timeTableMode);
+  $('#extentionEnable').prop('checked', options.extentionEnable);
+  $('#topPageEnable').prop('checked', options.topPageEnable);
 }

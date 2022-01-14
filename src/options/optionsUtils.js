@@ -3,21 +3,21 @@ import promiseWrapper from 'Lib/promiseWrapper.js';
 // import $ from 'jQuery';
 
 const defaultOptions = {
-  optionsVersion: '0.0.0.1',
+  optionsVersion: '0.0.0.2',
   extentionEnable: true,
   topPageEnable: true,
   timeTableMode: 'graphical', // 'list' or 'graphical'
-  backgroundColor: 'NavajoWhite',
+  backgroundColor: '#ffdead', // NavajoWhite
   hideNavOnVideo: true,
 };
 
 // TODO: defaultOptionsと完全に同一かどうか不安になる。
 const options = {
-  optionsVersion: '0.0.0.1',
+  optionsVersion: '0.0.0.2',
   extentionEnable: true,
   topPageEnable: true,
   timeTableMode: 'list', // 'list' or 'graphical'
-  backgroundColor: 'NavajoWhite',
+  backgroundColor: '#ffdead', // NavajoWhite
   hideNavOnVideo: true,
 };
 
