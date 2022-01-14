@@ -1,13 +1,30 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="popup.css">
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="popup.css" />
+    <script src="popup.js" defer></script>
   </head>
   <body>
     <p>
       <button id="openOptions">Open options page</button>
     </p>
-    <script src="popup.js"></script>
+    <p>注意: 以下設定を変更してsaveしないとページには反映されません。</p>
+    <p>
+      <input type="checkbox" id="extentionEnable" />
+      <label for="extentionEnable">
+        拡張機能を有効にする <br />
+        (現在、無効化しても全ての機能が無効化されないようです)
+      </label>
+    </p>
+    <p>
+      <input type="checkbox" id="topPageEnable" />
+      <label for="topPageEnable">トップページの処理を有効にする </label>
+    </p>
+    <p>
+      <button id="btnLoadDefault">load default (none save)</button> <br />
+      <button id="btnLoadCurrent">load current (none save)</button> <br />
+      <button id="btnSave">save</button>
+    </p>
   </body>
 </html>
