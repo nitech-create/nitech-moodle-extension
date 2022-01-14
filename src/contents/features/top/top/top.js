@@ -11,8 +11,7 @@ const onTopPage = async () => {
 
   (async function invisibleTopPageHeader() {
     if (!options.topPageHeaderVisible) {
-      $('header#page-header').css({ height: '1rem' });
-      // TODO: 本当はdisplay: 'none'を子要素に適用するべき。
+      $('header#page-header').addClass('topPageHeaderInvisible');
     }
   })();
 
