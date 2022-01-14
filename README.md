@@ -1,4 +1,4 @@
-# nitech-moodle-extension
+# nitech-moodle-extention
 
 名古屋工業大学のオンライン授業サポートシステムとして採用されている moodle を使いやすくする Chrome 拡張機能です。非公式であり、問題が起きても責任は取れません。<br>
 Chrome Extension for NITech moodle(38a).
@@ -11,31 +11,40 @@ NITech 在校生。
 
 - 開発途中です！
 - 設定ページが未完成です。(タブ(ページ)を reload しないと設定が反映されない仕様です！)
-- 動作確認ブラウザ: Chrome, Kinza, (今後対応: Edge)
+- 動作確認ブラウザ: Chrome, Kinza
 - moodle サイトの表示に改変を加えてるのみで、不正なことは行いません。
-- 名工大 情報基盤センターからの配布および開発の許諾は得ていますが、**情報基盤センターはサポートを行いません**(開発も情報基盤センターとは関係ない有志が行っています)。質問は下記連絡先へお願いします。
 
 ### 開発の注意点
 
 - moodle サイトは落ちやすいため、リーロード処理、自分から情報を追加で呼び出すなどは控えること！
-- FireFox のサポートは行いません。(情報基盤センターのサポート外ブラウザのため)
-- 情報基盤センターによれば推薦ブラウザは Edge(Chromium)となっています。現状でも使用可能ですが今後正式化予定です。
+- 名工大公式および情報基盤センターからの許諾は得ていません。
 
 ## 利用方法
 
 ### ChromeWebStore
 
-一般公開は ChromeWebStore にて行う予定です。
+一般公開は名工大 情報基盤センターの返答を待って、ChromeWebStoreにて行う予定です。
 
-### GitHub 開発版
+### GitHub開発版
 
-1. 【Chrome の準備】<br>Chromium 系ブラウザ(Chrome, ~~Edge~~, Kinza, ~~Vivaldi~~, 開発用: Chrome Beta)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
+1. 【Chromeの準備】<br>Chromium 系ブラウザ(Chrome, ~~Edge~~, ~~Vivaldi~~, おすすめ: Chrome Beta)にて`chrome://extensions/`(拡張機能のページ)を開く。(打ち消し線ブラウザは動作未確認)
 2. (右上の)「デベロッパーモード」を有効にする。
-3. 【ソースコードの準備】<br>GitHub の「Code」ページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
+3. 【ソースコードの準備】<br>GitHubの「Code」ページの「Code」ボタンから「Download ZIP」より zip ファイルをダウンロード後、展開する。<br>または`git clone`を行う。
 4. 先程入手したフォルダにて`npm install`
-5. 同ディレクトリにて`npm run build`(開発ビルド: `npm run dev`) (※これは Webpack による bundle を行っています)
+5. 同ディレクトリにて`npm run build`(開発ビルド: `npm run dev`) (※これはWebpackによるbundleを行っています)
 6. 【拡張機能の読み込み】<br>生成される`dist`フォルダをドラッグ&ドロップする。<br>(または「パッケージ化されていない拡張機能を読み込む」から該当フォルダを選択)
 7. NITech moodle サイトへログインし、拡張機能が動作しているか確認する。
+
+#### watch機能を使う場合 (おすすめ)
+
+watch機能を使うことで、毎回`npm run dev`を行う必要がないのでおすすめです！
+
+上記の4番目までは同じ。(通常4番目までは毎回の実行は不要)
+
+5. `npm run watch`を実行する
+6. `dist`フォルダを拡張機能にD&D。
+7. moodleサイトを再読み込みして、拡張機能を使用する。
+7. 終了は`Ctrl+C`キーを押す(`Y`を入力する)
 
 ## 機能
 
@@ -66,7 +75,7 @@ NITech 在校生。
 - jQuery v3.5.1
 - VSCode or Atom: エディター
 - ESLint + Prettier: JavaScript 整形ソフト
-- Webpack: JavaScript モジュールバンドラー
+- Webpack: JavaScriptモジュールバンドラー
 
 ## ライセンス
 
@@ -80,7 +89,7 @@ GitHub の issue、または [moodle assistant for NITech バグ報告](http://n
 
 ### 質問
 
-GitHub の issue は使用しないでください。[nitech Create の Twitter](https://twitter.com/nitechCreate)、もしくはメール(nitech.create.2020@gmail.com)へ。
+GitHub の issue は使用しないでください。
 
 ### その他
 
