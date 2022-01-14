@@ -1,10 +1,20 @@
 import { injectScript } from 'Lib/utils.js';
 import $ from 'jQuery';
 import untilPageLoaded from './untilPageLoaded.js';
+import optionsUtils from 'Options/optionsUtils.js';
 
 const onTopPage = async () => {
   // topページでの処理
   await untilPageLoaded();
+
+  const options = await optionsUtils.getOptions();
+
+  (async function invisibleTopPageHeader() {
+    if (!options.topPageHeaderVisible) {
+      $('header#page-header').css({ height: '1rem' });
+      // TODO: 本当はdisplay: 'none'を子要素に適用するべき。
+    }
+  })();
 
   const courseValue = $('.coursename');
 

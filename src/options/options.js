@@ -46,6 +46,7 @@ function applyOptionsFromPage(options) {
   options.timeTableMode = $('#timeTableMode').val();
   options.extentionEnable = $('#extentionEnable').prop('checked');
   options.topPageEnable = $('#topPageEnable').prop('checked');
+  options.topPageHeaderVisible = $('#topPageHeaderVisible').prop('checked');
   return options;
 }
 
@@ -62,4 +63,6 @@ function applyPageFromOptions(options) {
   $('#timeTableMode').val(options.timeTableMode);
   $('#extentionEnable').prop('checked', options.extentionEnable);
   $('#topPageEnable').prop('checked', options.topPageEnable);
+  $('#topPageHeaderVisible').prop('checked', options.topPageHeaderVisible);
+  $('#optionsVersion').text('options version: ' + options.optionsVersion);
 }

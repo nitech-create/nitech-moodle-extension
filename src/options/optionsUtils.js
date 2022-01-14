@@ -6,6 +6,7 @@ const defaultOptions = {
   optionsVersion: '0.0.0.2',
   extentionEnable: true,
   topPageEnable: true,
+  topPageHeaderVisible: true,
   timeTableMode: 'graphical', // 'list' or 'graphical'
   backgroundColor: '#ffdead', // NavajoWhite
   hideNavOnVideo: true,
@@ -16,6 +17,7 @@ const options = {
   optionsVersion: '0.0.0.2',
   extentionEnable: true,
   topPageEnable: true,
+  topPageHeaderVisible: true,
   timeTableMode: 'list', // 'list' or 'graphical'
   backgroundColor: '#ffdead', // NavajoWhite
   hideNavOnVideo: true,
