@@ -5,7 +5,7 @@ import optionsUtils from 'Options/optionsUtils.js';
 
 const onTopPage = async () => {
   // topページでの処理
-  changeCourseOverViewButton();
+  changeCourseOverviewButton();
   await untilPageLoaded();
 
   const options = await optionsUtils.getOptions();
@@ -16,11 +16,11 @@ const onTopPage = async () => {
     }
   })();
 
-  changeCourseOverViewButton();
+  changeCourseOverviewButton();
   await untilPageLoaded(); // TODO: なぜ2回loadしているのか、わからない…
 };
 
-async function changeCourseOverViewButton() {
+async function changeCourseOverviewButton() {
   // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
   injectScript(
     `$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').trigger('click');`,
