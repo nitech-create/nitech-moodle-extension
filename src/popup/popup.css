@@ -3,3 +3,30 @@ body {
   width: 200pt;
   text-align: center;
 }
+
+header {
+  width: 100%;
+  height: 30pt;
+  background-color: #3333;
+
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* vertical-align: middle; */
+  font-size: medium;
+  /* margin: 1pt; */
+  color: white;
+}
+
+.button {
+  text-align: center;
+  margin: 2pt 2pt;
+  /* border: solid 2px #ddd; */
+  /* border-radius: 10px; */
+  /* font-size: 16px; */
+}
+
+.leftitem {
+  text-align: left;
+}
