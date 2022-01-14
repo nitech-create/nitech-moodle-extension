@@ -5,6 +5,7 @@ import optionsUtils from 'Options/optionsUtils.js';
 
 const onTopPage = async () => {
   // topページでの処理
+  changeCourseOverViewButton();
   await untilPageLoaded();
 
   const options = await optionsUtils.getOptions();
@@ -15,22 +16,22 @@ const onTopPage = async () => {
     }
   })();
 
-  const courseValue = $('.coursename');
+  changeCourseOverViewButton();
+  await untilPageLoaded(); // TODO: なぜ2回loadしているのか、わからない…
+};
 
+async function changeCourseOverViewButton() {
   // コース概要のフィルタを「すべて表示(表示から削除済みを除く)」にする
   injectScript(
-    `$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').click();`,
+    `$('#groupingdropdown').next('.dropdown-menu').find('a[data-value="all"]').trigger('click');`,
   );
-  await untilPageLoaded();
+  // await untilPageLoaded();
 
   // コースの表示数を「すべて」にする
   injectScript(
-    `$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').click();`,
+    `$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').trigger('click');`,
   );
-  await untilPageLoaded();
-
-  console.log('value: ', courseValue.length, courseValue);
-};
+}
 
 import config from './top.json5';
 export default {

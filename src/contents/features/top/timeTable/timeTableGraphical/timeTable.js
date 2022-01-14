@@ -22,7 +22,7 @@ export async function drawTimeTableGraphical() {
   // tables.html(時間割, Todoなど)をロードして枠を描画
   // const tablesHtmlFilePath = 'tables.html';
   const tablesHtml = getTablesHtml();
-  console.log('tablesFile: ', tablesHtml);
+  // console.log('tablesFile: ', tablesHtml);
   const rootElement = $('#extension-main-area');
   rootElement.append(tablesHtml);
   // $('#page').append(tablesHtml);
