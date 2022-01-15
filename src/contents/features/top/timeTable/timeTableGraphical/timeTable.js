@@ -13,7 +13,7 @@ export async function drawTimeTableGraphical() {
 
   const defaultOfTimeTableDate = getDefaultsOfTimeTableDate();
 
-  const courses = getCourses();
+  const courses = await getCourses();
   console.log('courses: ', courses);
 
   // ボタンによる呼び出しなどで用いるため、保存する
@@ -175,7 +175,7 @@ async function renderTimeTable(
       // classを描画！
       renderClassTable(
         course,
-        getCourseTimeFromDayOfWeek(course.times, course.dayOfWeeks, selectedDayOfWeekTxt),
+        getClassTimeFromDayOfWeek(course.times, course.dayOfWeeks, selectedDayOfWeekTxt),
         classTableSet,
       );
     }
@@ -183,7 +183,7 @@ async function renderTimeTable(
 
   // TODO: 空きコマ処理をif文で分岐するほうがきれい
   // 空きコマ埋め処理
-  console.log(classTableSet);
+  console.log('classTableSet: ', classTableSet);
   fillBlankOfClassTables(classTableSet);
 
   // reset and add event listener
@@ -240,7 +240,7 @@ async function renderTimeTable(
   }
 }
 
-function getCourseTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
+function getClassTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
   return times[dayOfWeeks.indexOf(selectedDayOfWeekTxt)];
 }
 
@@ -252,45 +252,65 @@ function renderClassTable(course, time, set) {
     switch (timeNum) {
       case '1':
       case '2':
-        $('#onegen_extension').text(course.name);
-        $('#onegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#onegen_extension', 1, course);
         set[0] = true;
         break;
       case '3':
       case '4':
-        $('#threegen_extension').text(course.name + '\n');
-        $('#threegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#threegen_extension', 3, course);
         set[1] = true;
         break;
       case '5':
       case '6':
-        $('#fivegen_extension').text(course.name + '\n');
-        $('#fivegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#fivegen_extension', 5, course);
         set[2] = true;
         break;
       case '7':
       case '8':
-        $('#sevengen_extension').text(course.name + '\n');
-        $('#sevengen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#sevengen_extension', 7, course);
         set[3] = true;
         break;
       case '9':
       case '10':
-        $('#ninegen_extension').text(course.name + '\n');
-        $('#ninegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#ninegen_extension', 9, course);
         set[4] = true;
         break;
     }
+  }
+}
+
+function renderClassTableItem(element, classTime, course) {
+  $(element).text(course.name);
+  $(element).append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+  $(element).append(
+    '<br>' +
+      '<input type="checkbox" id="extension_checkbox_complete_' +
+      classTime +
+      '" value="' +
+      classTime +
+      '" class="extension_checkbox_complete" name="完了"><label for="extension_checkbox_complete_' +
+      classTime +
+      '">完了</label>',
+  );
+  $('#extension_checkbox_complete_' + classTime).on('change', () =>
+    onCheckboxComplete(course.name, classTime),
+  );
+  $('#extension_checkbox_complete_' + classTime).prop('checked', course.isCompleted);
+}
+
+async function onCheckboxComplete(name, classTime) {
+  $('#extension_checkbox_complete_' + classTime);
+  console.log('onCheckboxComplete: ', name, classTime);
+
+  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
+  if (Array.isArray(courses)) {
+    const course = courses.find(course => course.name == name);
+
+    course.isCompleted = $('#extension_checkbox_complete_' + classTime).prop('checked'); // checkboxのresultを得る
+
+    promiseWrapper.storage.local.set({ courses: courses }); // save to storage
+
+    console.log('onCheckboxComplete: ', course, courses);
   }
 }
 

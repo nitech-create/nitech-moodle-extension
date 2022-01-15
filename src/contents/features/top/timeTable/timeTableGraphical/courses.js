@@ -1,7 +1,10 @@
 import $ from 'jQuery';
-import { isUndefined } from 'Lib/utils.js';
+import { isUndefined, isNullOrUndefined } from 'Lib/utils.js';
+import promiseWrapper from 'Lib/promiseWrapper.js';
 
-export function getCourses() {
+const coursesVersion = '0.0.0.2';
+
+export async function getCourses() {
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
   if (isUndefined(courseNumberTxtList)) {
@@ -18,7 +21,10 @@ export function getCourses() {
   }
   // console.log('courseList: ', courseList);
 
-  return convertToCourses(courseList, courseNumberTxtList, courseSize);
+  const oldCourses = (await promiseWrapper.storage.local.get('courses')).courses;
+  console.log('oldCourses: ', oldCourses);
+
+  return generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses);
 }
 
 /**
@@ -44,10 +50,12 @@ function loadCourseList() {
  * @param {Array} courseList: 通常コース: (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_cls, 特殊コースはSpecialCourseはcourseShortNumberが無い。
  * @param {String} courseNumberTxtList: 授業番号表記(-あり)。 (-なしはshort付き)
  * @param {int} courseSize
+ * @param {Object} oldCourses
  * @return {Object} courses = {term, shortYear, courseNumberTxt, shortCourseNumberTxt, name, dayOfWeeks = {月, 日}, times = {1-2, 9-10}, url} (ただし特殊授業の場合: term, dayOfWeek = undefined)
  */
-function convertToCourses(courseList, courseNumberTxtList, courseSize) {
+function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses) {
   const courses = new Array(courseSize); // result
+  courses.coursesVersion = coursesVersion;
 
   // 変数名がわかりづらいかもしれない
   const termArray = new Array(courseSize);
@@ -79,7 +87,6 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
 
     if (courseContainerArray.length == 1) {
       // 特殊なクラス(時間割じゃないコース)
-      // TODO: 'none'ではなく「nilでもnullでもundefinedでもfalse」←ここらへんにしたい気がする。
       termArray[i] = undefined;
       timesArray[i] = undefined;
     } else {
@@ -96,15 +103,47 @@ function convertToCourses(courseList, courseNumberTxtList, courseSize) {
     }
 
     courses[i] = {
+      version: coursesVersion,
       term: termArray[i],
       shortYear: shortYear,
       courseNumberTxt: courseNumberTxtList[i],
-      shortCourseNumberTxt: shortCourseNumber /* TODO: courseNumberで良いかもしれない */,
+      shortCourseNumber: shortCourseNumber,
       name: nameArray[i],
       dayOfWeeks: dayOfWeeksArray[i],
       times: timesArray[i],
       url: urlArray[i],
+      isCompleted: getIsCompleted(oldCourses, nameArray[i]),
+      completeDateTime: undefined,
     };
   }
   return courses;
+}
+
+function getIsCompleted(oldCourses, courseName) {
+  if (
+    !Array.isArray(oldCourses) ||
+    oldCourses.length < 1 ||
+    oldCourses.coursesVersion != coursesVersion
+  ) {
+    return false;
+  }
+
+  let isCompleted = false;
+
+  const oldCourse = oldCourses.find(course => course.name == courseName);
+  const oneDayTime = 1000 * 60 * 60 * 24; // millisec
+
+  console.log('oldCourses, oldCourse: ', oldCourses, oldCourse);
+  if (
+    !isNullOrUndefined(oldCourse) &&
+    !isNullOrUndefined(oldCourse.isCompleted) &&
+    oldCourse.isCompleted
+  ) {
+    const now = Date.now();
+    if (oldCourse.completeDate.completeDateTime - now <= oneDayTime) {
+      // 完了時から現在の時間差が1日以下
+      isCompleted = true;
+    }
+  }
+  return isCompleted;
 }
