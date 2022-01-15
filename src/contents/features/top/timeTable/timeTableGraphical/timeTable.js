@@ -16,9 +16,6 @@ export async function drawTimeTableGraphical() {
   const courses = await getCourses();
   console.log('courses: ', courses);
 
-  // ボタンによる呼び出しなどで用いるため、保存する
-  await promiseWrapper.storage.local.set({ courses: courses });
-
   // tables.html(時間割, Todoなど)をロードして枠を描画
   // const tablesHtmlFilePath = 'tables.html';
   const tablesHtml = getTablesHtml();

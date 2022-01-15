@@ -5,6 +5,7 @@ import optionsUtils from 'Options/optionsUtils.js';
 
 const coursesVersion = '0.0.0.2';
 
+/** 注意: 内部的にstorageに保存を行っています */
 export async function getCourses() {
   // load courses
   const courseNumberTxtList = $('.course-listitem .text-muted div').text().slice(1).split('|'); // 取得してきたcourseの要素達
@@ -22,12 +23,24 @@ export async function getCourses() {
   }
   // console.log('courseList: ', courseList);
 
-  const oldCourses = (await promiseWrapper.storage.local.get('courses')).courses;
-  // console.log('oldCourses: ', oldCourses);
-
+  const oldCourses = await promiseWrapper.storage.local
+    .get('courses')
+    .then(result => {
+      return result.courses;
+    })
+    .catch(err => {
+      console.log('[getCourses] cannot load old courses.');
+      return undefined;
+    });
+  console.log('oldCourses: ', oldCourses);
   const options = await optionsUtils.getOptions();
 
-  return generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses, options);
+  const courses = generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses, options);
+
+  // ボタンによる呼び出しなどで用いるため、保存する
+  await promiseWrapper.storage.local.set({ courses: courses });
+
+  return courses;
 }
 
 /**
@@ -135,7 +148,7 @@ function getCompleteValues(oldCourses, courseNumberTxt, options) {
   }
 
   const oldCourse = oldCourses.find(course => course.courseNumberTxt == courseNumberTxt);
-  const oneDayTime = 1000 * 60 * 60 * 24; // millisec
+  const oneDayTime = 1000 * 60 * 60 * 24; // (86400000 millisec)
   const timeTableCompleteTime = oneDayTime * parseFloat(options.timeTableCompleteMode);
 
   if (
@@ -144,12 +157,13 @@ function getCompleteValues(oldCourses, courseNumberTxt, options) {
     oldCourse.isCompleted
   ) {
     const now = Date.now();
-    if (
-      !isNullOrUndefined(oldCourse.completeDateTime) &&
-      now - oldCourse.completeDateTime <= timeTableCompleteTime
-    ) {
-      // 完了時から現在の時間差が1日以下
-      return { isCompleted: true, completeDateTime: oldCourses.completeDateTime };
+    if (!isNullOrUndefined(oldCourse.completeDateTime)) {
+      const diffTime = now - oldCourse.completeDateTime;
+      console.log('[getCompleteValues] diffTime: ', diffTime);
+      if (diffTime <= timeTableCompleteTime) {
+        // 完了時から現在の時間差が1日以下
+        return { isCompleted: true, completeDateTime: oldCourses.completeDateTime };
+      }
     }
   }
   return { isCompleted: false, completeDateTime: -1 };
