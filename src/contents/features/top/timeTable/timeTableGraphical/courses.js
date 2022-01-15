@@ -102,35 +102,35 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       }
     }
 
+    const completeResult = getIsCompleted(oldCourses, courseNumberTxtList[i]);
     courses[i] = {
-      version: coursesVersion,
-      term: termArray[i],
+      version: coursesVersion /* いらないかも */,
+      term: termArray[i] /* if special courses → undefined */,
       shortYear: shortYear,
-      courseNumberTxt: courseNumberTxtList[i],
+      courseNumberTxt: courseNumberTxtList[i] /* 一意(unique)のはず */,
       shortCourseNumber: shortCourseNumber,
-      name: nameArray[i],
-      dayOfWeeks: dayOfWeeksArray[i],
-      times: timesArray[i],
+      name: nameArray[i] /* 再履修など、一意ではない */,
+      dayOfWeeks: dayOfWeeksArray[i] /* dayOfWeeks = {月, 日}, if special courses → undefined*/,
+      times: timesArray[i] /* times = {1-2, 9-10} */,
       url: urlArray[i],
-      isCompleted: getIsCompleted(oldCourses, nameArray[i]),
-      completeDateTime: undefined,
+      isCompleted: completeResult.isCompleted,
+      completeDateTime: completeResult.completeDateTime,
     };
   }
   return courses;
 }
 
-function getIsCompleted(oldCourses, courseName) {
-  if (
-    !Array.isArray(oldCourses) ||
-    oldCourses.length < 1 ||
-    oldCourses.coursesVersion != coursesVersion
-  ) {
-    return false;
+function getIsCompleted(oldCourses, courseNumberTxt) {
+  if (!Array.isArray(oldCourses) || oldCourses.length < 1) {
+    return { isCompleted: false, completeDateTime: -1 };
   }
 
-  let isCompleted = false;
+  if (oldCourses.isCompleted) {
+    // TODO: テスト
+    console.log('oldCourses.isCompleted: ', oldCourses.isCompleted);
+  }
 
-  const oldCourse = oldCourses.find(course => course.name == courseName);
+  const oldCourse = oldCourses.find(course => course.courseNumberTxt == courseNumberTxt);
   const oneDayTime = 1000 * 60 * 60 * 24; // millisec
 
   console.log('oldCourses, oldCourse: ', oldCourses, oldCourse);
@@ -140,10 +140,13 @@ function getIsCompleted(oldCourses, courseName) {
     oldCourse.isCompleted
   ) {
     const now = Date.now();
-    if (oldCourse.completeDate.completeDateTime - now <= oneDayTime) {
+    if (
+      !isNullOrUndefined(oldCourse.completeDateTime) &&
+      now - oldCourse.completeDateTime <= oneDayTime
+    ) {
       // 完了時から現在の時間差が1日以下
-      isCompleted = true;
+      return { isCompleted: true, completeDateTime: oldCourses.completeDateTime };
     }
   }
-  return isCompleted;
+  return { isCompleted: false, completeDateTime: -1 };
 }

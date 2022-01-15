@@ -293,20 +293,21 @@ function renderClassTableItem(element, classTime, course) {
       '">完了</label>',
   );
   $('#extension_checkbox_complete_' + classTime).on('change', () =>
-    onCheckboxComplete(course.name, classTime),
+    onCheckboxComplete(course.courseNumberTxt, classTime),
   );
   $('#extension_checkbox_complete_' + classTime).prop('checked', course.isCompleted);
 }
 
-async function onCheckboxComplete(name, classTime) {
+async function onCheckboxComplete(courseNumberTxt, classTime) {
   $('#extension_checkbox_complete_' + classTime);
-  console.log('onCheckboxComplete: ', name, classTime);
+  console.log('onCheckboxComplete: ', courseNumberTxt, classTime);
 
   const courses = (await promiseWrapper.storage.local.get('courses')).courses;
   if (Array.isArray(courses)) {
-    const course = courses.find(course => course.name == name);
+    const course = courses.find(course => course.courseNumberTxt == courseNumberTxt);
 
     course.isCompleted = $('#extension_checkbox_complete_' + classTime).prop('checked'); // checkboxのresultを得る
+    course.completeDateTime = course.isCompleted ? Date.now() : -1;
 
     promiseWrapper.storage.local.set({ courses: courses }); // save to storage
 
