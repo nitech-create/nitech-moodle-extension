@@ -72,10 +72,10 @@ watch機能を使うことで、毎回`npm run dev`を行う必要がないの�
 
 ## 開発環境
 
-- jQuery v3.5.1
-- VSCode or Atom: エディター
-- ESLint + Prettier: JavaScript 整形ソフト
+- NodeJS v16.13.2 (node-gyp v8.4.1など)
 - Webpack: JavaScriptモジュールバンドラー
+- **VSCode** or Atom: エディター
+- **ESLint** + **Prettier**: JavaScript 整形ソフト (使ってください)
 
 ## ライセンス
 
