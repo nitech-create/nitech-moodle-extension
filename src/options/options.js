@@ -44,6 +44,7 @@ function applyOptionsFromPage(options) {
   options.backgroundColor = $('#backgroundColor').val();
   options.hideNavOnVideo = $('#hideNavOnVideo').prop('checked');
   options.timeTableMode = $('#timeTableMode').val();
+  options.timeTableCompleteMode = $('#timeTableCompleteMode').val();
   options.extentionEnable = $('#extentionEnable').prop('checked');
   options.topPageEnable = $('#topPageEnable').prop('checked');
   options.topPageHeaderVisible = $('#topPageHeaderVisible').prop('checked');
@@ -61,6 +62,7 @@ function applyPageFromOptions(options) {
   $('#backgroundColor').val(options.backgroundColor);
   $('#hideNavOnVideo').prop('checked', options.hideNavOnVideo);
   $('#timeTableMode').val(options.timeTableMode);
+  $('#timeTableCompleteMode').val(options.timeTableCompleteMode);
   $('#extentionEnable').prop('checked', options.extentionEnable);
   $('#topPageEnable').prop('checked', options.topPageEnable);
   $('#topPageHeaderVisible').prop('checked', options.topPageHeaderVisible);

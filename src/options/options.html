@@ -47,6 +47,16 @@
       </select>
     </p>
     <p>
+      <label for="timeTableCompleteMode">時間割の完了ボタンの残存時間: </label>
+      <select name="mode" id="timeTableCompleteMode">
+        <!-- <option value="0.00069444444">[for test] 1min</option> -->
+        <option value="1">1日 (1day)</option>
+        <option value="3">3日 (3days)</option>
+        <option value="7">1週間 (one week, 7days)</option>
+      </select>
+    </p>
+
+    <p>
       <button id="btnLoadDefault">load default(none save)</button>
       <button id="btnLoadCurrent">load current(none save)</button>
       <button id="btnSave">save</button>

@@ -1,6 +1,7 @@
 import $ from 'jQuery';
 import { isUndefined, isNullOrUndefined } from 'Lib/utils.js';
 import promiseWrapper from 'Lib/promiseWrapper.js';
+import optionsUtils from 'Options/optionsUtils.js';
 
 const coursesVersion = '0.0.0.2';
 
@@ -22,9 +23,11 @@ export async function getCourses() {
   // console.log('courseList: ', courseList);
 
   const oldCourses = (await promiseWrapper.storage.local.get('courses')).courses;
-  console.log('oldCourses: ', oldCourses);
+  // console.log('oldCourses: ', oldCourses);
 
-  return generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses);
+  const options = await optionsUtils.getOptions();
+
+  return generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses, options);
 }
 
 /**
@@ -51,9 +54,10 @@ function loadCourseList() {
  * @param {String} courseNumberTxtList: 授業番号表記(-あり)。 (-なしはshort付き)
  * @param {int} courseSize
  * @param {Object} oldCourses
+ * @param {Object} options
  * @return {Object} courses = {term, shortYear, courseNumberTxt, shortCourseNumberTxt, name, dayOfWeeks = {月, 日}, times = {1-2, 9-10}, url} (ただし特殊授業の場合: term, dayOfWeek = undefined)
  */
-function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses) {
+function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses, options) {
   const courses = new Array(courseSize); // result
   courses.coursesVersion = coursesVersion;
 
@@ -102,7 +106,7 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       }
     }
 
-    const completeResult = getIsCompleted(oldCourses, courseNumberTxtList[i]);
+    const completeResult = getCompleteValues(oldCourses, courseNumberTxtList[i], options);
     courses[i] = {
       version: coursesVersion /* いらないかも */,
       term: termArray[i] /* if special courses → undefined */,
@@ -120,7 +124,7 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
   return courses;
 }
 
-function getIsCompleted(oldCourses, courseNumberTxt) {
+function getCompleteValues(oldCourses, courseNumberTxt, options) {
   if (!Array.isArray(oldCourses) || oldCourses.length < 1) {
     return { isCompleted: false, completeDateTime: -1 };
   }
@@ -132,8 +136,8 @@ function getIsCompleted(oldCourses, courseNumberTxt) {
 
   const oldCourse = oldCourses.find(course => course.courseNumberTxt == courseNumberTxt);
   const oneDayTime = 1000 * 60 * 60 * 24; // millisec
+  const timeTableCompleteTime = oneDayTime * parseFloat(options.timeTableCompleteMode);
 
-  console.log('oldCourses, oldCourse: ', oldCourses, oldCourse);
   if (
     !isNullOrUndefined(oldCourse) &&
     !isNullOrUndefined(oldCourse.isCompleted) &&
@@ -142,7 +146,7 @@ function getIsCompleted(oldCourses, courseNumberTxt) {
     const now = Date.now();
     if (
       !isNullOrUndefined(oldCourse.completeDateTime) &&
-      now - oldCourse.completeDateTime <= oneDayTime
+      now - oldCourse.completeDateTime <= timeTableCompleteTime
     ) {
       // 完了時から現在の時間差が1日以下
       return { isCompleted: true, completeDateTime: oldCourses.completeDateTime };
