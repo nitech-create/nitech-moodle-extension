@@ -1,0 +1,7 @@
+{
+  name: 'extension-area',
+  target: 'top',
+  preload: [
+    'top-main',
+  ]
+}

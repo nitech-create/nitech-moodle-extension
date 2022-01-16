@@ -1,0 +1,5 @@
+{
+  name: 'restore-mini-calendar',
+  target: 'any',
+  preload: []
+}

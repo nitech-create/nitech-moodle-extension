@@ -1,0 +1,52 @@
+// コース概要
+section[data-block="myoverview"] {
+  // display: none;
+}
+
+// ページのカラム全体(左/中央/右)
+// gridで再配置
+#page-content.blocks-pre {
+  display: grid;
+  grid-template-columns: 25% 1fr;
+  grid-template-rows: auto auto;
+
+  div#region-main-box.region-main {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+    width: 100%;
+    max-width: none;
+    padding-right: 1rem;
+  }
+
+  div.columnleft {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    width: 100%;
+    max-width: none;
+  }
+
+  div.columnright {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    width: 100%;
+    max-width: none;
+  }
+
+
+  div.blockcolumn {
+    // 表示設定、プライベートファイル、バッジの項目を非表示
+    .block_mycourse_config, .block_private_files, .block_badges {
+      display: none;
+    }
+
+    // 並び替え
+    &.columnleft aside.block-region {
+      display: grid;
+      grid-template-columns: 1fr;
+
+      .block_navigation {
+        grid-row: 1 / 2;
+      }
+    }
+  }
+}

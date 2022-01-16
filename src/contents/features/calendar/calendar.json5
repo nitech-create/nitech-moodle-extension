@@ -1,0 +1,5 @@
+{
+  name: 'calendar',
+  target: '^https://cms6\.ict\.nitech\.ac\.jp/moodle38a/calendar/view\.php.+$',
+  preload: []
+}

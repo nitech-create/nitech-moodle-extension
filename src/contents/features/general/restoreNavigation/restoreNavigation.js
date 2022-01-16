@@ -1,9 +1,9 @@
 import promiseWrapper from 'Lib/promiseWrapper.js';
-import utils from 'Lib/utils.js';
+import { isUndefined } from 'Lib/utils.js';
 import $ from 'jQuery';
 
-export default function () {
-  if (!utils.isUndefined($('.depth_1 ul')[0])) {
+function restoreNavigation() {
+  if (!isUndefined($('.depth_1 ul')[0])) {
     reformNavi();
     restoreTree();
   }
@@ -19,18 +19,6 @@ function restoreTree() {
 }
 
 async function reformNavi() {
-  const courses = await promiseWrapper.storage.local
-    .get('courses')
-    .then(data => {
-      return data.courses;
-    })
-    .catch(error => {
-      console.log('Error:', error);
-      return undefined;
-    });
-
-  console.log('navigation courses: ', courses);
-
   // マイコース取得
   const list = $('.depth_1 ul').first().children('li').eq(2).children('ul').children('li');
 
@@ -53,7 +41,7 @@ async function reformNavi() {
   const type = parseInt(list.find('p').first().attr('data-node-type'));
 
   // デッドロック回避
-  if(!(isFinite(firstNum) && isFinite(firstKey) && isFinite(type))){
+  if (!(isFinite(firstNum) && isFinite(firstKey) && isFinite(type))) {
     return;
   }
 
@@ -65,7 +53,15 @@ async function reformNavi() {
   let key = firstKey;
   const ul = $('.depth_1 ul').first().children('li').eq(2).children('ul');
 
-  if (utils.isUndefined(courses)) return;
+  let courses = await promiseWrapper.storage.local
+    .get('courseList')
+    .then(data => data.courseList)
+    .catch(async error => {
+      return (await promiseWrapper.storage.local.get('courses')).courses;
+    });
+  if (isUndefined(courses)) {
+    return;
+  }
 
   for (const course of courses) {
     const li = $('<li/>')
@@ -98,3 +94,9 @@ async function reformNavi() {
     while ($('[data-node-key=' + key + ']')[0] !== undefined) key -= 1;
   }
 }
+
+import config from './restoreNavigation.json5';
+export default {
+  config,
+  func: restoreNavigation,
+};

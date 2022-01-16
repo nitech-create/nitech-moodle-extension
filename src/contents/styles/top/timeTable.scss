@@ -1,14 +1,30 @@
-header {
-  height: 50px !important;
-}
-header > * {
-  display: none;
+#extension-main-area {
+  .hidden {
+    display: none;
+  }
+
+  ul {
+    color: #373a3c;
+
+    li:hover {
+      background-color: #f7f7f7;
+    }
+  }
 }
 
+/* ここから下はTimeTableGraphicalからコピペ */
+
+// header {
+//   height: 50px !important;
+// }
+// header > * {
+//   display: none;
+// }
+
 /* コース概要 */
-section[data-block="myoverview"] {
-  display: none;
-}
+// section[data-block="myoverview"] {
+//   display: none;
+// }
 
 /* 残り時間表示 */
 .date-left-extension {
@@ -27,10 +43,14 @@ section[data-block="myoverview"] {
   border: 2px solid orange;
   background-color: white;
 }
+
 .tenminyasumi {
+  /* なにこれ */
   background-color: gainsboro;
 }
-#day_select_extension, #term_select_extension{
+
+#day_select_extension,
+#term_select_extension {
   margin-left: 1em;
   border: none;
 }
@@ -69,7 +89,7 @@ section[data-block="myoverview"] {
   border-radius: 3px;
   background-color: white;
   color: chocolate;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
 }
 .todo_button_extension:hover {
   background-color: chocolate;
@@ -80,7 +100,7 @@ section[data-block="myoverview"] {
 #overlay_extension {
   position: fixed;
   z-index: 9999;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   top: 10vh;
   left: 10vw;
   width: 80vw;
@@ -104,5 +124,5 @@ section[data-block="myoverview"] {
 }
 .todo_button_extension:hover {
   background-color: chocolate;
-  color: white,
+  color: white;
 }

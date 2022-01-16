@@ -64,5 +64,8 @@ td.calendar_event_course:hover {
 }
 
 #link-to-calendar {
-  margin: auto auto auto 150px;
+  width: 100%;
+  margin: 0;
+  text-align: right;
+  display: inline-block;
 }

@@ -1,0 +1,53 @@
+/* mini calendar 関連 */
+table.minicalendar.calendartable {
+  max-width: none;
+  margin: 0;
+}
+
+.minicalendar.calendartable tr {
+  height: 26px;
+}
+.minicalendar th {
+  background-color: #f2a55c;
+  color: white;
+}
+.minicalendar.calendartable td {
+  font-size: 14px;
+}
+
+td.mini-calendar-today {
+  box-sizing: border-box;
+  border: 2px solid orange;
+}
+td.calendar_event_course {
+  background-color: #e8e8e8;
+}
+td.day:hover {
+  background-color: #f0f0f0;
+}
+td.calendar_event_course:hover {
+  background-color: #e0e0e0;
+}
+
+.minicalendar .arrow_link svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.mini-calendar-caption {
+  display: flex;
+}
+.mini-calendar-caption span {
+  width: auto !important;
+  flex-grow: 1;
+  font-size: 18px;
+}
+.mini-calendar-caption a {
+  margin-top: 4px;
+  width: auto !important;
+}
+
+#link-to-calendar {
+  margin: auto auto auto auto;
+}

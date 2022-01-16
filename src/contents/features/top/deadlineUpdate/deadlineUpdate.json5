@@ -1,0 +1,7 @@
+{
+  name: 'deadline-update',
+  target: 'top',
+  preload: [
+    'top-main',
+  ]
+}

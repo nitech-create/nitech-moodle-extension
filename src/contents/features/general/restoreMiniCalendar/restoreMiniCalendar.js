@@ -1,37 +1,20 @@
 import $ from 'jQuery';
+import { isNullOrUndefined } from 'Lib/utils.js';
 
-export default function(){
-  if($('[data-block="calendar_month"]')[0] !== undefined){
-    editCalender($('[data-block="calendar_month"]'));
+function restoreMiniCalender() {
+  if (!isNullOrUndefined($('[data-block="calendar_month"]')[0])) {
+    editCalendar($('[data-block="calendar_month"]'));
   }
 }
 
-function editCalender(calendarMonth){
-  // カレンダーが動くように初期化
-  const code =
-    `require(['jquery', 'core_calendar/calendar_mini'], function($, CalendarMini) {
-        CalendarMini.init($('[id^=calendar-month]')[0], !0);
-    });`;
-  const script = $('<script>')[0];
-  script.textContent = code;
-  (document.head||document.documentElement).appendChild(script);
-  script.remove();
-
+function editCalendar(calendarMonth) {
   // カレンダーに移動するナビゲーションを追加
   calendarMonth
     .children('div')
-    .append(
-      '<br><a id="link-to-calendar" href="">カレンダーに移動する</a>',
-    );
+    .append('<br><a id="link-to-calendar" href="">カレンダーに移動する</a>');
 
   // カレンダーが更新されたときに再適用する処理
-  const startObserve = () => {
-    observer.observe(calendarMonth[0], {
-      childList: true,
-      subtree: true
-    });
-  }
-  const observer = new MutationObserver(() => {
+  const refleshFunc = () => {
     // 無限ループ防止
     observer.disconnect();
 
@@ -55,15 +38,32 @@ function editCalender(calendarMonth){
     `);
 
     // wrap
-    calendarMonth.find('caption').children().wrapAll('<div class="mini-calender-caption"></div>');
+    calendarMonth.find('caption').children().wrapAll('<div class="mini-calendar-caption"></div>');
 
     // 今日をハイライト
     const now = new Date();
     const dayTop = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    calendarMonth.find('td[data-day-timestamp="' + dayTop.getTime()/1000 + '"]').addClass('mini-calender-today');
+    calendarMonth
+      .find('td[data-day-timestamp="' + dayTop.getTime() / 1000 + '"]')
+      .addClass('mini-calendar-today');
 
     // 再開
     startObserve();
-  });
+  };
+
+  const startObserve = () => {
+    observer.observe(calendarMonth[0], {
+      childList: true,
+      subtree: true,
+    });
+  };
+  const observer = new MutationObserver(refleshFunc);
+  refleshFunc();
   startObserve();
 }
+
+import config from './restoreMiniCalendar.json5';
+export default {
+  config,
+  func: restoreMiniCalender,
+};

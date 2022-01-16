@@ -1,0 +1,5 @@
+{
+  name: 'videoArea',
+  target: 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php',
+  preload: [],
+}

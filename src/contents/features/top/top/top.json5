@@ -1,0 +1,5 @@
+{
+  name: 'top-main',
+  target: 'top',
+  preload: []
+}
