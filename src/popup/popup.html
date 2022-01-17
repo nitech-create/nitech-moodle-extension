@@ -1,13 +1,36 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="popup.css">
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="popup.css" />
+    <script src="popup.js" defer></script>
   </head>
   <body>
+    <header>
+      <a href="https://cms6.ict.nitech.ac.jp/moodle38a/my/index.php" target="_blank">
+        <span> NITech moodleサイトにアクセス </span>
+      </a>
+    </header>
+
     <p>
       <button id="openOptions">Open options page</button>
     </p>
-    <script src="popup.js"></script>
+    <p class="leftitem">注意: 以下設定を変更してsaveしないとページには反映されません。</p>
+    <p class="leftitem">
+      <input type="checkbox" id="extentionEnable" />
+      <label for="extentionEnable">
+        拡張機能を有効にする <br />
+        (現在、無効化しても全ての機能が無効化されないようです)
+      </label>
+    </p>
+    <p class="leftitem">
+      <input type="checkbox" id="topPageEnable" />
+      <label for="topPageEnable">トップページの処理を有効にする </label>
+    </p>
+    <p>
+      <button id="btnLoadDefault" class="button">load default (none save)</button> <br />
+      <button id="btnLoadCurrent" class="button">load current (none save)</button> <br />
+      <button id="btnSave" class="button">save</button>
+    </p>
   </body>
 </html>

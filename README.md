@@ -58,7 +58,7 @@ watch機能を使うことで、毎回`npm run dev`を行う必要がないの�
 - **全体的にナビボックス配置を大きく変更する**: <br>右左に散らばってしまっている細々な表示を左に集約する (またナビボックスとはナビゲーションを含む様々なボックスのこと)
 - **時間割**: <br>前期/後期、年、曜日で指定ができる
 - **ToDo リスト**: <br>課題と今日やるべきことの一覧と提出期限を強調する
-- **ミニカレンダーの改良**: <br>デザインを改善し、今日を枠で強調する
+- **ミニカレンダーの改良**: <br>デザインを改善し、今日の日付を枠で強調する
 
 ### 動画視聴ページ
 
@@ -72,10 +72,10 @@ watch機能を使うことで、毎回`npm run dev`を行う必要がないの�
 
 ## 開発環境
 
-- jQuery v3.5.1
-- VSCode or Atom: エディター
-- ESLint + Prettier: JavaScript 整形ソフト
+- NodeJS v16.13.2 (node-gyp v8.4.1など)
 - Webpack: JavaScriptモジュールバンドラー
+- **VSCode** or Atom: エディター
+- **ESLint** + **Prettier**: JavaScript 整形ソフト (使ってください)
 
 ## ライセンス
 
@@ -93,4 +93,4 @@ GitHub の issue は使用しないでください。
 
 ### その他
 
-主な開発者: nitech Create = [KoNITech, Sora513, .bin]
+主な開発者: nitech Create = [KoCSience, Sora513, .bin, smk7758]

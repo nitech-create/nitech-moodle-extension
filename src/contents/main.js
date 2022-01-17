@@ -33,6 +33,11 @@ $(async function onLoad() {
   const options = await optionsUtils.getOptions();
   console.log('response options: ', options);
 
+  if (!options.extentionEnable) {
+    console.log('The extension is disabled. options.extentionEnable: ', options.extentionEnable);
+    return;
+  }
+
   // 背景色変更
   $('body').css('background-color', options.backgroundColor);
 
@@ -41,12 +46,13 @@ $(async function onLoad() {
   let environment = '';
   if (topPageUrl.test(location.href)) {
     // topページでの処理
-    environment = 'top';
+    if (options.topPageEnable) {
+      environment = 'top';
+    }
   } else if (location.href === loginPageUrl) {
     // loginページでの処理 -> 以降を処理しない
     environment = 'login';
-    console.log('login page.');
-    // return;
+    // console.log('login page.');
   } else {
     // topページ以外での処理
     environment = 'other';

@@ -13,16 +13,13 @@ export async function drawTimeTableGraphical() {
 
   const defaultOfTimeTableDate = getDefaultsOfTimeTableDate();
 
-  const courses = getCourses();
+  const courses = await getCourses();
   console.log('courses: ', courses);
-
-  // ボタンによる呼び出しなどで用いるため、保存する
-  await promiseWrapper.storage.local.set({ courses: courses });
 
   // tables.html(時間割, Todoなど)をロードして枠を描画
   // const tablesHtmlFilePath = 'tables.html';
   const tablesHtml = getTablesHtml();
-  console.log('tablesFile: ', tablesHtml);
+  // console.log('tablesFile: ', tablesHtml);
   const rootElement = $('#extension-main-area');
   rootElement.append(tablesHtml);
   // $('#page').append(tablesHtml);
@@ -175,7 +172,7 @@ async function renderTimeTable(
       // classを描画！
       renderClassTable(
         course,
-        getCourseTimeFromDayOfWeek(course.times, course.dayOfWeeks, selectedDayOfWeekTxt),
+        getClassTimeFromDayOfWeek(course.times, course.dayOfWeeks, selectedDayOfWeekTxt),
         classTableSet,
       );
     }
@@ -183,7 +180,7 @@ async function renderTimeTable(
 
   // TODO: 空きコマ処理をif文で分岐するほうがきれい
   // 空きコマ埋め処理
-  console.log(classTableSet);
+  console.log('classTableSet: ', classTableSet);
   fillBlankOfClassTables(classTableSet);
 
   // reset and add event listener
@@ -240,7 +237,7 @@ async function renderTimeTable(
   }
 }
 
-function getCourseTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
+function getClassTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
   return times[dayOfWeeks.indexOf(selectedDayOfWeekTxt)];
 }
 
@@ -252,45 +249,66 @@ function renderClassTable(course, time, set) {
     switch (timeNum) {
       case '1':
       case '2':
-        $('#onegen_extension').text(course.name);
-        $('#onegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#onegen_extension', 1, course);
         set[0] = true;
         break;
       case '3':
       case '4':
-        $('#threegen_extension').text(course.name + '\n');
-        $('#threegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#threegen_extension', 3, course);
         set[1] = true;
         break;
       case '5':
       case '6':
-        $('#fivegen_extension').text(course.name + '\n');
-        $('#fivegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#fivegen_extension', 5, course);
         set[2] = true;
         break;
       case '7':
       case '8':
-        $('#sevengen_extension').text(course.name + '\n');
-        $('#sevengen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#sevengen_extension', 7, course);
         set[3] = true;
         break;
       case '9':
       case '10':
-        $('#ninegen_extension').text(course.name + '\n');
-        $('#ninegen_extension').append(
-          '<br><a href="' + course.url + '">この授業のページに移動する</a>',
-        );
+        renderClassTableItem('#ninegen_extension', 9, course);
         set[4] = true;
         break;
     }
+  }
+}
+
+function renderClassTableItem(element, classTime, course) {
+  $(element).text(course.name);
+  $(element).append('<br><a href="' + course.url + '">この授業のページに移動する</a>');
+  $(element).append(
+    '<br>' +
+      '<input type="checkbox" id="extension_checkbox_complete_' +
+      classTime +
+      '" value="' +
+      classTime +
+      '" class="extension_checkbox_complete" name="完了"><label for="extension_checkbox_complete_' +
+      classTime +
+      '">完了</label>',
+  );
+  $('#extension_checkbox_complete_' + classTime).on('change', () =>
+    onCheckboxComplete(course.courseNumberTxt, classTime),
+  );
+  $('#extension_checkbox_complete_' + classTime).prop('checked', course.isCompleted);
+}
+
+async function onCheckboxComplete(courseNumberTxt, classTime) {
+  $('#extension_checkbox_complete_' + classTime);
+  console.log('onCheckboxComplete: ', courseNumberTxt, classTime);
+
+  const courses = (await promiseWrapper.storage.local.get('courses')).courses;
+  if (Array.isArray(courses)) {
+    const course = courses.find(course => course.courseNumberTxt == courseNumberTxt);
+
+    course.isCompleted = $('#extension_checkbox_complete_' + classTime).prop('checked'); // checkboxのresultを得る
+    course.completeDateTime = course.isCompleted ? Date.now() : -1;
+
+    promiseWrapper.storage.local.set({ courses: courses }); // save to storage
+
+    console.log('onCheckboxComplete: ', course, courses);
   }
 }
 
@@ -312,24 +330,20 @@ async function onSelectTableDate() {
 
 /**
  * 週間表示の時間割の描画。
- * TODO: 実装途中です。
+ * TODO: 未実装です。
  * @param {Object} courses = {}
  */
 async function renderWeekClassTable(courses) {
   // TODO: renderWeekClassTable
-  const weekClassTableHtmlPath = 'weekClassTable.html';
-  const weekClassTableCssPath = 'weekClassTable.css';
+  // const weekClassTableHtmlPath = 'weekClassTable.html';
+  // const weekClassTableCssPath = 'weekClassTable.css';
 
   console.log('週間表示');
   if (isUndefined($('#overlay_extension').val())) {
     $('#page').append();
     $('body').append('<div id="overlay_extension"></div>');
-    $('head').append(
-      await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: weekClassTableCssPath }),
-    );
-    $('#overlay_extension').append(
-      await promiseWrapper.runtime.sendMessage({ item: 'loadFile', src: weekClassTableHtmlPath }),
-    );
+    $('head').append(getWeekClassTableCss());
+    $('#overlay_extension').append(getWeekClassTableHtml());
     $('#btnCloseWeekClassTable').on('click', () => {
       console.log('close weekClassTable.');
       $('#overlay_extension').addClass('hide');
@@ -337,6 +351,15 @@ async function renderWeekClassTable(courses) {
   } else {
     $('#overlay_extension').removeClass('hide');
   }
+}
+
+function getWeekClassTableHtml() {
+  return `<button id="btnCloseWeekClassTable">close</button>  <table id="classtable_extension_overlay">   <tr>     <th></th>     <th>月曜</th>     <th>火曜</th>     <th>水曜</th>     <th>木曜</th>     <th>金曜</th>   </tr>   <tr>     <td style="height: 90px">1限<br />8：50～9：35</td>     <td rowspan="2" id="onegen_extension_overlay"></td>   </tr>   <tr>     <td style="height: 90px">2限<br />9：35～10：20</td>   </tr>   <tr>     <td style="height: 20px">休憩<br />10：20～10：30</td>     <td class="tenminyasumi"></td>   </tr>   <tr>     <td style="height: 90px">3限<br />10：30～11：15</td>     <td rowspan="2" id="threegen_extension_overlay"></td>   </tr>   <tr>     <td style="height: 90px">4限<br />11：15～12：00</td>   </tr>   <tr>     <td style="height: 120px">昼休み<br />12：00～13：00</td>     <td class="tenminyasumi"></td>   </tr>   <tr>     <td style="height: 90px">5限<br />13：00～13：45</td>     <td rowspan="2" id="fivegen_extension_overlay"></td>   </tr>   <tr>     <td style="height: 90px">6限<br />13：45～14：30</td>   </tr>   <tr>     <td style="height: 20px">休憩<br />14：30～14：40</td>     <td class="tenminyasumi"></td>   </tr>   <tr>     <td style="height: 90px">7限<br />14：40～15：25</td>     <td rowspan="2" id="sevengen_extension_overlay"></td>   </tr>   <tr>     <td style="height: 90px">8限<br />15：25～16：10</td>   </tr>   <tr>     <td style="height: 20px">休憩<br />16：10～60：20</td>     <td class="tenminyasumi"></td>   </tr>   <tr>     <td style="height: 90px">9限<br />16：20～17：05</td>     <td rowspan="2" id="ninegen_extension_overlay"></td>   </tr>   <tr>     <td style="height: 90px">10限<br />17：05～17：50</td>   </tr> </table>`;
+}
+
+function getWeekClassTableCss() {
+  // weekClassTable.cssの改行を削除してここに貼る。ブラウザのURL欄にコピペすると良い。
+  return `#overlay_extension::-webkit-scrollbar {   width: 10px; }  #overlay_extension::-webkit-scrollbar-track {   background: #fff;   border: none;   border-radius: 10px;   box-shadow: inset 0 0 2px #777; }  #overlay_extension::-webkit-scrollbar-thumb {   background: #ccc;   border-radius: 10px;   box-shadow: none; }  #classtable_extension_overlay {   border-collapse: collapse; }  .hide {   display: none; }`;
 }
 
 // 時間割(n-n')から時間(hh:mm～hh:mm)にするやつ
