@@ -105,9 +105,3 @@ function createTimeTable(classifiedCourseList) {
 
   return wrapper;
 }
-
-// import config from './timeTable.json5';
-// export default {
-//   config,
-//   func: drawTimeTableList,
-// };

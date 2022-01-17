@@ -62,5 +62,5 @@ $(async function onLoad() {
   console.log('[Preprocess Finished]');
 
   // featuerを読み込み
-  loadFeature(features, environment);
+  loadFeature(features, environment, location.href);
 });

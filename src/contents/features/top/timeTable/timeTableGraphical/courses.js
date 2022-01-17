@@ -126,7 +126,7 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       shortYear: shortYear,
       courseNumberTxt: courseNumberTxtList[i] /* 一意(unique)のはず */,
       shortCourseNumber: shortCourseNumber,
-      name: nameArray[i] /* 再履修など、一意ではない */,
+      name: nameArray[i] /* 再履修など、一意ではない名前 */,
       dayOfWeeks: dayOfWeeksArray[i] /* dayOfWeeks = {月, 日}, if special courses → undefined*/,
       times: timesArray[i] /* times = {1-2, 9-10} */,
       url: urlArray[i],

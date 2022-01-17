@@ -30,6 +30,7 @@ export function getCourseList() {
       const url = $(itemElement).find('a.coursename').attr('href');
 
       if (/\(\d+\)\[\d\]\d+-\d+/.test(categoryName)) {
+        // 普通の授業(course)
         const nameSplit = courseName.split(' ');
         const name = nameSplit.slice(0, -3).join(' ');
         const semester = nameSplit[nameSplit.length - 2] == '前期' ? 0 : 1;
@@ -56,6 +57,7 @@ export function getCourseList() {
         return;
       }
 
+      // special course
       courseList.push({
         specialCourse: true,
         categoryName,
