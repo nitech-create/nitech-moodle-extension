@@ -1,12 +1,12 @@
 {
   "name": "nitech-moodle-chrome",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "NITechのmoodleを使いやすくするChrome拡張機能です。<br>\r Chrome Extension for NITech moodle(38a).",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nitech-create/nitech-moodle-chrome.git"
   },
-  "author": "",
+  "author": "nitechCreate",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/nitech-create/nitech-moodle-chrome/issues"
