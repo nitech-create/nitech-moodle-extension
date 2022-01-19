@@ -1,0 +1,5 @@
+{
+  name: 'upcommingEvents',
+  target: 'top',
+  preload: ['time-table'],
+}

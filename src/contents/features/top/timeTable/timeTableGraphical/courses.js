@@ -44,10 +44,10 @@ export async function getCourses() {
 }
 
 /**
- * courselist:
+ * courseList:
  * (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_cls
  * SpecialCourseはcourseShortNumberが無い
- *
+ * (正確にはcourseTextListみたいなものかもしれない)
  * @return {Array} courseList
  */
 function loadCourseList() {
@@ -119,6 +119,8 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       }
     }
 
+    const courseId = $('a.coursename').eq(i).parents('li').attr('data-course-id'); // TODO: 他の部分との整合性がない
+
     const completeResult = getCompleteValues(oldCourses, courseNumberTxtList[i], options);
     courses[i] = {
       version: coursesVersion /* いらないかも */,
@@ -132,6 +134,7 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       url: urlArray[i],
       isCompleted: completeResult.isCompleted,
       completeDateTime: completeResult.completeDateTime,
+      id: courseId,
     };
   }
   return courses;

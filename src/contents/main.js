@@ -11,6 +11,7 @@ import deadlineUpdate from 'Features/top/deadlineUpdate/deadlineUpdate';
 import calendar from 'Features/calendar/calendar.js';
 import topMain from 'Features/top/top/top.js';
 import videoArea from 'Features/general/videoArea/videoArea.js';
+import upcommingEvents from 'Features/top/upcomingEvents/upcommingEvents.js';
 
 const features = [
   topMain,
@@ -21,6 +22,7 @@ const features = [
   deadlineUpdate,
   calendar,
   videoArea,
+  upcommingEvents,
 ];
 
 $(async function onLoad() {
