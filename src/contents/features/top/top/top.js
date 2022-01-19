@@ -18,6 +18,7 @@ const onTopPage = async () => {
 
   changeCourseOverviewButton();
   await untilPageLoaded(); // TODO: なぜ2回loadしているのか、わからない…
+  changeNavItemCourseName();
 };
 
 async function changeCourseOverviewButton() {
@@ -31,6 +32,14 @@ async function changeCourseOverviewButton() {
   injectScript(
     `$('button[data-action="limit-toggle"]').next('.dropdown-menu').find('a[data-limit="0"]').trigger('click');`,
   );
+}
+
+function changeNavItemCourseName() {
+  // ナビゲーションのマイコースを講義名に変更
+  $('li.type_course p.tree_item.branch a').each((_, e) => {
+    const courseNumberTxt = $(e).text();
+    $(e).text($(e).attr('title') + '(' + courseNumberTxt + ')');
+  });
 }
 
 import config from './top.json5';
