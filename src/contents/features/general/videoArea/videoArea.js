@@ -1,10 +1,8 @@
-import promiseWrapper from 'Lib/promiseWrapper.js';
 import $ from 'jQuery';
+import optionsUtils from 'Options/optionsUtils.js';
 
 async function videoArea() {
-  const options = await promiseWrapper.runtime.sendMessage({
-    item: 'loadOptions',
-  });
+  const options = await optionsUtils.getOptions();
 
   // ナビゲーションを非表示にして、動画表示サイズを大きくする(動画視聴時のみ…？)
   // location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
