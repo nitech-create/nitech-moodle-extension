@@ -17,13 +17,17 @@ NITech 在校生。
 ### 開発の注意点
 
 - moodle サイトは落ちやすいため、リーロード処理、自分から情報を追加で呼び出すなどは控えること！
-- 名工大公式および情報基盤センターからの許諾は得ていません。
+- 情報基盤センターからの推薦ブラウザはEdge(Chromium)であり、Chromeも使用可能という感じであること
 
 ## 利用方法
 
 ### ChromeWebStore
 
-一般公開は名工大 情報基盤センターの返答を待って、ChromeWebStoreにて行う予定です。
+一般公開を下記リンクのChromeWebStoreページにて行っています！
+
+[nitech-moodle-extension - ChromeWebStore](https://chrome.google.com/webstore/detail/nitech-moodle-extension/ibhjlbmhcgcmnipnbecooagnfannciol?hl=ja)
+
+(情報基盤センターから、公開に問題がない旨を受けております 2021年4月5日付)
 
 ### GitHub開発版
 
