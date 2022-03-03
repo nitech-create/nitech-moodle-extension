@@ -83,7 +83,7 @@ watch機能を使うことで、毎回`npm run dev`を行う必要がないの�
 
 ## 開発環境
 
-- NodeJS v16.13.2 (node-gyp v8.4.1など)
+- NodeJS v16.14.0 (node-gyp v8.4.1, npm v8.4.1など) with Volta
 - Webpack: JavaScriptモジュールバンドラー
 - **VSCode** or Atom: エディター
 - **ESLint** + **Prettier**: JavaScript 整形ソフト (使ってください)
