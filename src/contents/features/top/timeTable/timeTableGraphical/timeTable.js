@@ -40,10 +40,17 @@ function getTermLetter(day) {
   return 4 <= month && month <= 9 ? '前' : '後';
 }
 
+/**
+ * 年度にあたる数字を返す。
+ * 例: 2022年4月～12月 & 2023年1月～3月 -> 2022
+ * @param {Date} nowDate
+ * @return {Number} 年度
+ */
 function getFiscalYear(nowDate) {
   // 年度で指定できるようにするところ。
-  if (1 <= nowDate.getMonth() + 1 <= 3) {
-    return Number(nowDate.getFullYear()) - 1;
+  const month = nowDate.getMonth() + 1; // Monthは0-index
+  if (1 <= month && month <= 3) {
+    return Number(nowDate.getFullYear() - 1);
   }
   return Number(nowDate.getFullYear());
 }
