@@ -78,7 +78,7 @@ export function getCourseList() {
  * 各年前後期とその他に分ける
  *
  * @param {number} courseList course
- * @return {array} classifiedList
+ * @return {array} classifiedList keyは内部関数getCategory(course)から得られる、n-nもしくはothers
  */
 export function classifyCourseList(courseList) {
   // 各年前後期とその他に分ける

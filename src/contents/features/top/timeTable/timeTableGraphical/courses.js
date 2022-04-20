@@ -92,6 +92,28 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
 
     const shortCourseNumber = String(20) + courseNumberTxtList[i].replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
     const shortYear = courseNumberTxtList[i].split(new RegExp('-'))[0];
+    if (
+      /^.*（\\d+-\\d+-\\d+[\\s]*[前後]期[\\s]*[月火水木金]曜[\\s]*\\d+-\\d+限）$/.test(
+        courseList[i],
+      )
+    ) {
+      // ソフトウェア工学2022（22-1-2620 前期 木曜5-6限）など
+      courseList[i]
+        .split(/^.*（\\d+-\\d+-\\d+[\\s]*[前後]期[\\s]*[月火水木金]曜[\\s]*\\d+-\\d+限）$/)
+        .filter(value => {
+          return value != '';
+        });
+      // TODO
+    }
+    // 集中講義
+    if (/^.*\\s\\d+\\s([前後]期)\\s(集中)[^]*$/.test(courseList[i])) {
+      // TODO
+    }
+    // 通常講義: ^.*\s\d+\s([前後]期)(\s[月火水木金]曜\d+-\d+限)+[^]*$
+    if (/^.*\s\d+\s([前後]期)(\s[月火水木金]曜\d+-\d+限)+[^]*$/.test(courseList[i])) {
+      // TODO
+    }
+
     const courseContainerArray = courseList[i]
       .split(new RegExp(shortCourseNumber + '|期|曜|限|_cls'))
       .filter(value => {
@@ -102,6 +124,7 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
     nameArray[i] = courseContainerArray[0];
     urlArray[i] = $('.course-listitem .coursename').eq(i).attr('href');
 
+    // timeとtermのパーサー
     if (courseContainerArray.length == 1) {
       // 特殊なクラス(時間割じゃないコース)
       termArray[i] = undefined;
