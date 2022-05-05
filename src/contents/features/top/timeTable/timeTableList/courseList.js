@@ -23,7 +23,7 @@ export function getCourseList() {
 
   rootJElement.find('li').each((index, itemElement) => {
     try {
-      const categoryName = $(itemElement).find('.categoryname').text().trim();
+      const categoryName = $(itemElement).find('.categoryname').text().trim(); // TODO: ここについての理解をする
       const shortenedName = $(itemElement).find('.categoryname').siblings().last().text().trim();
       const shortenedYear = parseInt(shortenedName.split('-')[0]);
       const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim();

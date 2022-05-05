@@ -53,7 +53,7 @@ export async function getCourses() {
 function loadCourseList() {
   const courseList = $('.course-listitem .coursename')
     .text()
-    .replace(/\s+/g, '')
+    .replace(/\s+/g, '') /* これいる？ */
     .split('コース星付きコース名');
   courseList.shift();
 
@@ -63,7 +63,7 @@ function loadCourseList() {
 /**
  * 取得してきたcourseの要素達から変換し、coursesを生成する。
  *
- * @param {Array} courseList: 通常コース: (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_cls, 特殊コースはSpecialCourseはcourseShortNumberが無い。
+ * @param {Array} courseList: スペースなし授業名, 通常コース: (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_(cls|cla), 特殊コースはSpecialCourseはcourseShortNumberが無い。
  * @param {String} courseNumberTxtList: 授業番号表記(-あり)。 (-なしはshort付き)
  * @param {int} courseSize
  * @param {Object} oldCourses
@@ -109,13 +109,13 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
     if (/^.*\\s\\d+\\s([前後]期)\\s(集中)[^]*$/.test(courseList[i])) {
       // TODO
     }
-    // 通常講義: ^.*\s\d+\s([前後]期)(\s[月火水木金]曜\d+-\d+限)+[^]*$
-    if (/^.*\s\d+\s([前後]期)(\s[月火水木金]曜\d+-\d+限)+[^]*$/.test(courseList[i])) {
+    // 通常講義: ^.*\d+\s*([前後]期)(\s*[月火水木金]曜\d+-\d+限)+[^]*$
+    if (/^.*\\d+\\s*([前後]期)(\\s*[月火水木金]曜\\d+-\\d+限)+[^]*$/.test(courseList[i])) {
       // TODO
     }
 
     const courseContainerArray = courseList[i]
-      .split(new RegExp(shortCourseNumber + '|期|曜|限|_cls'))
+      .split(new RegExp(shortCourseNumber + '|期|曜|限|_cls|_cla'))
       .filter(value => {
         return value != '';
       });
