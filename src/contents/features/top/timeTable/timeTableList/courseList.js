@@ -23,16 +23,27 @@ export function getCourseList() {
 
   rootJElement.find('li').each((index, itemElement) => {
     try {
-      const categoryName = $(itemElement).find('.categoryname').text().trim(); // TODO: ここについての理解をする
-      const shortenedName = $(itemElement).find('.categoryname').siblings().last().text().trim();
-      const shortenedYear = parseInt(shortenedName.split('-')[0]);
-      const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim();
+      const categoryName = $(itemElement).find('.categoryname').text().trim(); // (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？
+      const shortenedName = $(itemElement).find('.categoryname').siblings().last().text().trim(); // 21-1-6162 こういうやつ
+      const shortenedYear = parseInt(shortenedName.split('-')[0]); // 20nn年のnn部分
+      const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim(); // trim済み, (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_(cls|cla)
       const url = $(itemElement).find('a.coursename').attr('href');
 
       if (/\(\d+\)\[\d\]\d+-\d+/.test(categoryName)) {
         const nameSplit = courseName.split(' ');
-        const name = nameSplit.slice(0, -3).join(' ');
-        const semester = nameSplit[nameSplit.length - 2] == '前期' ? 0 : 1;
+        const name = nameSplit.slice(0, -3).join(' '); // 授業名
+        const getSemester = semesterText => {
+          switch (semesterText) {
+            case '前期':
+              return 0;
+            case '後期':
+              return 1;
+            default:
+              return -1;
+          }
+          // return semesterText == '前期' ? 0 : 1;
+        };
+        const semester = getSemester(nameSplit[nameSplit.length - 2]);
         const periodSplit = nameSplit[nameSplit.length - 1]
           .replace(/^([月火水木金]曜)(\d+)-(\d+)限_(?:.+)$/, '$1 $2 $3')
           .split(' ');

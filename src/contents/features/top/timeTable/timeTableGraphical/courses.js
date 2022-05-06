@@ -4,6 +4,25 @@ import promiseWrapper from 'Lib/promiseWrapper.js';
 import optionsUtils from 'Options/optionsUtils.js';
 
 const coursesVersion = '0.0.0.2';
+const Term = {
+  // TODO: あんまりキレイじゃない
+  firstSemester: Symbol('前期'),
+  secondSemester: Symbol('後期'),
+  intensiveCourse: Symbol('集中'),
+
+  getTerm: termText => {
+    switch (termText) {
+      case '前期':
+        return Term.firstSemester;
+      case '後期':
+        return Term.secondSemester;
+      case '集中':
+        return Term.intensiveCourse;
+      default:
+        return undefined;
+    }
+  },
+};
 
 /** 注意: 内部的にstorageに保存を行っています */
 export async function getCourses() {
@@ -53,9 +72,114 @@ export async function getCourses() {
 function loadCourseList() {
   const courseList = $('.course-listitem .coursename')
     .text()
-    .replace(/\s+/g, '') /* これいる？ */
+    .replace(/\s+/g, '')
     .split('コース星付きコース名');
   courseList.shift();
+
+  return courseList;
+}
+
+/**
+ * courseList: 通常コース: (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_cls, 特殊コースはSpecialCourseはcourseShortNumberが無い。
+ * @return {Object} courses = {term, shortYear, courseNumberTxt, shortCourseNumberTxt, name, dayOfWeeks = {月, 日}, times = {1-2, 9-10}, url} (ただし特殊授業の場合: term, dayOfWeek = undefined)
+ * specialCourse {boolean}, categoryName = {}
+          categoryName,
+          shortenedName,
+          shortenedYear,
+          url,
+          name,
+          semester,
+          dayOfWeek,
+          startPeriod,
+          endPeriod,
+ */
+export function getCourseList() {
+  const courseList = [];
+  courseList.coursesVersion = coursesVersion;
+
+  const rootJElement = $('#block-region-content div[data-region="courses-view"]');
+  if (rootJElement.length <= 0) return [];
+
+  rootJElement.find('li').each((index, itemElement) => {
+    try {
+      const categoryName = $(itemElement).find('.categoryname').text().trim(); // (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？
+      const courseNumberTxt = $(itemElement).find('.categoryname').siblings().last().text().trim(); // 21-1-6162 こういうやつ
+      const shortenedYear = parseInt(courseNumberTxt.split('-')[0]); // 20nn年のnn部分
+      const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim(); // trim済み, (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_(cls|cla)
+      const url = $(itemElement).find('a.coursename').attr('href');
+
+      if (/\(\d+\)\[\d\]\d+-\d+/.test(categoryName)) {
+        const courseNameSplit = courseName.split(' '); // 空白でsplit
+        const name = courseNameSplit.slice(0, -3).join(' '); // 授業名
+        const getSemester = semesterText => {
+          switch (semesterText) {
+            case '前期':
+              return 0;
+            case '後期':
+              return 1;
+            default:
+              return -1;
+          }
+          // return semesterText == '前期' ? 0 : 1;
+        };
+        const semester = getSemester(courseNameSplit[courseNameSplit.length - 2]);
+
+        const term = Term.getTerm(courseNameSplit[courseNameSplit.length - 2]);
+
+        const periodSplit = courseNameSplit[
+          courseNameSplit.length - 1
+        ] /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */
+          .replace(
+            /^(([月火水木金])曜(\d)-(\d)限\s*)+_(?:.+)$/,
+            '$1 $2 $3',
+          ) /* キャプチャした文字列を空白区切りに変換 */
+          .split(' '); /* 配列化 */
+
+        // TODO: 「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
+        const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
+
+        // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
+        const startPeriod = parseInt(periodSplit[1]);
+        const endPeriod = parseInt(periodSplit[2]);
+
+        const shortCourseNumber = /* 西暦→ */ '20' + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
+
+        // 授業コース
+        courseList.push({
+          version: coursesVersion,
+          specialCourse: false,
+          categoryName /** (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？ */,
+          name /** 授業名 */,
+          shortenedName: courseNumberTxt /** 21-1-6162 こういうやつ */,
+          courseNumberTxt,
+          shortCourseNumber,
+          url,
+          shortenedYear, // TODO: rename from shortYear
+          shortYear: shortenedYear, // TODO: remove shortYear
+          semester, // TODO: remove semester
+          term /* termはsemesterにさらに集中講義とかも含めているやつ if 集中以外のspecial courses → undefined */,
+          dayOfWeek, // TODO: remove, going to be dayOfWeek"s".
+          dayOfWeeks,
+          startPeriod,
+          endPeriod,
+        });
+        return;
+      }
+
+      courseList.push({
+        specialCourse: true,
+        categoryName,
+        shortenedName: courseNumberTxt,
+        shortenedYear,
+        url,
+        name: courseName,
+      });
+    } catch (e) {
+      // do nothing
+    }
+  });
+
+  console.log('courseList: ', courseList);
 
   return courseList;
 }
@@ -90,32 +214,28 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       continue;
     }
 
-    const shortCourseNumber = String(20) + courseNumberTxtList[i].replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
+    const shortCourseNumber = String(20) /* ← 西暦 */ + courseNumberTxtList[i].replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
     const shortYear = courseNumberTxtList[i].split(new RegExp('-'))[0];
-    if (
-      /^.*（\\d+-\\d+-\\d+[\\s]*[前後]期[\\s]*[月火水木金]曜[\\s]*\\d+-\\d+限）$/.test(
-        courseList[i],
-      )
-    ) {
-      // ソフトウェア工学2022（22-1-2620 前期 木曜5-6限）など
+    if (/^.*（\d+-\d+-\d+[\s]*[前後]期[\s]*[月火水木金]曜[\s]*\d+-\d+限）$/.test(courseList[i])) {
+      // ソフトウェア工学2022（22-1-2620 前期 木曜5-6限）など: ^.*（\d+-\d+-\d+[\s]*[前後]期[\s]*[月火水木金]曜[\s]*\d+-\d+限）$
       courseList[i]
-        .split(/^.*（\\d+-\\d+-\\d+[\\s]*[前後]期[\\s]*[月火水木金]曜[\\s]*\\d+-\\d+限）$/)
+        .split(/^.*（\d+-\d+-\d+[\s]*[前後]期[\s]*[月火水木金]曜[\s]*\d+-\d+限）$/)
         .filter(value => {
           return value != '';
         });
       // TODO
     }
     // 集中講義
-    if (/^.*\\s\\d+\\s([前後]期)\\s(集中)[^]*$/.test(courseList[i])) {
+    if (/^.*\s\d+\s([前後]期)\s(集中)[^]*$/.test(courseList[i])) {
       // TODO
     }
-    // 通常講義: ^.*\d+\s*([前後]期)(\s*[月火水木金]曜\d+-\d+限)+[^]*$
-    if (/^.*\\d+\\s*([前後]期)(\\s*[月火水木金]曜\\d+-\\d+限)+[^]*$/.test(courseList[i])) {
+    // 通常講義
+    if (/^.*\d+\s*([前後]期)(\s*[月火水木金]曜\d+-\d+限)+[^]*$/.test(courseList[i])) {
       // TODO
     }
 
     const courseContainerArray = courseList[i]
-      .split(new RegExp(shortCourseNumber + '|期|曜|限|_cls|_cla'))
+      .split(new RegExp(shortCourseNumber + '|期|曜|限|_cls'))
       .filter(value => {
         return value != '';
       });
@@ -131,7 +251,7 @@ function generateCourses(courseList, courseNumberTxtList, courseSize, oldCourses
       timesArray[i] = undefined;
     } else {
       // 通常クラス
-      termArray[i] = courseContainerArray[1];
+      termArray[i] = courseContainerArray[1]; // 前, 後 (string)
 
       // 週複数授業の曜日と時間(限)
       dayOfWeeksArray[i] = [];
