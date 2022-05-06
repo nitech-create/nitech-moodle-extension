@@ -64,6 +64,7 @@ export function getCourseList() {
           startPeriod,
           endPeriod,
         });
+        return;
       }
 
       courseList.push({
