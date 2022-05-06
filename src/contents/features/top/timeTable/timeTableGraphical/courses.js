@@ -59,6 +59,9 @@ export async function getCourses() {
   // ボタンによる呼び出しなどで用いるため、保存する
   await promiseWrapper.storage.local.set({ courses: courses });
 
+  // TODO: 検証中
+  getCourseList();
+
   return courses;
 }
 
@@ -94,6 +97,9 @@ function loadCourseList() {
           endPeriod,
  */
 export function getCourseList() {
+  // TODO:
+  console.log('start getCourseList');
+
   const courseList = [];
   courseList.coursesVersion = coursesVersion;
 
@@ -126,6 +132,7 @@ export function getCourseList() {
 
         const term = Term.getTerm(courseNameSplit[courseNameSplit.length - 2]);
 
+        /** 0: 曜日, 1: start, 2: end */
         const periodSplit = courseNameSplit[
           courseNameSplit.length - 1
         ] /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */
@@ -134,6 +141,41 @@ export function getCourseList() {
             '$1 $2 $3',
           ) /* キャプチャした文字列を空白区切りに変換 */
           .split(' '); /* 配列化 */
+
+        // TODO: 未検証
+        const parseCourseInfo = courseNameOthers => {
+          const periodSplits = [];
+          console.log('courseNameOthers: ', courseNameOthers);
+          let tmp = courseNameOthers;
+          const indexOfUnderscore = tmp.lastIndexOf('_');
+          if (tmp.length - 5 < indexOfUnderscore) {
+            tmp = tmp.slice(0, indexOfUnderscore).trim();
+          }
+
+          console.log('start parse', tmp);
+          while (tmp != '') {
+            console.log('tmp: ', tmp);
+
+            const tmpFirst = tmp.replace(
+              /^([月火水木金])曜(\d)-(\d)限/,
+              '$1 $2 $3',
+            ); /* キャプチャした文字列を空白区切りに変換 */
+            // $4は残りの情報
+            periodSplits.push(tmpFirst.split(' ')); // 2重配列にする
+
+            tmp = tmp.replace(/^([月火水木金])曜(\d)-(\d)限(.*)/, '$4').trim();
+          }
+          console.log('end parse');
+
+          return periodSplits;
+        };
+
+        const periodSplits = parseCourseInfo(
+          courseNameSplit[
+            courseNameSplit.length - 1
+          ] /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */,
+        );
+        console.log('periodSplits: ', periodSplits);
 
         // TODO: 「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
         const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
@@ -159,7 +201,7 @@ export function getCourseList() {
           semester, // TODO: remove semester
           term /* termはsemesterにさらに集中講義とかも含めているやつ if 集中以外のspecial courses → undefined */,
           dayOfWeek, // TODO: remove, going to be dayOfWeek"s".
-          dayOfWeeks,
+          dayOfWeeks: [],
           startPeriod,
           endPeriod,
         });
