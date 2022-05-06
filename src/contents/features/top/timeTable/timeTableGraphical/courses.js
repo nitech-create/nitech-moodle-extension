@@ -150,6 +150,7 @@ export function getCourseList() {
               categoryName,
               url,
               shortenedYear,
+              shortCourseNumber,
             ),
           );
           return;
@@ -184,6 +185,7 @@ export function getCourseList() {
  * @param {*} categoryName: (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？
  * @param {*} url: URL
  * @param {*} shortenedYear: 西暦20nn年のnn部分
+ * @param {int} shortCourseNumber
  * @return {course} course
  */
 function parseCourseName(
@@ -194,11 +196,17 @@ function parseCourseName(
   categoryName,
   url,
   shortenedYear,
+  shortCourseNumber,
 ) {
-  const courseNameSplitWithSpace = courseNameSplitOtherTxt.split(' ').filter(value => {
-    return value != ''; // なぜか発生する空白だけの要素をなくす
-  });
-  console.log('courseNameSplitWithSpace: ', courseNameSplitWithSpace);
+  /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */
+  const semesterAndOthers = courseNameSplitOtherTxt.replace(/^([前後])期/, '$1');
+  const semesterText = semesterAndOthers[0];
+  console.log('semesterText: [' + name + ']' + semesterText);
+
+  // const courseNameSplitWithSpace = courseNameSplitOtherTxt.split(' ').filter(value => {
+  //   return value != ''; // なぜか発生する空白だけの要素をなくす
+  // });
+  // console.log('courseNameSplitWithSpace: ', courseNameSplitWithSpace);
 
   const getSemester = semesterText => {
     switch (semesterText) {
@@ -211,20 +219,19 @@ function parseCourseName(
     }
     // return semesterText == '前期' ? 0 : 1;
   };
-  const semester = getSemester(courseNameSplitWithSpace[0]);
+  const semester = getSemester(semesterText);
+  /** termはsemesterとは異なり、Termを用いるなど */
+  const term = Term.getTerm(semesterText);
 
-  const term = Term.getTerm(courseNameSplitWithSpace[0]);
-
+  const withoutSemesterTxt = semesterAndOthers.slice(1).trim();
   // これは多分、複数曜日に非対応
   /** 授業の情報 | [0: 曜日, 1: start, 2: end] */
-  const periodSplit = courseNameSplitWithSpace[
-    courseNameSplitWithSpace.length - 1
-  ] /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */
+  const periodSplit = withoutSemesterTxt
     .replace(
-      /^(([月火水木金])曜(\d)-(\d)限\s*)+_(?:.+)$/,
+      /^(([月火水木金])曜(\d+)-(\d+)限\s*)+_(?:.+)$/,
       '$1 $2 $3',
     ) /* キャプチャした文字列を空白区切りに変換 */
-    .split(' '); /* 配列化 */
+    .split(' '); /* 配列化 */ // TODO: remove
 
   const parseCourseInfo = courseNameOthers => {
     const periodSplits = [];
@@ -240,36 +247,34 @@ function parseCourseName(
 
     console.log('start parse [' + name + ']', tmp);
     for (let i = 0; tmp != '' && i < 5; i++) {
-      // 5回以上曜日とかが出てこないと信じて
+      // 週に5回以上ある授業はない、と信じて
       console.log('tmp: [' + name + ']', tmp);
-      tmp = tmp.replace(
-        /^([月火水木金])曜(\d)-(\d)限(.*)/,
-        '$1 $2 $3 $4',
-      ); /* キャプチャした文字列を空白区切りに変換 */
-
-      // $4は残りの情報
+      /* キャプチャした文字列を空白区切りに変換 */
+      tmp = tmp.replace(/^([月火水木金])曜(\d+)-(\d+)限(.*)/, '$1 $2 $3 $4'); // $4は残りの情報
       console.log('tmp F: [' + name + ']', tmp, tmp.split(' '));
-      const tmpSplit = tmp.split(' ');
+      const tmpSplit = tmp.split(' ').filter(value => value != ''); // 空白で分割し、謎の""要素を削除
       periodSplits.push(tmpSplit.slice(0, 3)); // 2重配列にする
-      tmp = tmpSplit[tmpSplit.length - 1].trim();
+      console.log('tmpSplit: [' + name + ']', tmpSplit);
+      if (tmpSplit.length > 3) {
+        tmp = tmpSplit[tmpSplit.length - 1].trim(); // 残りの曜日要素
+      } else {
+        break;
+      }
     }
     console.log('end parse');
     return periodSplits;
   };
-  const periodSplits = parseCourseInfo(
-    courseNameSplitWithSpace[
-      courseNameSplitWithSpace.length - 1
-    ] /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */,
-  );
-  // console.log('periodSplits: ', periodSplits);
-  // TODO: 「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
+  const periodSplits = parseCourseInfo(withoutSemesterTxt);
+  console.log('periodSplits: [' + name + ']', periodSplits);
+  // 注意:「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
+
   const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
 
   // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
   const startPeriod = parseInt(periodSplit[1]);
   const endPeriod = parseInt(periodSplit[2]);
 
-  const shortCourseNumber = /* 西暦→ */ '20' + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
+  // const shortCourseNumber = /* 西暦→ */ '20' + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
 
   return {
     version: coursesVersion,
