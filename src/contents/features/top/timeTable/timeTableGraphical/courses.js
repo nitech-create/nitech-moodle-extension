@@ -4,6 +4,7 @@ import promiseWrapper from 'Lib/promiseWrapper.js';
 import optionsUtils from 'Options/optionsUtils.js';
 
 const coursesVersion = '0.0.0.2';
+const courseListVersion = '0.0.1.0';
 const Term = {
   // TODO: あんまりキレイじゃない
   firstSemester: Symbol('前期'),
@@ -101,7 +102,7 @@ export function getCourseList() {
   console.log('start getCourseList');
 
   const courseList = [];
-  courseList.coursesVersion = coursesVersion;
+  courseList.coursesVersion = courseListVersion;
 
   const rootJElement = $('#block-region-content div[data-region="courses-view"]');
   if (rootJElement.length <= 0) return [];
@@ -140,19 +141,26 @@ export function getCourseList() {
         ) {
           console.log('|courseName OK: ', name);
           // 通常授業
-          courseList.push(
-            parseCourseName(
-              courseName,
-              name,
-              courseNameSplit[1],
-              courseNumberTxt,
-              courseList,
-              categoryName,
-              url,
-              shortenedYear,
-              shortCourseNumber,
-            ),
-          );
+          const parsedObj = parseCourseName(name, courseNameSplit[1]);
+          courseList.push({
+            version: courseListVersion,
+            specialCourse: false,
+            categoryName: categoryName /** (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？ */,
+            name: name /** 授業名 */,
+            shortenedName: courseNumberTxt /** 21-1-6162 こういうやつ */,
+            courseNumberTxt: courseNumberTxt,
+            shortCourseNumber: shortCourseNumber,
+            url: url,
+            shortenedYear: shortenedYear,
+            shortYear: shortenedYear,
+            semester: parsedObj.semester,
+            term: parsedObj.term /* termはsemesterにさらに集中講義とかも含めているやつ if 集中以外のspecial courses → undefined */,
+            dayOfWeek: parsedObj.dayOfWeek,
+            dayOfWeeks: [],
+            startPeriod: parsedObj.startPeriod,
+            endPeriod: parsedObj.endPeriod,
+            periodSplits: parsedObj.periodSplits,
+          });
           return;
         } else {
           console.log('|courseName NO');
@@ -160,6 +168,7 @@ export function getCourseList() {
       }
 
       courseList.push({
+        version: courseListVersion,
         specialCourse: true,
         categoryName,
         shortenedName: courseNumberTxt,
@@ -178,30 +187,15 @@ export function getCourseList() {
 
 /**
  * courseNameをパースしてcourseListに追加可能な形式にします。
- * @param {String} courseName 授業名というか、長いコース名
  * @param {String} name 授業名
  * @param {String} courseNameSplitOtherTxt 授業名(name)とcourseNumber以外のcourseName部分 理系基礎演習 202010131 "前期 火曜9-10限  金曜5-6限_cls"
- * @param {*} courseNumberTxt: 授業番号表記(-あり)。 (-なしはshort付き) 21-1-6162 こういうやつ
- * @param {*} categoryName: (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？
- * @param {*} url: URL
- * @param {*} shortenedYear: 西暦20nn年のnn部分
- * @param {int} shortCourseNumber
- * @return {course} course
+ * @return {*} parsed object
  */
-function parseCourseName(
-  courseName,
-  name,
-  courseNameSplitOtherTxt,
-  courseNumberTxt,
-  categoryName,
-  url,
-  shortenedYear,
-  shortCourseNumber,
-) {
+function parseCourseName(name, courseNameSplitOtherTxt) {
   /* 空白でsplitした部分の最後の要素(= 授業名, courseNumberを除く) */
   const semesterAndOthers = courseNameSplitOtherTxt.replace(/^([前後])期/, '$1');
-  const semesterText = semesterAndOthers[0];
-  console.log('semesterText: [' + name + ']' + semesterText);
+  const semesterText = semesterAndOthers[0] + '期';
+  console.log('semesterText: [' + name + ']', semesterText);
 
   // const courseNameSplitWithSpace = courseNameSplitOtherTxt.split(' ').filter(value => {
   //   return value != ''; // なぜか発生する空白だけの要素をなくす
@@ -222,7 +216,9 @@ function parseCourseName(
   const semester = getSemester(semesterText);
   /** termはsemesterとは異なり、Termを用いるなど */
   const term = Term.getTerm(semesterText);
+  console.log('Term: ', term, semesterText);
 
+  // --- 以下、 前期後期 以外 ---
   const withoutSemesterTxt = semesterAndOthers.slice(1).trim();
   // これは多分、複数曜日に非対応
   /** 授業の情報 | [0: 曜日, 1: start, 2: end] */
@@ -268,7 +264,8 @@ function parseCourseName(
   console.log('periodSplits: [' + name + ']', periodSplits);
   // 注意:「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
 
-  const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]);
+  // TODO: dayOfWeeks
+  const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]); // TODO: remove
 
   // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
   const startPeriod = parseInt(periodSplit[1]);
@@ -276,25 +273,7 @@ function parseCourseName(
 
   // const shortCourseNumber = /* 西暦→ */ '20' + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
 
-  return {
-    version: coursesVersion,
-    specialCourse: false,
-    categoryName /** (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？ */,
-    name /** 授業名 */,
-    shortenedName: courseNumberTxt /** 21-1-6162 こういうやつ */,
-    courseNumberTxt,
-    shortCourseNumber,
-    url,
-    shortenedYear,
-    shortYear: shortenedYear,
-    semester,
-    term /* termはsemesterにさらに集中講義とかも含めているやつ if 集中以外のspecial courses → undefined */,
-    dayOfWeek,
-    dayOfWeeks: [],
-    startPeriod,
-    endPeriod,
-    periodSplits,
-  };
+  return { semester, term, dayOfWeek, startPeriod, endPeriod, periodSplits };
 }
 
 /**
