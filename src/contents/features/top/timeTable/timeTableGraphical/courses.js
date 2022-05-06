@@ -116,22 +116,22 @@ export function getCourseList() {
       const courseName = $(itemElement).find('.coursename')[0].childNodes[4].textContent.trim(); // trim済み, (授業名)(courseShortNumber)(前/後)期(月/...)曜(n-n')限_(cls|cla)
       const url = $(itemElement).find('a.coursename').attr('href');
 
-      console.log('TEST', categoryName);
+      // console.log('TEST', categoryName);
       if (/\(\d+\)\[\d\]\d+-\d+/.test(categoryName)) {
-        console.log('TEST2', categoryName);
+        // console.log('TEST2', categoryName);
         // const courseNameSplit = courseName.split(' '); // 空白でsplit
         // const name = courseNameSplit.slice(0, -3).join(' '); // 授業名, 複数曜日でx
         // const name = courseNameSplit[0]; // Academic Englishなどがx
         const shortCourseNumber = String(20) /* ← 西暦 */ + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
-        const courseNameSplit = courseName.split(shortCourseNumber); // 番号でsplit
+        const courseNameSplit = courseName.split(shortCourseNumber).map(value => value.trim()); // 番号でsplit
         const name = courseNameSplit[0]; // 授業名
 
-        if (categoryName == '(20)[1]0-3' && name.includes('理系基礎演習')) {
-          // console.log('AAA', courseNameSplit);
-          console.log('AAA NAME', name);
-        }
+        // if (categoryName == '(20)[1]0-3' && name.includes('理系基礎演習')) {
+        //   // console.log('AAA', courseNameSplit);
+        //   console.log('AAA NAME', name);
+        // }
 
-        console.log('|courseName: [' + name + ']', courseName.replace(name, '').trim());
+        // console.log('|courseName: [' + name + ']', courseName.replace(name, '').trim());
 
         if (
           /^(\d+)\s*([前後]期)\s*([月火水木金]曜\d+-\d+限\s*)+.*$/.test(
@@ -228,30 +228,32 @@ function parseCourseName(
 
   const parseCourseInfo = courseNameOthers => {
     const periodSplits = [];
-    // console.log('courseNameOthers: ', courseNameOthers);
+    console.log('courseNameOthers: [' + name + ']', courseNameOthers);
     let tmp = courseNameOthers;
+
+    // 最後の_clsとかを削除
     const indexOfUnderscore = tmp.lastIndexOf('_');
     if (tmp.length - 5 < indexOfUnderscore) {
       // indexが4文字以下
       tmp = tmp.slice(0, indexOfUnderscore).trim();
     }
 
-    // console.log('start parse', tmp);
+    console.log('start parse [' + name + ']', tmp);
     for (let i = 0; tmp != '' && i < 5; i++) {
       // 5回以上曜日とかが出てこないと信じて
-      // console.log('tmp: ', tmp);
+      console.log('tmp: [' + name + ']', tmp);
       tmp = tmp.replace(
         /^([月火水木金])曜(\d)-(\d)限(.*)/,
         '$1 $2 $3 $4',
       ); /* キャプチャした文字列を空白区切りに変換 */
 
       // $4は残りの情報
-      // console.log('tmp F: ', tmp, tmp.split(' '));
+      console.log('tmp F: [' + name + ']', tmp, tmp.split(' '));
       const tmpSplit = tmp.split(' ');
       periodSplits.push(tmpSplit.slice(0, 3)); // 2重配列にする
       tmp = tmpSplit[tmpSplit.length - 1].trim();
     }
-    // console.log('end parse');
+    console.log('end parse');
     return periodSplits;
   };
   const periodSplits = parseCourseInfo(
