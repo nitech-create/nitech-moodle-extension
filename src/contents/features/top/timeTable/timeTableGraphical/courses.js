@@ -142,7 +142,6 @@ export function getCourseList() {
           ) /* キャプチャした文字列を空白区切りに変換 */
           .split(' '); /* 配列化 */
 
-        // TODO: 未検証
         const parseCourseInfo = courseNameOthers => {
           const periodSplits = [];
           console.log('courseNameOthers: ', courseNameOthers);
@@ -156,14 +155,16 @@ export function getCourseList() {
           while (tmp != '') {
             console.log('tmp: ', tmp);
 
-            const tmpFirst = tmp.replace(
-              /^([月火水木金])曜(\d)-(\d)限/,
-              '$1 $2 $3',
+            tmp = tmp.replace(
+              /^([月火水木金])曜(\d)-(\d)限(.*)/,
+              '$1 $2 $3 $4',
             ); /* キャプチャした文字列を空白区切りに変換 */
             // $4は残りの情報
-            periodSplits.push(tmpFirst.split(' ')); // 2重配列にする
 
-            tmp = tmp.replace(/^([月火水木金])曜(\d)-(\d)限(.*)/, '$4').trim();
+            console.log('tmp F: ', tmp, tmp.split(' '));
+            const tmpSplit = tmp.split(' ');
+            periodSplits.push(tmpSplit.slice(0, 3)); // 2重配列にする
+            tmp = tmpSplit[tmpSplit.length - 1].trim();
           }
           console.log('end parse');
 
