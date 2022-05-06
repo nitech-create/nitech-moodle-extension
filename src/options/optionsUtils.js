@@ -8,7 +8,7 @@ const defaultOptions = {
   topPageEnable: true,
   topPageHeaderVisible: true,
   timeTableMode: 'graphical', // 'list' or 'graphical'
-  timeTableCompleteMode: '1',
+  timeTableCompleteMode: 5,
   backgroundColor: '#ffdead', // NavajoWhite
   hideNavOnVideo: true,
 };
@@ -20,7 +20,7 @@ const options = {
   topPageEnable: true,
   topPageHeaderVisible: true,
   timeTableMode: 'list', // 'list' or 'graphical'
-  timeTableCompleteMode: '1',
+  timeTableCompleteMode: 5,
   backgroundColor: '#ffdead', // NavajoWhite
   hideNavOnVideo: true,
 };
