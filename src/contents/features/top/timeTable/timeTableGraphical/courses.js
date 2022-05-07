@@ -7,23 +7,59 @@ const coursesVersion = '0.0.0.2';
 const courseListVersion = '0.0.1.0';
 const Term = {
   // TODO: あんまりキレイじゃない
-  firstSemester: Symbol('前期'),
-  secondSemester: Symbol('後期'),
-  intensiveCourse: Symbol('集中'),
+  FIRST_SEMESTER: Symbol('前期'),
+  SECOND_SEMESTER: Symbol('後期'),
+  // intensiveCourse: Symbol('集中'),
 
   getTerm: termText => {
     switch (termText) {
       case '前期':
-        return Term.firstSemester;
+        return Term.FIRST_SEMESTER;
       case '後期':
-        return Term.secondSemester;
-      case '集中':
-        return Term.intensiveCourse;
+        return Term.SECOND_SEMESTER;
+      // case '集中':
+      //   return Term.intensiveCourse;
       default:
         return undefined;
     }
   },
 };
+// TODO: 追加予定
+// const DayOfWeek = {
+//   SUNDAY: Symbol('日'), // 0
+//   MONDAY: Symbol('月'), // 1
+//   TUESDAY: Symbol('火'), // 2
+//   WEDNESDAY: Symbol('水'), // 3
+//   THURSDAY: Symbol('木'), // 4
+//   FRIDAY: Symbol('金'), // 5
+//   SATURDAY: Symbol('土'), // 6
+// };
+// const DayOfWeeks = {
+//   values: [
+//     DayOfWeek.SUNDAY,
+//     DayOfWeek.MONDAY,
+//     DayOfWeek.TUESDAY,
+//     DayOfWeek.WEDNESDAY,
+//     DayOfWeek.THURSDAY,
+//     DayOfWeek.FRIDAY,
+//     DayOfWeek.SATURDAY,
+//   ],
+//   getDayOfWeek: index => {
+//     return DayOfWeeks.values[index];
+//   },
+//   getDayOfWeekOfJapaneseChar: char => {
+//     return DayOfWeeks.values.find(value => value.description == char);
+//   },
+//   getDayOfWeekOfJapaneseText: text => {
+//     return DayOfWeeks.getIndexOfJapaneseChar(text[0]);
+//   },
+//   getIndexOf: dayOfWeek => {
+//     return DayOfWeek.values.indexOf(dayOfWeek);
+//   },
+//   getDayOfWeekOfEnglish: text => {
+//     return DayOfWeek[text];
+//   },
+// };
 
 /** 注意: 内部的にstorageに保存を行っています */
 export async function getCourses() {
@@ -229,6 +265,9 @@ function parseCourseName(name, courseNameSplitOtherTxt) {
     ) /* キャプチャした文字列を空白区切りに変換 */
     .split(' '); /* 配列化 */ // TODO: remove
 
+  // TODO: dayOfWeeks
+  const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]); // TODO: remove
+
   const parseCourseInfo = courseNameOthers => {
     const periodSplits = [];
     console.log('courseNameOthers: [' + name + ']', courseNameOthers);
@@ -263,9 +302,6 @@ function parseCourseName(name, courseNameSplitOtherTxt) {
   const periodSplits = parseCourseInfo(withoutSemesterTxt);
   console.log('periodSplits: [' + name + ']', periodSplits);
   // 注意:「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
-
-  // TODO: dayOfWeeks
-  const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]); // TODO: remove
 
   // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
   const startPeriod = parseInt(periodSplit[1]);
