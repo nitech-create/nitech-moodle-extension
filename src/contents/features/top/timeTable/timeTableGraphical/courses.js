@@ -24,42 +24,41 @@ const Semester = {
     }
   },
 };
-// // TODO: 追加予定
-// const DayOfWeek = {
-//   SUNDAY: Symbol('日'), // 0
-//   MONDAY: Symbol('月'), // 1
-//   TUESDAY: Symbol('火'), // 2
-//   WEDNESDAY: Symbol('水'), // 3
-//   THURSDAY: Symbol('木'), // 4
-//   FRIDAY: Symbol('金'), // 5
-//   SATURDAY: Symbol('土'), // 6
-// };
-// const DayOfWeeks = {
-//   values: [
-//     DayOfWeek.SUNDAY,
-//     DayOfWeek.MONDAY,
-//     DayOfWeek.TUESDAY,
-//     DayOfWeek.WEDNESDAY,
-//     DayOfWeek.THURSDAY,
-//     DayOfWeek.FRIDAY,
-//     DayOfWeek.SATURDAY,
-//   ],
-//   getDayOfWeek: index => {
-//     return DayOfWeeks.values[index];
-//   },
-//   getDayOfWeekOfJapaneseChar: char => {
-//     return DayOfWeeks.values.find(value => value.description == char);
-//   },
-//   getDayOfWeekOfJapaneseText: text => {
-//     return DayOfWeeks.getIndexOfJapaneseChar(text[0]);
-//   },
-//   getIndexOf: dayOfWeek => {
-//     return DayOfWeek.values.indexOf(dayOfWeek);
-//   },
-//   getDayOfWeekOfEnglish: text => {
-//     return DayOfWeek[text];
-//   },
-// };
+const DayOfWeek = {
+  SUNDAY: Symbol('日'), // 0
+  MONDAY: Symbol('月'), // 1
+  TUESDAY: Symbol('火'), // 2
+  WEDNESDAY: Symbol('水'), // 3
+  THURSDAY: Symbol('木'), // 4
+  FRIDAY: Symbol('金'), // 5
+  SATURDAY: Symbol('土'), // 6
+};
+const DayOfWeeks = {
+  values: [
+    DayOfWeek.SUNDAY,
+    DayOfWeek.MONDAY,
+    DayOfWeek.TUESDAY,
+    DayOfWeek.WEDNESDAY,
+    DayOfWeek.THURSDAY,
+    DayOfWeek.FRIDAY,
+    DayOfWeek.SATURDAY,
+  ],
+  getDayOfWeek: index => {
+    return DayOfWeeks.values[index];
+  },
+  getDayOfWeekOfJapaneseChar: char => {
+    return DayOfWeeks.values.find(value => value.description == char);
+  },
+  getDayOfWeekOfJapaneseText: text => {
+    return DayOfWeeks.getIndexOfJapaneseChar(text[0]);
+  },
+  getIndexOf: dayOfWeek => {
+    return DayOfWeek.values.indexOf(dayOfWeek);
+  },
+  getDayOfWeekOfEnglish: text => {
+    return DayOfWeek[text];
+  },
+};
 
 /** 注意: 内部的にstorageに保存を行っています */
 export async function getCourses() {
@@ -194,7 +193,7 @@ export function getCourseList() {
             // startPeriod: parsedObj.startPeriod, // TODO: remove → dayOfWeeksとperiodをあわせたもの(periods)にする必要がある気がする。 OR 曜日ごとに保持するのもアリかもと思ったが、それは完了ボタンなどもあるので厳しい
             // endPeriod: parsedObj.endPeriod, // TODO: remove
             // dayOfWeeks: [],
-            periods: [], // TODO: 追加する
+            periodList: parsedObj.periodList, // TODO: 追加する
           });
           return;
         } else {
@@ -255,19 +254,23 @@ function parseCourseName(name, courseNameSplitOtherTxt) {
 
   // --- 以下、 前期後期 以外 ---
   const withoutSemesterTxt = semesterAndOthers.slice(1).trim();
+
   // これは多分、複数曜日に非対応
   /** 授業の情報 | [0: 曜日, 1: start, 2: end] */
-  const periodSplit = withoutSemesterTxt
-    .replace(
-      /^(([月火水木金])曜(\d+)-(\d+)限\s*)+_(?:.+)$/,
-      '$1 $2 $3',
-    ) /* キャプチャした文字列を空白区切りに変換 */
-    .split(' '); /* 配列化 */ // TODO: remove
+  // const periodSplit = withoutSemesterTxt
+  //   .replace(
+  //     /^(([月火水木金])曜(\d+)-(\d+)限\s*)+_(?:.+)$/,
+  //     '$1 $2 $3',
+  //   ) /* キャプチャした文字列を空白区切りに変換 */
+  //   .split(' '); /* 配列化 */
 
-  // TODO: dayOfWeeks
-  const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]); // TODO: remove
+  // const dayOfWeek = ['月曜', '火曜', '水曜', '木曜', '金曜'].indexOf(periodSplit[0]); // TODO: remove
+  // // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
+  // const startPeriod = parseInt(periodSplit[1]);
+  // const endPeriod = parseInt(periodSplit[2]);
 
   const parseCourseInfo = courseNameOthers => {
+    // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
     const periodSplits = [];
     console.log('courseNameOthers: [' + name + ']', courseNameOthers);
     let tmp = courseNameOthers;
@@ -302,13 +305,18 @@ function parseCourseName(name, courseNameSplitOtherTxt) {
   console.log('periodSplits: [' + name + ']', periodSplits);
   // 注意:「22-1-0019 微分積分Ⅰ及び演習 202210019 前期 水曜3-4限 金曜3-4限_c22」などは週に2回ある
 
-  // 「プログラミングⅢ 202116630 後期 木曜5-8限_cla」のように、2コマのことがある
-  const startPeriod = parseInt(periodSplit[1]); // TODO: remove
-  const endPeriod = parseInt(periodSplit[2]); // TODO: remove
-
-  // const shortCourseNumber = /* 西暦→ */ '20' + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
-
-  return { semester, dayOfWeek, startPeriod, endPeriod, periodSplits };
+  const periodList = [];
+  for (const periodSplit of periodSplits) {
+    const dayOfWeek = DayOfWeeks.getDayOfWeekOfJapaneseText(periodSplit[0]);
+    const startPeriod = periodSplit[1];
+    const endPeriod = periodSplit[2];
+    periodList.push({
+      dayOfWeek,
+      startPeriod,
+      endPeriod,
+    });
+  }
+  return { semester, periodList };
 }
 
 /**
