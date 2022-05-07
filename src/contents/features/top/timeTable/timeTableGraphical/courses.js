@@ -159,7 +159,7 @@ export function getCourseList() {
         // const courseNameSplit = courseName.split(' '); // 空白でsplit
         // const name = courseNameSplit.slice(0, -3).join(' '); // 授業名, 複数曜日でx
         // const name = courseNameSplit[0]; // Academic Englishなどがx
-        const shortCourseNumber = String(20) /* ← 西暦 */ + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
+        const shortCourseNumber = '20' /* ← 西暦 */ + courseNumberTxt.replace(/-/g, ''); // -を消去し西暦と授業番号の組み合わせ、固有な値: 202010001 など
         const courseNameSplit = courseName.split(shortCourseNumber).map(value => value.trim()); // 番号でsplit
         const name = courseNameSplit[0]; // 授業名
 
@@ -177,7 +177,7 @@ export function getCourseList() {
         ) {
           console.log('|courseName OK: ', name);
           // 通常授業
-          const parsedObj = parseCourseName(name, courseNameSplit[1]);
+          const parsedItems = parseCourseName(name, courseNameSplit[1]);
           courseList.push({
             version: courseListVersion,
             specialCourse: false,
@@ -188,19 +188,102 @@ export function getCourseList() {
             shortCourseNumber: shortCourseNumber,
             url: url,
             shortenedYear: shortenedYear,
-            semester: parsedObj.semester /** if 集中以外のspecial courses → undefined */,
+            semester: parsedItems.semester /** if 集中以外のspecial courses → undefined */,
             // dayOfWeek: parsedObj.dayOfWeek, // TODO: → periods
             // startPeriod: parsedObj.startPeriod, // TODO: remove → dayOfWeeksとperiodをあわせたもの(periods)にする必要がある気がする。 OR 曜日ごとに保持するのもアリかもと思ったが、それは完了ボタンなどもあるので厳しい
             // endPeriod: parsedObj.endPeriod, // TODO: remove
             // dayOfWeeks: [],
-            periodList: parsedObj.periodList, // TODO: 追加する
+            periodList: parsedItems.periodList, // TODO: 追加する
           });
           return;
+
+          // } else if () {
+          // 集中講義
         } else {
-          console.log('|courseName NO');
+          // // courseName.replace(courseNameSplit_);
+          // const courseNameSplit_ = courseName.split(courseNumberTxt).map(value => value.trim()); // 番号でsplit
+          // const name = courseNameSplit_[0].replace('（', '');
+          // if (
+          //   /^(.*)（\d+-\d+-\d+[\s]*([前後])期[\s]*(([月火水木金])曜[\s]*(\d+)-(\d+)限)+）$/.test(
+          //     courseNameSplit_,
+          //   )
+          // ) {
+          //   // ソフトウェア工学2022（22-1-2620 前期 木曜5-6限）など: ^.*（\d+-\d+-\d+[\s]*[前後]期[\s]*[月火水木金]曜[\s]*\d+-\d+限）$
+          // }
+          // const semesterText = courseName.match(/(?<semester>[前後])期/g);
+
+          const parseCourseNameHighhandedly = courseName => {
+            let semester = undefined;
+            const periodList = [];
+            for (let i = 0; i < courseName.length; i++) {
+              const i_ = courseName.length - 1 - i; // 後ろから
+              if (courseName[i_] == '期' && i_ >= 1) {
+                semester = Semester.getSemester(courseName[i_ - 1] + '期'); // undefinedでも無視する(後で確認)
+                console.log('semester: ', semester);
+              } else if (courseName[i_] == '曜' && i_ >= 1) {
+                // TODO: ← ?
+                const dayOfWeek = DayOfWeeks.getDayOfWeekOfJapaneseChar(courseName[i_ - 1]);
+                console.log('dayOfWeek: ', dayOfWeek);
+                if (isNullOrUndefined(dayOfWeek)) {
+                  continue;
+                }
+                // 流石に曜日の後ろに限があるでしょ
+                const tmpPeriod = courseName
+                  .slice(i_)
+                  .match(/(?<startPeriod>\d+)-(?<endPeriod>\d+)限/);
+                console.log('tmpPeriod: ', tmpPeriod);
+                if (isNullOrUndefined(tmpPeriod.groups.startPeriod)) {
+                  continue;
+                } else if (isNullOrUndefined(tmpPeriod.groups.endPeriod)) {
+                  continue;
+                }
+
+                // periodListの中身はNon-Null/Undef
+                periodList.push({
+                  dayOfWeek,
+                  startPeriod: tmpPeriod.groups.startPeriod,
+                  endPeriod: tmpPeriod.groups.endPeriod,
+                });
+              }
+            }
+
+            return { semester, periodList };
+          };
+
+          const parsedItems = parseCourseNameHighhandedly(courseName);
+          if (!isNullOrUndefined(parsedItems.semester) && parsedItems.periodList.length > 0) {
+            console.log('semester, periodList: ', parsedItems.semester, parsedItems.periodList);
+            console.log('|courseName NO');
+
+            courseList.push({
+              version: courseListVersion,
+              specialCourse: false,
+              categoryName: categoryName /** (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？ */,
+              name: name /** 授業名 */,
+              // shortenedName: courseNumberTxt /** 21-1-6162 こういうやつ */,
+              courseNumberTxt: courseNumberTxt,
+              shortCourseNumber: shortCourseNumber,
+              url: url,
+              shortenedYear: shortenedYear,
+              semester: parsedItems.semester /** if 集中以外のspecial courses → undefined */,
+              // dayOfWeek: parsedObj.dayOfWeek, // TODO: → periods
+              // startPeriod: parsedObj.startPeriod, // TODO: remove → dayOfWeeksとperiodをあわせたもの(periods)にする必要がある気がする。 OR 曜日ごとに保持するのもアリかもと思ったが、それは完了ボタンなどもあるので厳しい
+              // endPeriod: parsedObj.endPeriod, // TODO: remove
+              // dayOfWeeks: [],
+              periodList: parsedItems.periodList, // TODO: 追加する
+            });
+          }
+          // TODO: 早期return化したかった
+          // if (isNullOrUndefined(parsedItems.semester)) {
+          //   // return false;
+          // }
+          // if (parsedItems.periodList.length < 1) {
+          //   // return false;
+          // }
         }
       }
 
+      // special courses
       courseList.push({
         version: courseListVersion,
         specialCourse: true,
