@@ -66,3 +66,36 @@ courses[i] = {
   isCompleted: completeResult.isCompleted,
   completeDateTime: completeResult.completeDateTime,
 };
+
+courseList.push({
+  version: courseListVersion,
+  specialCourse: false,
+  categoryName: categoryName /** (21)[1]5-8, (22)[1]0-3など, 0-3は前期、5-8は後期？ */,
+  name: name /** 授業名 */,
+  shortenedName: courseNumberTxt /** 21-1-6162 こういうやつ */,
+  courseNumberTxt: courseNumberTxt,
+  shortCourseNumber: shortCourseNumber,
+  url: url,
+  shortenedYear: shortenedYear,
+  semester: parsedObj.semester /** if 集中以外のspecial courses → undefined */,
+  dayOfWeek: parsedObj.dayOfWeek,
+  startPeriod: parsedObj.startPeriod, // TODO: remove → dayOfWeeksとperiodをあわせたものにする必要がある気がする。 OR 曜日ごとに保持するのもアリかもと思ったが、それは完了ボタンなどもあるので厳しい
+  endPeriod: parsedObj.endPeriod, // TODO: remove
+  // dayOfWeeks: [],
+  periods: [
+    {
+      dayOfWeek,
+      startPeriod,
+      endPeriod,
+    },
+  ],
+  periodSplits: parsedObj.periodSplits,
+});
+
+periods: [
+  {
+    dayOfWeek,
+    startPeriod,
+    endPeriod,
+  },
+],
