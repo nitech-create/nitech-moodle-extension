@@ -351,6 +351,9 @@ async function renderWeekClassTable(courses) {
     $('body').append('<div id="overlay_extension"></div>');
     $('head').append(getWeekClassTableCss());
     $('#overlay_extension').append(getWeekClassTableHtml());
+
+    addWeekOfDayRowToTable();
+
     $('#btnCloseWeekClassTable').on('click', () => {
       console.log('close weekClassTable.');
       $('#overlay_extension').addClass('hide');
@@ -358,6 +361,24 @@ async function renderWeekClassTable(courses) {
   } else {
     $('#overlay_extension').removeClass('hide');
   }
+}
+
+function addWeekOfDayRowToTable() {
+  // 表への参照を取得
+  let tableRef = document.getElementById("classtable_extension_overlay");
+
+  // 表の末尾に行を挿入
+  // let newRow = tableRef.insertRow(-1);
+
+  // 0行目を取得
+  let rowTest = tableRef.rows[1];
+
+  // その行の 0 の位置にセルを挿入
+  let newCell = rowTest.insertCell(1);
+
+  // そのセルにテキストノードを追加
+  let newText = document.createTextNode('新しい要素');
+  newCell.appendChild(newText);
 }
 
 function getWeekClassTableHtml() {
