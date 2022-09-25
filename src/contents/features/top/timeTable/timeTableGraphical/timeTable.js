@@ -352,7 +352,7 @@ async function renderWeekClassTable(courses) {
     $('head').append(getWeekClassTableCss());
     $('#overlay_extension').append(getWeekClassTableHtml());
 
-    addWeekOfDayRowToTable();
+    addWeekOfDayRowToTable(courses); // 週間表示
 
     $('#btnCloseWeekClassTable').on('click', () => {
       console.log('close weekClassTable.');
@@ -363,48 +363,34 @@ async function renderWeekClassTable(courses) {
   }
 }
 
-function addWeekOfDayRowToTable() {
+function addWeekOfDayRowToTable(courses) {
   // 表への参照を取得
-  let tableRef = document.getElementById("classtable_extension_overlay");
+  const tableRef = document.getElementById('classtable_extension_overlay');
 
-  // 表の末尾に行を挿入
-  // let newRow1 = tableRef.insertRow(-1);
- 
   // 1行目を取得
   let rowTest = tableRef.rows[1];
 
-
-  // その行の 1 の位置にセルを挿入
-  let newCell = rowTest.insertCell(-1);
-  newCell.rowSpan = 2;
-  // そのセルにテキストノードを追加
-  let newText = document.createTextNode('新要素');
-  newCell.appendChild(newText);
-  newCell = rowTest.insertCell(-1);
-  newCell.rowSpan = 2;
-  newCell = rowTest.insertCell(-1);
-  newCell.rowSpan = 2;
-  newCell = rowTest.insertCell(-1);
-  newCell.rowSpan = 2;
-  newText = document.createTextNode('新要素2');
-  newCell.appendChild(newText);
-
-  for (let i = 3; i < 15; i++) {
-    rowTest = tableRef.rows[i];
+  for (let i = 1; i < 15; i++) {
+    rowTest = tableRef.rows[i]; // i行目を取得
     if (i % 3 == 2) {
+      // 授業のコマ後半(無視)
       continue;
     } else if (i % 3 == 1) {
-      for (let j = 0; j < 4; j++) {   
-        newCell = rowTest.insertCell(-1);
-        newCell.rowSpan = 2;
+      // 授業のコマ前半
+      for (let j = 1; j < 6; j++) {
+        // その行の j の位置にセルを挿入
+        const newCell = rowTest.insertCell(j);
+        newCell.rowSpan = 2; // セル結合
+        const newText = document.createTextNode('新要素'); // テキストノード生成
+        newCell.appendChild(newText); // そのセルにテキストノードを追加
       }
     } else {
-      for (let j = 0; j < 4; j++) {   
-        newCell = rowTest.insertCell(-1);
+      // 休憩のコマ
+      for (let j = 0; j < 4; j++) {
+        const newCell = rowTest.insertCell(-1);
       }
     }
   }
-  
 }
 
 function getWeekClassTableHtml() {
