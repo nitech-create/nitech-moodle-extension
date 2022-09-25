@@ -368,17 +368,43 @@ function addWeekOfDayRowToTable() {
   let tableRef = document.getElementById("classtable_extension_overlay");
 
   // 表の末尾に行を挿入
-  // let newRow = tableRef.insertRow(-1);
-
-  // 0行目を取得
+  // let newRow1 = tableRef.insertRow(-1);
+ 
+  // 1行目を取得
   let rowTest = tableRef.rows[1];
 
-  // その行の 0 の位置にセルを挿入
-  let newCell = rowTest.insertCell(1);
 
+  // その行の 1 の位置にセルを挿入
+  let newCell = rowTest.insertCell(-1);
+  newCell.rowSpan = 2;
   // そのセルにテキストノードを追加
-  let newText = document.createTextNode('新しい要素');
+  let newText = document.createTextNode('新要素');
   newCell.appendChild(newText);
+  newCell = rowTest.insertCell(-1);
+  newCell.rowSpan = 2;
+  newCell = rowTest.insertCell(-1);
+  newCell.rowSpan = 2;
+  newCell = rowTest.insertCell(-1);
+  newCell.rowSpan = 2;
+  newText = document.createTextNode('新要素2');
+  newCell.appendChild(newText);
+
+  for (let i = 3; i < 15; i++) {
+    rowTest = tableRef.rows[i];
+    if (i % 3 == 2) {
+      continue;
+    } else if (i % 3 == 1) {
+      for (let j = 0; j < 4; j++) {   
+        newCell = rowTest.insertCell(-1);
+        newCell.rowSpan = 2;
+      }
+    } else {
+      for (let j = 0; j < 4; j++) {   
+        newCell = rowTest.insertCell(-1);
+      }
+    }
+  }
+  
 }
 
 function getWeekClassTableHtml() {
