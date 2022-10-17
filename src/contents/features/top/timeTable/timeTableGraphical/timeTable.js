@@ -249,37 +249,46 @@ function getClassTimeFromDayOfWeek(times, dayOfWeeks, selectedDayOfWeekTxt) {
 }
 
 function renderClassTable(course, time, set) {
+  // あとから来た同じ時間の要素によって上書きが行われる
   // TODO: 変数名renderClassTable?
   // for-loopで回すのはやりすぎかもしれない
   const timeArray = time.split(/-/); // 時間: 1-4を[1, 4]にする
   for (const timeNum of timeArray) {
-    switch (timeNum) {
-      case '1':
-      case '2':
-        renderClassTableItem('#onegen_extension', 1, course);
-        set[0] = true;
-        break;
-      case '3':
-      case '4':
-        renderClassTableItem('#threegen_extension', 3, course);
-        set[1] = true;
-        break;
-      case '5':
-      case '6':
-        renderClassTableItem('#fivegen_extension', 5, course);
-        set[2] = true;
-        break;
-      case '7':
-      case '8':
-        renderClassTableItem('#sevengen_extension', 7, course);
-        set[3] = true;
-        break;
-      case '9':
-      case '10':
-        renderClassTableItem('#ninegen_extension', 9, course);
-        set[4] = true;
-        break;
+    if (timeNum % 2 == 1) {
+      renderClassTableItem('#extension_timetable_' + timeNum, timeNum, course);
+      set[(timeNum - 1) / 2] = true;
+    } else {
+      renderClassTableItem('#extension_timetable_' + (timeNum - 1), 1, course);
+      set[timeNum / 2] = true;
     }
+
+    // switch (timeNum) {
+    //   case '1':
+    //   case '2':
+    //     renderClassTableItem('#onegen_extension', 1, course);
+    //     set[0] = true;
+    //     break;
+    //   case '3':
+    //   case '4':
+    //     renderClassTableItem('#threegen_extension', 3, course);
+    //     set[1] = true;
+    //     break;
+    //   case '5':
+    //   case '6':
+    //     renderClassTableItem('#fivegen_extension', 5, course);
+    //     set[2] = true;
+    //     break;
+    //   case '7':
+    //   case '8':
+    //     renderClassTableItem('#sevengen_extension', 7, course);
+    //     set[3] = true;
+    //     break;
+    //   case '9':
+    //   case '10':
+    //     renderClassTableItem('#ninegen_extension', 9, course);
+    //     set[4] = true;
+    //     break;
+    // }
   }
 }
 
@@ -409,5 +418,6 @@ function convertToDayOfWeekTxt(dayOfWeekNum) {
 function getTablesHtml() {
   // tables.htmlの改行を削除してここに貼る。ブラウザのURL欄にコピペすると良い。
   // CSSはStylesに記載
-  return '<div   id="main_extension"   style="     /* position: absolute;     top: 100px;     left: 400px;     width: calc(100vw - 450px); */     background-color: #f8f9fa;     border-radius: 3px;   " >   <div id="content_extension" style="padding: 16px">     <h1 style="font-size: 18.75px; font-weight: medium">時間割・授業</h1>     <div style="display: flex; margin: 50px 50px">       <div style="background-color: #e9ecef; border-radius: 3px; padding: 16px">         <h1 style="font-size: 18.75px; font-weight: medium">           <span class="extension_delete">今日(</span           ><span id="classtable_extension_term">Null</span>期<span id="classtable_extension_day"             >Null</span           >曜日<span class="extension_delete">)</span>の時間割           <select name="term_select_extension" id="term_select_extension">             <option value="前">前期</option>             <option value="後">後期</option>           </select>           <select name="year_select_extension" id="year_select_extension">             <option value="20">2020</option>             <option value="21">2021</option>             <option value="22">2022</option>           </select>           <select name="day_select_extension" id="day_select_extension">             <option value="0">日曜日</option>             <option value="1">月曜日</option>             <option value="2">火曜日</option>             <option value="3">水曜日</option>             <option value="4">木曜日</option>             <option value="5">金曜日</option>             <option value="6">土曜日</option>             <option value="7">週間表示</option>           </select>         </h1>         <table style="border-collapse: collapse" id="classtable_extension">           <tr>             <td style="height: 90px">1限<br />8：50～9：35</td>             <td rowspan="2" id="onegen_extension"></td>           </tr>           <tr>             <td style="height: 90px">2限<br />9：35～10：20</td>           </tr>           <tr>             <td style="height: 20px">休憩<br />10：20～10：30</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">3限<br />10：30～11：15</td>             <td rowspan="2" id="threegen_extension"></td>           </tr>           <tr>             <td style="height: 90px">4限<br />11：15～12：00</td>           </tr>           <tr>             <td style="height: 120px">昼休み<br />12：00～13：00</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">5限<br />13：00～13：45</td>             <td rowspan="2" id="fivegen_extension"></td>           </tr>           <tr>             <td style="height: 90px">6限<br />13：45～14：30</td>           </tr>           <tr>             <td style="height: 20px">休憩<br />14：30～14：40</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">7限<br />14：40～15：25</td>             <td rowspan="2" id="sevengen_extension"></td>           </tr>           <tr>             <td style="height: 90px">8限<br />15：25～16：10</td>           </tr>           <tr>             <td style="height: 20px">休憩<br />16：10～60：20</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">9限<br />16：20～17：05</td>             <td rowspan="2" id="ninegen_extension"></td>           </tr>           <tr>             <td style="height: 90px">10限<br />17：05～17：50</td>           </tr>         </table>       </div>       <div style="background-color: #e9ecef; border-radius: 3px; padding: 16px">         <h1 style="font-size: 18.75px; font-weight: medium">今日やるべきこと</h1>         <table id="today_todo_extension">           <tr>             <td id="task_done_extension">               今日のやるべきことがまだ残っています！<br />今日もがんばりましょう...！             </td>           </tr>         </table>       </div>        <div style="background-color: #e9ecef; border-radius: 3px; padding: 16px">         <h1 style="font-size: 18.75px; font-weight: medium">時間割外のクラス</h1>         <table id="special_class_extension">           <tr>             <td>登録されていないようです。</td>           </tr>         </table>       </div>     </div>   </div> </div>';
+  return '<div   id="main_extension"   style="     /* position: absolute;     top: 100px;     left: 400px;     width: calc(100vw - 450px); */     background-color: #f8f9fa;     border-radius: 3px;   " >   <div id="content_extension" style="padding: 16px">     <h1 style="font-size: 18.75px; font-weight: medium">時間割・授業</h1>     <div style="display: flex; margin: 50px 50px">       <div style="background-color: #e9ecef; border-radius: 3px; padding: 16px">         <h1 style="font-size: 18.75px; font-weight: medium">           <span class="extension_delete">今日(</span           ><span id="classtable_extension_term">Null</span>期<span id="classtable_extension_day"             >Null</span           >曜日<span class="extension_delete">)</span>の時間割           <select name="term_select_extension" id="term_select_extension">             <option value="前">前期</option>             <option value="後">後期</option>           </select>           <select name="year_select_extension" id="year_select_extension">             <option value="20">2020</option>             <option value="21">2021</option>             <option value="22">2022</option>           </select>           <select name="day_select_extension" id="day_select_extension">             <option value="0">日曜日</option>             <option value="1">月曜日</option>             <option value="2">火曜日</option>             <option value="3">水曜日</option>             <option value="4">木曜日</option>             <option value="5">金曜日</option>             <option value="6">土曜日</option>             <option value="7">週間表示</option>           </select>         </h1>         <table style="border-collapse: collapse" id="classtable_extension">           <tr>             <td style="height: 90px">1限<br />8：50～9：35</td>             <td rowspan="2" id="extension_timetable_1"></td>           </tr>           <tr>             <td style="height: 90px">2限<br />9：35～10：20</td>           </tr>           <tr>             <td style="height: 20px">休憩<br />10：20～10：30</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">3限<br />10：30～11：15</td>             <td rowspan="2" id="extension_timetable_3"></td>           </tr>           <tr>             <td style="height: 90px">4限<br />11：15～12：00</td>           </tr>           <tr>             <td style="height: 120px">昼休み<br />12：00～13：00</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">5限<br />13：00～13：45</td>             <td rowspan="2" id="extension_timetable_5"></td>           </tr>           <tr>             <td style="height: 90px">6限<br />13：45～14：30</td>           </tr>           <tr>             <td style="height: 20px">休憩<br />14：30～14：40</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">7限<br />14：40～15：25</td>             <td rowspan="2" id="extension_timetable_7"></td>           </tr>           <tr>             <td style="height: 90px">8限<br />15：25～16：10</td>           </tr>           <tr>             <td style="height: 20px">休憩<br />16：10～60：20</td>             <td class="tenminyasumi"></td>           </tr>           <tr>             <td style="height: 90px">9限<br />16：20～17：05</td>             <td rowspan="2" id="extension_timetable_9"></td>           </tr>           <tr>             <td style="height: 90px">10限<br />17：05～17：50</td>           </tr>         </table>       </div>       <div style="background-color: #e9ecef; border-radius: 3px; padding: 16px">         <h1 style="font-size: 18.75px; font-weight: medium">今日やるべきこと</h1>         <table id="today_todo_extension">           <tr>             <td id="task_done_extension">               今日のやるべきことがまだ残っています！<br />今日もがんばりましょう...！             </td>           </tr>         </table>       </div>        <div style="background-color: #e9ecef; border-radius: 3px; padding: 16px">         <h1 style="font-size: 18.75px; font-weight: medium">時間割外のクラス</h1>         <table id="special_class_extension">           <tr>             <td>登録されていないようです。</td>           </tr>         </table>       </div>     </div>   </div> </div>';
 }
+
