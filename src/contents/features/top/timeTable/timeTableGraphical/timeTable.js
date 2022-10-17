@@ -363,6 +363,44 @@ async function renderWeekClassTable(courses) {
   }
 }
 
+function renderClassTableWeek(course, time, dayOfWeek) {
+  // TODO: 変数名renderClassTable?
+  // for-loopで回すのはやりすぎかもしれない
+  if (!/[1-9]-[1-9]/.test(time)) {
+    return;
+  }
+  const timeArray = time.split(/-/); // 時間: 1-4を[1, 4]にする
+  for (const timeNum of timeArray) {
+    switch (timeNum) {
+      case '1':
+      case '2':
+        renderClassTableItem('#extension_timetable_week_' + dayOfWeek +'_1', 1, course);
+        // set[0] = true;
+        break;
+      case '3':
+      case '4':
+        renderClassTableItem('#extension_timetable_week_' + dayOfWeek +'_3', 3, course);
+        // set[1] = true;
+        break;
+      case '5':
+      case '6':
+        renderClassTableItem('#extension_timetable_week_' + dayOfWeek +'_5', 5, course);
+        // set[2] = true;
+        break;
+      case '7':
+      case '8':
+        renderClassTableItem('#extension_timetable_week_' + dayOfWeek +'_7', 7, course);
+        // set[3] = true;
+        break;
+      case '9':
+      case '10':
+        renderClassTableItem('#extension_timetable_week_' + dayOfWeek +'_9', 9, course);
+        // set[4] = true;
+        break;
+    }
+  }
+}
+
 function addWeekOfDayRowToTable(courses) {
   // 表への参照を取得
   const tableRef = document.getElementById('classtable_extension_overlay');
@@ -381,8 +419,11 @@ function addWeekOfDayRowToTable(courses) {
         // その行の j の位置にセルを挿入
         const newCell = rowTest.insertCell(j);
         newCell.rowSpan = 2; // セル結合
-        const newText = document.createTextNode('新要素'); // テキストノード生成
-        newCell.appendChild(newText); // そのセルにテキストノードを追加
+        newCell.appendChild(document.createTextNode('-')); // そのセルにテキストノードを追加
+        console.log('extension_timetable_week_' + convertToDayOfWeekTxt(j)  + '_' + (i-(i-i%3)/3));
+        newCell.id = 'extension_timetable_week_' + convertToDayOfWeekTxt(j)  + '_' + (i-(i-i%3)/3);
+        
+        
       }
     } else {
       // 休憩のコマ
@@ -390,6 +431,28 @@ function addWeekOfDayRowToTable(courses) {
         const newCell = rowTest.insertCell(-1);
       }
     }
+  }
+
+
+  const classTableSet = [false, false, false, false, false];
+  for (const course of courses) {
+    if (
+      !isUndefined(course.term)
+      && !isUndefined(course.dayOfWeeks) /* term, dayOfWeeksがundefのときはspecialCourses */
+      && course.term == document.getElementById('term_select_extension').value &&
+      course.shortYear == document.getElementById('year_select_extension').value
+    ) {
+      for (const dayOfWeek of course.dayOfWeeks){
+          /* courseが指定されたterm, 曜日であるとき */
+          console.log('drawTables: course: ', course);
+          // classを描画！
+          renderClassTableWeek(
+            course,
+            getClassTimeFromDayOfWeek(course.times, course.dayOfWeeks, dayOfWeek),
+            dayOfWeek
+          );
+        }
+      }
   }
 }
 
