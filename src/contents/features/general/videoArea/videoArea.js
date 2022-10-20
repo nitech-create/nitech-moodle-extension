@@ -8,6 +8,10 @@ async function videoArea() {
   // location.href === 'https://cms6.ict.nitech.ac.jp/moodle38a/mod/scorm/player.php'
   if (options.hideNavOnVideo === true) {
     $('#page-content.blocks-pre').addClass('hidedenNavigation');
+    setTimeout(() => {
+      // 何が原因化は不明だが、何かしらが読み込まれてないとbtnが実行されないため、delayさせる
+      document.getElementById('scorm_toc_toggle_btn').click();
+    }, 1000);
   }
 }
 
