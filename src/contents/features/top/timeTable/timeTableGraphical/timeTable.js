@@ -199,19 +199,19 @@ async function renderTimeTable(
   $('#year_select_extension').on('change', () => onSelectTableDate());
 
   function resetTables() {
-    $('#onegen_extension').empty();
-    $('#threegen_extension').empty();
-    $('#fivegen_extension').empty();
-    $('#sevengen_extension').empty();
-    $('#ninegen_extension').empty();
+    $('#extension_timetable_1').empty();
+    $('#extension_timetable_3').empty();
+    $('#extension_timetable_5').empty();
+    $('#extension_timetable_7').empty();
+    $('#extension_timetable_9').empty();
   }
 
   function removeBlankOfClassTables() {
-    $('#onegen_extension').removeClass('blankClass');
-    $('#threegen_extension').removeClass('blankClass');
-    $('#fivegen_extension').removeClass('blankClass');
-    $('#sevengen_extension').removeClass('blankClass');
-    $('#ninegen_extension').removeClass('blankClass');
+    $('#extension_timetable_1').removeClass('blankClass');
+    $('#extension_timetable_3').removeClass('blankClass');
+    $('#extension_timetable_5').removeClass('blankClass');
+    $('#extension_timetable_7').removeClass('blankClass');
+    $('#extension_timetable_9').removeClass('blankClass');
   }
 
   /**
@@ -224,19 +224,19 @@ async function renderTimeTable(
         // まだtableが埋まってなかったら
         switch (i) {
           case 0:
-            $('#onegen_extension').addClass('blankClass');
+            $('#extension_timetable_1').addClass('blankClass');
             break;
           case 1:
-            $('#threegen_extension').addClass('blankClass');
+            $('#extension_timetable_3').addClass('blankClass');
             break;
           case 2:
-            $('#fivegen_extension').addClass('blankClass');
+            $('#extension_timetable_5').addClass('blankClass');
             break;
           case 3:
-            $('#sevengen_extension').addClass('blankClass');
+            $('#extension_timetable_7').addClass('blankClass');
             break;
           case 4:
-            $('#ninegen_extension').addClass('blankClass');
+            $('#extension_timetable_9').addClass('blankClass');
             break;
         }
       }
@@ -254,41 +254,41 @@ function renderClassTable(course, time, set) {
   // for-loopで回すのはやりすぎかもしれない
   const timeArray = time.split(/-/); // 時間: 1-4を[1, 4]にする
   for (const timeNum of timeArray) {
-    if (timeNum % 2 == 1) {
-      renderClassTableItem('#extension_timetable_' + timeNum, timeNum, course);
-      set[(timeNum - 1) / 2] = true;
-    } else {
-      renderClassTableItem('#extension_timetable_' + (timeNum - 1), 1, course);
-      set[timeNum / 2] = true;
-    }
-
-    // switch (timeNum) {
-    //   case '1':
-    //   case '2':
-    //     renderClassTableItem('#onegen_extension', 1, course);
-    //     set[0] = true;
-    //     break;
-    //   case '3':
-    //   case '4':
-    //     renderClassTableItem('#threegen_extension', 3, course);
-    //     set[1] = true;
-    //     break;
-    //   case '5':
-    //   case '6':
-    //     renderClassTableItem('#fivegen_extension', 5, course);
-    //     set[2] = true;
-    //     break;
-    //   case '7':
-    //   case '8':
-    //     renderClassTableItem('#sevengen_extension', 7, course);
-    //     set[3] = true;
-    //     break;
-    //   case '9':
-    //   case '10':
-    //     renderClassTableItem('#ninegen_extension', 9, course);
-    //     set[4] = true;
-    //     break;
+    // if (timeNum % 2 == 1) {
+    //   renderClassTableItem('#extension_timetable_' + timeNum, timeNum, course);
+    //   set[(timeNum - 1) / 2] = true;
+    // } else {
+    //   renderClassTableItem('#extension_timetable_' + (timeNum - 1), 1, course);
+    //   set[timeNum / 2] = true;
     // }
+
+    switch (timeNum) {
+      case '1':
+      case '2':
+        renderClassTableItem('#extension_timetable_1', 1, course);
+        set[0] = true;
+        break;
+      case '3':
+      case '4':
+        renderClassTableItem('#extension_timetable_3', 3, course);
+        set[1] = true;
+        break;
+      case '5':
+      case '6':
+        renderClassTableItem('#extension_timetable_5', 5, course);
+        set[2] = true;
+        break;
+      case '7':
+      case '8':
+        renderClassTableItem('#extension_timetable_7', 7, course);
+        set[3] = true;
+        break;
+      case '9':
+      case '10':
+        renderClassTableItem('#extension_timetable_9', 9, course);
+        set[4] = true;
+        break;
+    }
   }
 }
 
