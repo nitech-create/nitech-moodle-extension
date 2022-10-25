@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "author": "nitech Create",
   "homepage_url": "https://github.com/nitech-create/nitech-moodle-chrome",
   "name": "nitech-moodle-extension",
@@ -41,5 +41,6 @@
       "css": ["videoArea.css"]
     }
   ],
-  "permissions": ["https://cms6.ict.nitech.ac.jp/moodle38a/*", "background", "storage"]
+  "permissions": ["background", "storage"],
+  "host_permissions": ["https://cms6.ict.nitech.ac.jp/moodle38a/*"]
 }
