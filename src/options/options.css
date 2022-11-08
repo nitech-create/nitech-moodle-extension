@@ -1,4 +1,40 @@
+body {
+  outline: none;
+  font-size: 1.1em;
+  margin-left: 1em;
+}
+
 button {
+  margin: 10px;
+  font-size: 1.2em;
+}
+
+#attention {
+  font-size: 1.2em;
+  width: 43%;
+  border-style: double;
+}
+
+#timeTableMode {
+  font-size: 1.05em;
+}
+
+#timeTableCompleteMode {
+  font-size: 1.05em;
+}
+
+#btnSave {
   outline: none;
   margin: 10px;
+  font-size: 1.2em;
+  color: #ffffff;
+  background-color: #0A6EFF;
+}
+
+#btnSave:hover {
+  background-color: #3258ff;
+}
+
+#btnSave:active {
+  background-color: #1478FF;
 }
