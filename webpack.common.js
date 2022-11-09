@@ -1,24 +1,34 @@
 /* eslint-env node */
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const JSON5 = require('json5');
 
-const src = path.join(__dirname, 'src');
-const dest = path.join(__dirname, 'dist');
+const srcPath = path.join(__dirname, 'src');
+const destPath = path.join(__dirname, 'dist');
 
 module.exports = {
   module: {
     rules: [
       {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              url: true,
+              sourceMap: true,
+            },
+          },
+        ],
+      },
+      {
         test: /\.scss$/,
         use: [
+          MiniCssExtractPlugin.loader,
           {
-            // CSSを別ファイルに出力
-            loader: MiniCssExtractPlugin.loader,
-          },
-          {
-            // CSSを読み込み
             loader: 'css-loader',
             options: {
               url: true,
@@ -26,7 +36,6 @@ module.exports = {
             },
           },
           {
-            // Sassを読み込み
             loader: 'sass-loader',
             options: {
               implementation: require('sass'),
@@ -49,25 +58,25 @@ module.exports = {
     ],
   },
   entry: {
-    background: './src/background/backgroundEvent.js',
-    main: './src/contents/main.js',
-    topPageStyle: './src/contents/styles/top/topPageStyle.scss',
-    'popup/popup': './src/popup/popup.js',
-    'options/options': './src/options/options.js',
-    'options/optionsUtils': './src/options/optionsUtils.js',
+    background: path.join(srcPath, 'background/backgroundEvent.js'),
+    main: path.join(srcPath, 'contents/main.js'),
+    topPageStyle: path.join(srcPath, 'contents/styles/top/topPageStyle.scss'),
+    'popup/popup': path.join(srcPath, 'popup/popup.js'),
+    'options/options': path.join(srcPath, 'options/options.js'),
   },
   output: {
     filename: '[name].js',
-    path: path.join(__dirname, 'dist'),
+    path: destPath,
   },
   plugins: [
-    new CopyPlugin({
+    new CleanWebpackPlugin(),
+    new CopyWebpackPlugin({
       patterns: [
-        { from: './src/manifest.json' },
-        { from: './src/icons', to: 'icons' },
-        { from: './src/popup/*.{html,css,svg}', to: './popup/[name][ext]' },
-        { from: './src/options/*.{html,css,svg}', to: './options/[name][ext]' },
-        { from: './src/contents/**/*.{html,css,svg}', to: '[name][ext]' },
+        { from: path.join(srcPath, 'manifest.json') },
+        { from: path.join(srcPath, 'icons'), to: 'icons' },
+        { from: path.join(srcPath, 'popup/*.{html,css,svg}'), to: './popup/[name][ext]' },
+        { from: path.join(srcPath, 'options/*.{html,css,svg}'), to: './options/[name][ext]' },
+        { from: path.join(srcPath, 'contents/**/*.{html,css,svg}'), to: '[name][ext]' },
       ],
     }),
     new MiniCssExtractPlugin({
@@ -77,10 +86,10 @@ module.exports = {
   resolve: {
     alias: {
       // ライブラリファイルのエイリアス
-      Lib: path.join(__dirname, 'src/lib'),
-      Options: path.join(__dirname, 'src/options'),
-      Contents: path.join(__dirname, 'src/contents'),
-      Features: path.join(__dirname, 'src/contents/features'),
+      Lib: path.join(srcPath, 'lib'),
+      Options: path.join(srcPath, 'options'),
+      Contents: path.join(srcPath, 'contents'),
+      Features: path.join(srcPath, 'contents/features'),
       jQuery: `jquery`,
     },
   },
