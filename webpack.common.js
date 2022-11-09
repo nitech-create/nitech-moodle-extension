@@ -4,6 +4,9 @@ const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const JSON5 = require('json5');
 
+const src = path.join(__dirname, 'src');
+const dest = path.join(__dirname, 'dist');
+
 module.exports = {
   module: {
     rules: [
@@ -71,8 +74,6 @@ module.exports = {
       filename: '[name].css',
     }),
   ],
-  mode: 'development',
-  devtool: 'inline-cheap-source-map',
   resolve: {
     alias: {
       // ライブラリファイルのエイリアス
@@ -88,9 +89,5 @@ module.exports = {
     errorsCount: true,
     warningsCount: true,
     timings: true,
-  },
-  watchOptions: {
-    ignored: /node_modules/,
-    poll: true,
   },
 };
