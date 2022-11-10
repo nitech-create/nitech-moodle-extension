@@ -35,9 +35,9 @@
   },
   "scripts": {
     "lint": "eslint ..",
-    "build": "webpack --mode production",
-    "dev": "webpack --mode development",
-    "watch": "webpack --mode development --watch"
+    "build": "webpack --mode production --config webpack.prod.js",
+    "dev": "webpack --mode development --config webpack.dev.js",
+    "watch": "webpack --mode development --watch --config webpack.dev.js"
   },
   "dependencies": {
     "jquery": "^3.6.1",
